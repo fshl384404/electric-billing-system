@@ -26,8 +26,8 @@ spring:
     #
     # 请根据你的 Oracle 实例修改以下三个值:
     url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
-    username: electric_billing       # 数据库用户名（建议先创建专用用户）
-    password: electric_billing       # 数据库密码（生产环境需加密）
+    username: elec_billing           # 数据库用户名（建议先创建专用用户）
+    password: elec_billing           # 数据库密码（生产环境需加密）
 
     # ---- 连接驱动 ----
     # Oracle 11g ~ 19c 使用 oracle.jdbc.OracleDriver

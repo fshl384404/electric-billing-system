@@ -1,17 +1,17 @@
 -- ============================================================================
--- æ°‘ç”¨ç”µç¼´è´¹ç³»ç»Ÿ â€” è§¦å‘å™¨è„šæœ¬
--- å…¼å®¹ç‰ˆæœ¬: Oracle 11g
--- è¯´æ˜Ž: åŒ…å«ä¸¤éƒ¨åˆ†
---       ç¬¬ä¸€éƒ¨åˆ†: 11 ä¸ªä¸»é”®è‡ªå¢žè§¦å‘å™¨ï¼ˆé…åˆåºåˆ—æ¨¡æ‹Ÿ AUTO_INCREMENTï¼‰
---       ç¬¬äºŒéƒ¨åˆ†: 4 ä¸ªä¸šåŠ¡è§¦å‘å™¨ TR1~TR4
+-- ÃñÓÃµç½É·ÑÏµÍ³ ¡ª ´¥·¢Æ÷½Å±¾
+-- ¼æÈÝ°æ±¾: Oracle 11g
+-- ËµÃ÷: °üº¬Á½²¿·Ö
+--       µÚÒ»²¿·Ö: 11 ¸öÖ÷¼ü×ÔÔö´¥·¢Æ÷£¨ÅäºÏÐòÁÐÄ£Äâ AUTO_INCREMENT£©
+--       µÚ¶þ²¿·Ö: 4 ¸öÒµÎñ´¥·¢Æ÷ TR1~TR4
 --
--- æ‰§è¡Œé¡ºåº: ç¬¬ 3 æ­¥ï¼Œåœ¨å»ºè¡¨å’Œåºåˆ—ä¹‹åŽ
+-- Ö´ÐÐË³Ðò: µÚ 3 ²½£¬ÔÚ½¨±íºÍÐòÁÐÖ®ºó
 -- ============================================================================
 
 SET ECHO ON
 SET SERVEROUTPUT ON
 
--- æ¸…ç†æ—§è§¦å‘å™¨
+-- ÇåÀí¾É´¥·¢Æ÷
 BEGIN
   FOR t IN (SELECT trigger_name FROM user_triggers
             WHERE trigger_name LIKE 'TRG_%' OR trigger_name LIKE 'TR_')
@@ -21,22 +21,22 @@ BEGIN
 END;
 /
 
-PROMPT ========== æ—§è§¦å‘å™¨å·²æ¸…ç† ==========
+PROMPT ========== ¾É´¥·¢Æ÷ÒÑÇåÀí ==========
 
 -- ############################################################################
--- ç¬¬ä¸€éƒ¨åˆ†: ä¸»é”®è‡ªå¢žè§¦å‘å™¨
--- åŠŸèƒ½: åœ¨ INSERT å‰è‡ªåŠ¨ä»Žå¯¹åº”åºåˆ—å–å€¼èµ‹ç»™ä¸»é”®åˆ—
--- å‘½åè§„èŒƒ: trg_<è¡¨å>_bi  (BI = Before Insert)
+-- µÚÒ»²¿·Ö: Ö÷¼ü×ÔÔö´¥·¢Æ÷
+-- ¹¦ÄÜ: ÔÚ INSERT Ç°×Ô¶¯´Ó¶ÔÓ¦ÐòÁÐÈ¡Öµ¸³¸øÖ÷¼üÁÐ
+-- ÃüÃû¹æ·¶: trg_<±íÃû>_bi  (BI = Before Insert)
 -- ############################################################################
 
 -- ---------------------------------------------------------------------------
--- 1. ç”¨æˆ·è¡¨è‡ªå¢žè§¦å‘å™¨
+-- 1. ÓÃ»§±í×ÔÔö´¥·¢Æ÷
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_user_bi
 BEFORE INSERT ON sys_user
 FOR EACH ROW
 BEGIN
-    -- ä»…å½“åº”ç”¨ç¨‹åºæœªæ˜¾å¼æä¾› user_id æ—¶ï¼Œæ‰ä»Žåºåˆ—èŽ·å–
+    -- ½öµ±Ó¦ÓÃ³ÌÐòÎ´ÏÔÊ½Ìá¹© user_id Ê±£¬²Å´ÓÐòÁÐ»ñÈ¡
     IF :NEW.user_id IS NULL THEN
         SELECT seq_user_id.NEXTVAL INTO :NEW.user_id FROM DUAL;
     END IF;
@@ -44,7 +44,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 2. æˆ¿äº§è¡¨è‡ªå¢žè§¦å‘å™¨
+-- 2. ·¿²ú±í×ÔÔö´¥·¢Æ÷
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_house_bi
 BEFORE INSERT ON house
@@ -57,20 +57,20 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 3. ç”µè¡¨è¡¨è‡ªå¢žè§¦å‘å™¨
--- é¢å¤–åŠŸèƒ½: è‡ªåŠ¨å°† initial_reading åŒæ­¥åˆ° last_readingï¼ˆé¦–æ¬¡è¯»æ•°åŸºå‡†ï¼‰
+-- 3. µç±í±í×ÔÔö´¥·¢Æ÷
+-- ¶îÍâ¹¦ÄÜ: ×Ô¶¯½« initial_reading Í¬²½µ½ last_reading£¨Ê×´Î¶ÁÊý»ù×¼£©
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_meter_bi
 BEFORE INSERT ON meter
 FOR EACH ROW
 BEGIN
-    -- ä¸»é”®è‡ªå¢ž
+    -- Ö÷¼ü×ÔÔö
     IF :NEW.meter_id IS NULL THEN
         SELECT seq_meter_id.NEXTVAL INTO :NEW.meter_id FROM DUAL;
     END IF;
 
-    -- åˆå§‹åŒ– last_reading = initial_readingï¼Œç¡®ä¿ TR1 è®¡ç®—æ—¶æœ‰åŸºå‡†å€¼
-    IF :NEW.last_reading IS NULL THEN
+    -- ³õÊ¼»¯ last_reading = initial_reading£¬È·±£ TR1 ¼ÆËãÊ±ÓÐ»ù×¼Öµ
+    IF :NEW.last_reading IS NULL OR :NEW.last_reading = 0 THEN
         :NEW.last_reading := :NEW.initial_reading;
     END IF;
     IF :NEW.last_reading_date IS NULL THEN
@@ -80,7 +80,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 4. æŠ„è¡¨è®°å½•è¡¨è‡ªå¢žè§¦å‘å™¨ (TR1 åœ¨ä¸‹æ–¹çš„ä¸šåŠ¡è§¦å‘å™¨éƒ¨åˆ†)
+-- 4. ³­±í¼ÇÂ¼±í×ÔÔö´¥·¢Æ÷ (TR1 ÔÚÏÂ·½µÄÒµÎñ´¥·¢Æ÷²¿·Ö)
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_reading_bi
 BEFORE INSERT ON meter_reading
@@ -93,7 +93,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 5. ç”µä»·é…ç½®è¡¨è‡ªå¢žè§¦å‘å™¨
+-- 5. µç¼ÛÅäÖÃ±í×ÔÔö´¥·¢Æ÷
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_price_config_bi
 BEFORE INSERT ON price_config
@@ -106,7 +106,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 6. è´¦å•è¡¨è‡ªå¢žè§¦å‘å™¨ (TR4b åœ¨ä¸‹æ–¹çš„ä¸šåŠ¡è§¦å‘å™¨éƒ¨åˆ†)
+-- 6. ÕËµ¥±í×ÔÔö´¥·¢Æ÷ (TR4b ÔÚÏÂ·½µÄÒµÎñ´¥·¢Æ÷²¿·Ö)
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_bill_bi
 BEFORE INSERT ON bill
@@ -119,7 +119,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 7. ç¼´è´¹è®°å½•è¡¨è‡ªå¢žè§¦å‘å™¨ (TR3 åœ¨ä¸‹æ–¹çš„ä¸šåŠ¡è§¦å‘å™¨éƒ¨åˆ†)
+-- 7. ½É·Ñ¼ÇÂ¼±í×ÔÔö´¥·¢Æ÷ (TR3 ÔÚÏÂ·½µÄÒµÎñ´¥·¢Æ÷²¿·Ö)
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_payment_bi
 BEFORE INSERT ON payment
@@ -132,7 +132,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 8. é€šçŸ¥è¡¨è‡ªå¢žè§¦å‘å™¨
+-- 8. Í¨Öª±í×ÔÔö´¥·¢Æ÷
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_notif_bi
 BEFORE INSERT ON notification
@@ -145,7 +145,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 9. å‘Šè­¦è¡¨è‡ªå¢žè§¦å‘å™¨
+-- 9. ¸æ¾¯±í×ÔÔö´¥·¢Æ÷
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_alert_bi
 BEFORE INSERT ON alert
@@ -158,7 +158,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 10. å·¥å•è¡¨è‡ªå¢žè§¦å‘å™¨
+-- 10. ¹¤µ¥±í×ÔÔö´¥·¢Æ÷
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_ticket_bi
 BEFORE INSERT ON ticket
@@ -171,7 +171,7 @@ END;
 /
 
 -- ---------------------------------------------------------------------------
--- 11. å·¥å•å›žå¤è¡¨è‡ªå¢žè§¦å‘å™¨
+-- 11. ¹¤µ¥»Ø¸´±í×ÔÔö´¥·¢Æ÷
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE TRIGGER trg_reply_bi
 BEFORE INSERT ON ticket_reply
@@ -183,50 +183,50 @@ BEGIN
 END;
 /
 
-PROMPT ========== 11 ä¸ªè‡ªå¢žè§¦å‘å™¨åˆ›å»ºå®Œæ¯• ==========
+PROMPT ========== 11 ¸ö×ÔÔö´¥·¢Æ÷´´½¨Íê±Ï ==========
 
 
 -- ############################################################################
--- ç¬¬äºŒéƒ¨åˆ†: ä¸šåŠ¡è§¦å‘å™¨ (TR1 ~ TR4)
+-- µÚ¶þ²¿·Ö: ÒµÎñ´¥·¢Æ÷ (TR1 ~ TR4)
 -- ############################################################################
 
 -- ============================================================================
--- TR1: ç”¨ç”µé‡è‡ªåŠ¨è®¡ç®—è§¦å‘å™¨
--- è§¦å‘æ—¶æœº: BEFORE INSERT ON meter_readingï¼ˆåœ¨è‡ªå¢žè§¦å‘å™¨ trg_reading_bi ä¹‹åŽæ‰§è¡Œï¼‰
--- æ ¸å¿ƒé€»è¾‘:
---   1. ä»Ž meter è¡¨èŽ·å– last_readingï¼ˆä¸Šä¸€æ—¥ç´¯è®¡è¯»æ•°ï¼‰
---   2. è®¡ç®— :NEW.daily_usage = :NEW.reading_value - last_reading
---   3. è‹¥ daily_usage < 0ï¼Œåœ¨ remarks ä¸­æ ‡è®° 'REVERSAL_DETECTED'ï¼ˆå€’è½¬æ£€æµ‹ï¼‰
---   4. åŽç»­ç”± TR4a å°†å€’è½¬è®°å½•æ­£å¼å†™å…¥ alert è¡¨
+-- TR1: ÓÃµçÁ¿×Ô¶¯¼ÆËã´¥·¢Æ÷
+-- ´¥·¢Ê±»ú: BEFORE INSERT ON meter_reading£¨ÔÚ×ÔÔö´¥·¢Æ÷ trg_reading_bi Ö®ºóÖ´ÐÐ£©
+-- ºËÐÄÂß¼­:
+--   1. ´Ó meter ±í»ñÈ¡ last_reading£¨ÉÏÒ»ÈÕÀÛ¼Æ¶ÁÊý£©
+--   2. ¼ÆËã :NEW.daily_usage = :NEW.reading_value - last_reading
+--   3. Èô daily_usage < 0£¬ÔÚ remarks ÖÐ±ê¼Ç 'REVERSAL_DETECTED'£¨µ¹×ª¼ì²â£©
+--   4. ºóÐøÓÉ TR4a ½«µ¹×ª¼ÇÂ¼ÕýÊ½Ð´Èë alert ±í
 --
--- è®¾è®¡è¦ç‚¹:
---   - è¯»å– meter è¡¨ï¼ˆä¸åŒè¡¨ï¼‰ä¸ä¼šè§¦å‘ ORA-04091 å˜å¼‚è¡¨é”™è¯¯
---   - "FOLLOWS trg_reading_bi" ç¡®ä¿è‡ªå¢žè§¦å‘å™¨å…ˆæ‰§è¡Œï¼Œ:NEW.reading_id å·²èµ‹å€¼
+-- Éè¼ÆÒªµã:
+--   - ¶ÁÈ¡ meter ±í£¨²»Í¬±í£©²»»á´¥·¢ ORA-04091 ±äÒì±í´íÎó
+--   - "FOLLOWS trg_reading_bi" È·±£×ÔÔö´¥·¢Æ÷ÏÈÖ´ÐÐ£¬:NEW.reading_id ÒÑ¸³Öµ
 -- ============================================================================
 CREATE OR REPLACE TRIGGER tr1_calc_daily_usage
 BEFORE INSERT ON meter_reading
 FOR EACH ROW
 FOLLOWS trg_reading_bi
 DECLARE
-    v_last_reading      meter.last_reading%TYPE;       -- ç”µè¡¨æœ€è¿‘ä¸€æ¬¡è¯»æ•°
-    v_last_reading_date meter.last_reading_date%TYPE;  -- æœ€è¿‘ä¸€æ¬¡è¯»æ•°æ—¥æœŸ
+    v_last_reading      meter.last_reading%TYPE;       -- µç±í×î½üÒ»´Î¶ÁÊý
+    v_last_reading_date meter.last_reading_date%TYPE;  -- ×î½üÒ»´Î¶ÁÊýÈÕÆÚ
 BEGIN
-    -- æ­¥éª¤1: ä»Ž meter è¡¨èŽ·å–å½“å‰ç”µè¡¨çš„æœ€æ–°è¯»æ•°å¿«ç…§
-    --        meter.last_reading ç”±åŽç½®è§¦å‘å™¨ trg_meter_update_snapshot ç»´æŠ¤
+    -- ²½Öè1: ´Ó meter ±í»ñÈ¡µ±Ç°µç±íµÄ×îÐÂ¶ÁÊý¿ìÕÕ
+    --        meter.last_reading ÓÉºóÖÃ´¥·¢Æ÷ trg_meter_update_snapshot Î¬»¤
     SELECT last_reading, last_reading_date
     INTO   v_last_reading, v_last_reading_date
     FROM   meter
     WHERE  meter_id = :NEW.meter_id;
 
-    -- æ­¥éª¤2: è®¡ç®—å½“æ—¥ç”¨ç”µå¢žé‡
-    --        åœ¨æœ‰åŽ†å²è¯»æ•°çš„å‰æä¸‹:
-    --          daily_usage = æœ¬æ¬¡ç´¯è®¡è¯»æ•° - ä¸Šæ¬¡ç´¯è®¡è¯»æ•°
-    --        æ— åŽ†å²è¯»æ•°ï¼ˆç”µè¡¨åˆšå®‰è£…ï¼‰:
-    --          daily_usage = æœ¬æ¬¡è¯»æ•° - åˆå§‹è¯»æ•° (å› ä¸º last_reading = initial_reading)
+    -- ²½Öè2: ¼ÆËãµ±ÈÕÓÃµçÔöÁ¿
+    --        ÔÚÓÐÀúÊ·¶ÁÊýµÄÇ°ÌáÏÂ:
+    --          daily_usage = ±¾´ÎÀÛ¼Æ¶ÁÊý - ÉÏ´ÎÀÛ¼Æ¶ÁÊý
+    --        ÎÞÀúÊ·¶ÁÊý£¨µç±í¸Õ°²×°£©:
+    --          daily_usage = ±¾´Î¶ÁÊý - ³õÊ¼¶ÁÊý (ÒòÎª last_reading = initial_reading)
     :NEW.daily_usage := :NEW.reading_value - v_last_reading;
 
-    -- æ­¥éª¤3: å€’è½¬æ£€æµ‹ â€” å½“æ—¥ç”¨ç”µé‡ä¸ºè´Ÿï¼Œè¯´æ˜Žè¯»æ•°å¼‚å¸¸
-    --        åœ¨ remarks ä¸­ç•™ä¸‹æ ‡è®°ï¼Œç”± TR4b æ­£å¼åˆ›å»ºå‘Šè­¦è®°å½•
+    -- ²½Öè3: µ¹×ª¼ì²â ¡ª µ±ÈÕÓÃµçÁ¿Îª¸º£¬ËµÃ÷¶ÁÊýÒì³£
+    --        ÔÚ remarks ÖÐÁôÏÂ±ê¼Ç£¬ÓÉ TR4b ÕýÊ½´´½¨¸æ¾¯¼ÇÂ¼
     IF :NEW.daily_usage < 0 THEN
         :NEW.remarks := 'REVERSAL_DETECTED: reading dropped from '
                      || TO_CHAR(v_last_reading) || ' to ' || TO_CHAR(:NEW.reading_value);
@@ -234,7 +234,7 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        -- æžç«¯æƒ…å†µ: meter è¡¨ä¸­æ— å¯¹åº”è®°å½•(ä¸åº”å‘ç”Ÿï¼Œå¤–é”®çº¦æŸä¼šå…ˆæŠ¥é”™)
+        -- ¼«¶ËÇé¿ö: meter ±íÖÐÎÞ¶ÔÓ¦¼ÇÂ¼(²»Ó¦·¢Éú£¬Íâ¼üÔ¼Êø»áÏÈ±¨´í)
         :NEW.daily_usage := 0;
         :NEW.remarks := 'ERROR: meter not found';
     WHEN OTHERS THEN
@@ -244,16 +244,16 @@ END tr1_calc_daily_usage;
 /
 
 -- ============================================================================
--- é…å¥—è§¦å‘å™¨: ç”µè¡¨è¯»æ•°å¿«ç…§æ›´æ–°
--- è§¦å‘æ—¶æœº: AFTER INSERT ON meter_reading
--- åŠŸèƒ½: æ¯æ¬¡æ’å…¥æŠ„è¡¨è®°å½•åŽï¼Œå°†æœ€æ–°è¯»æ•°åŒæ­¥å›ž meter è¡¨çš„å¿«ç…§å­—æ®µ
---       è¿™æ · TR1 ä¸‹æ¬¡è§¦å‘æ—¶å¯ä»¥ç›´æŽ¥ä»Ž meter.last_reading èŽ·å–åŸºå‡†å€¼
+-- ÅäÌ×´¥·¢Æ÷: µç±í¶ÁÊý¿ìÕÕ¸üÐÂ
+-- ´¥·¢Ê±»ú: AFTER INSERT ON meter_reading
+-- ¹¦ÄÜ: Ã¿´Î²åÈë³­±í¼ÇÂ¼ºó£¬½«×îÐÂ¶ÁÊýÍ¬²½»Ø meter ±íµÄ¿ìÕÕ×Ö¶Î
+--       ÕâÑù TR1 ÏÂ´Î´¥·¢Ê±¿ÉÒÔÖ±½Ó´Ó meter.last_reading »ñÈ¡»ù×¼Öµ
 -- ============================================================================
 CREATE OR REPLACE TRIGGER trg_meter_update_snapshot
 AFTER INSERT ON meter_reading
 FOR EACH ROW
 BEGIN
-    -- å°†æœ¬æ¬¡æŠ„è¡¨çš„è¯»æ•°å†™å›ž meter è¡¨ï¼Œä½œä¸ºä¸‹æ¬¡è®¡ç®—çš„åŸºå‡†
+    -- ½«±¾´Î³­±íµÄ¶ÁÊýÐ´»Ø meter ±í£¬×÷ÎªÏÂ´Î¼ÆËãµÄ»ù×¼
     UPDATE meter
     SET last_reading      = :NEW.reading_value,
         last_reading_date = :NEW.reading_date
@@ -262,31 +262,31 @@ END;
 /
 
 -- ============================================================================
--- TR2: æ¬ è´¹é€šçŸ¥è‡ªåŠ¨ç”Ÿæˆè§¦å‘å™¨
--- è§¦å‘æ—¶æœº: AFTER UPDATE ON billï¼ˆå½“ status å­—æ®µæ›´æ–°ä¸º 'OVERDUE' æ—¶ï¼‰
--- æ ¸å¿ƒé€»è¾‘:
---   1. æ£€æµ‹ :NEW.status = 'OVERDUE' ä¸” :OLD.status <> 'OVERDUE'
---      ï¼ˆåªæœ‰"åˆšå˜æˆ"OVERDUE æ—¶æ‰è§¦å‘ï¼Œé¿å…é‡å¤é€šçŸ¥ï¼‰
---   2. æŸ¥è¯¢è¯¥ç”µè¡¨å¯¹åº”çš„ä¸šä¸»ï¼ˆé€šè¿‡ meter â†’ house â†’ sys_user é“¾è·¯ï¼‰
---   3. å‘ notification è¡¨æ’å…¥ä¸€æ¡æ¬ è´¹æé†’
+-- TR2: Ç··ÑÍ¨Öª×Ô¶¯Éú³É´¥·¢Æ÷
+-- ´¥·¢Ê±»ú: AFTER UPDATE ON bill£¨µ± status ×Ö¶Î¸üÐÂÎª 'OVERDUE' Ê±£©
+-- ºËÐÄÂß¼­:
+--   1. ¼ì²â :NEW.status = 'OVERDUE' ÇÒ :OLD.status <> 'OVERDUE'
+--      £¨Ö»ÓÐ"¸Õ±ä³É"OVERDUE Ê±²Å´¥·¢£¬±ÜÃâÖØ¸´Í¨Öª£©
+--   2. ²éÑ¯¸Ãµç±í¶ÔÓ¦µÄÒµÖ÷£¨Í¨¹ý meter ¡ú house ¡ú sys_user Á´Â·£©
+--   3. Ïò notification ±í²åÈëÒ»ÌõÇ··ÑÌáÐÑ
 --
--- å®žé™…è§¦å‘è·¯å¾„:
---   - ç”± SP2ï¼ˆæ¯æ—¥æ»žçº³é‡‘è®¡ç®—ï¼‰åœ¨æ›´æ–° bill.status ä¸º 'OVERDUE' æ—¶è§¦å‘
---   - æˆ–åº”ç”¨ç¨‹åºç›´æŽ¥å°†è´¦å•æ ‡è®°ä¸ºé€¾æœŸæ—¶è§¦å‘
+-- Êµ¼Ê´¥·¢Â·¾¶:
+--   - ÓÉ SP2£¨Ã¿ÈÕÖÍÄÉ½ð¼ÆËã£©ÔÚ¸üÐÂ bill.status Îª 'OVERDUE' Ê±´¥·¢
+--   - »òÓ¦ÓÃ³ÌÐòÖ±½Ó½«ÕËµ¥±ê¼ÇÎªÓâÆÚÊ±´¥·¢
 -- ============================================================================
 CREATE OR REPLACE TRIGGER tr2_arrears_notify
 AFTER UPDATE ON bill
 FOR EACH ROW
 DECLARE
-    v_user_id   sys_user.user_id%TYPE;      -- ä¸šä¸»ID
-    v_address   house.address%TYPE;         -- æˆ¿å±‹åœ°å€ï¼ˆç”¨äºŽé€šçŸ¥å†…å®¹ï¼‰
-    v_notif_id  notification.notif_id%TYPE; -- æ£€æŸ¥æ˜¯å¦å·²æœ‰åŒç±»é€šçŸ¥
+    v_user_id   sys_user.user_id%TYPE;      -- ÒµÖ÷ID
+    v_address   house.address%TYPE;         -- ·¿ÎÝµØÖ·£¨ÓÃÓÚÍ¨ÖªÄÚÈÝ£©
+    v_notif_id  notification.notif_id%TYPE; -- ¼ì²éÊÇ·ñÒÑÓÐÍ¬ÀàÍ¨Öª
 BEGIN
-    -- æ­¥éª¤1: æ£€æŸ¥è§¦å‘æ¡ä»¶ â€” ä»…å½“çŠ¶æ€ä»ŽéžOVERDUEå˜ä¸ºOVERDUEæ—¶è§¦å‘
+    -- ²½Öè1: ¼ì²é´¥·¢Ìõ¼þ ¡ª ½öµ±×´Ì¬´Ó·ÇOVERDUE±äÎªOVERDUEÊ±´¥·¢
     IF :NEW.status = 'OVERDUE' AND NVL(:OLD.status, 'PENDING') <> 'OVERDUE' THEN
 
-        -- æ­¥éª¤2: é€šè¿‡ä¸‰è¡¨è”æŸ¥èŽ·å–ä¸šä¸»ä¿¡æ¯
-        --        meter â†’ house â†’ sys_user
+        -- ²½Öè2: Í¨¹ýÈý±íÁª²é»ñÈ¡ÒµÖ÷ÐÅÏ¢
+        --        meter ¡ú house ¡ú sys_user
         SELECT u.user_id, h.address
         INTO   v_user_id, v_address
         FROM   meter m
@@ -294,27 +294,27 @@ BEGIN
         JOIN   sys_user u ON h.user_id = u.user_id
         WHERE  m.meter_id = :NEW.meter_id;
 
-        -- æ­¥éª¤3: æ£€æŸ¥æ˜¯å¦å·²å­˜åœ¨åŒä¸€è´¦å•çš„æ¬ è´¹é€šçŸ¥ï¼ˆåŽ»é‡ï¼‰
+        -- ²½Öè3: ¼ì²éÊÇ·ñÒÑ´æÔÚÍ¬Ò»ÕËµ¥µÄÇ··ÑÍ¨Öª£¨È¥ÖØ£©
         SELECT COUNT(*) INTO v_notif_id
         FROM   notification
         WHERE  user_id    = v_user_id
           AND  type       = 'ARREARS'
           AND  related_id = :NEW.bill_id;
 
-        -- æ­¥éª¤4: è‹¥æ— é‡å¤ï¼Œæ’å…¥æ¬ è´¹é€šçŸ¥
+        -- ²½Öè4: ÈôÎÞÖØ¸´£¬²åÈëÇ··ÑÍ¨Öª
         IF v_notif_id = 0 THEN
             INSERT INTO notification (
                 user_id, type, title, content, related_id, is_read, created_at
             ) VALUES (
                 v_user_id,
                 'ARREARS',
-                'ç”µè´¹æ¬ è´¹æé†’',
-                'æ‚¨ä½äºŽ ' || v_address || ' çš„æˆ¿äº§ï¼ˆç”µè¡¨å·ï¼š'
-                || :NEW.meter_id || 'ï¼‰' || :NEW.bill_month
-                || ' æœˆç”µè´¹è´¦å•å·²é€¾æœŸã€‚åº”ç¼´é‡‘é¢ï¼š'
-                || TO_CHAR(:NEW.total_amount, 'FM999990.00') || 'å…ƒï¼Œ'
-                || 'æ»žçº³é‡‘ï¼š' || TO_CHAR(:NEW.late_fee, 'FM999990.00') || 'å…ƒã€‚'
-                || 'è¯·å°½å¿«ç¼´è´¹ï¼Œä»¥å…å½±å“ç”¨ç”µã€‚',
+                'µç·ÑÇ··ÑÌáÐÑ',
+                'ÄúÎ»ÓÚ ' || v_address || ' µÄ·¿²ú£¨µç±íºÅ£º'
+                || :NEW.meter_id || '£©' || :NEW.bill_month
+                || ' ÔÂµç·ÑÕËµ¥ÒÑÓâÆÚ¡£Ó¦½É½ð¶î£º'
+                || TO_CHAR(:NEW.total_amount, 'FM999990.00') || 'Ôª£¬'
+                || 'ÖÍÄÉ½ð£º' || TO_CHAR(:NEW.late_fee, 'FM999990.00') || 'Ôª¡£'
+                || 'Çë¾¡¿ì½É·Ñ£¬ÒÔÃâÓ°ÏìÓÃµç¡£',
                 :NEW.bill_id,
                 'N',
                 SYSDATE
@@ -324,24 +324,24 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        -- æ‰¾ä¸åˆ°ä¸šä¸»ä¿¡æ¯ï¼ˆæ•°æ®å®Œæ•´æ€§å¼‚å¸¸ï¼‰
-        DBMS_OUTPUT.PUT_LINE('TR2: æ— æ³•ä¸ºè´¦å• ' || :NEW.bill_id || ' æ‰¾åˆ°ä¸šä¸»ä¿¡æ¯');
+        -- ÕÒ²»µ½ÒµÖ÷ÐÅÏ¢£¨Êý¾ÝÍêÕûÐÔÒì³££©
+        DBMS_OUTPUT.PUT_LINE('TR2: ÎÞ·¨ÎªÕËµ¥ ' || :NEW.bill_id || ' ÕÒµ½ÒµÖ÷ÐÅÏ¢');
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('TR2 å¼‚å¸¸: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('TR2 Òì³£: ' || SQLERRM);
 END tr2_arrears_notify;
 /
 
 -- ============================================================================
--- TR3: ç¼´è´¹åŽè‡ªåŠ¨æ›´æ–°è´¦å•çŠ¶æ€è§¦å‘å™¨
--- è§¦å‘æ—¶æœº: AFTER INSERT ON payment
--- æ ¸å¿ƒé€»è¾‘:
---   1. æ ¹æ® :NEW.bill_id æ‰¾åˆ°å¯¹åº”è´¦å•
---   2. æ›´æ–°è´¦å•çŠ¶æ€ä¸º 'PAID'ï¼Œè®°å½•ç¼´è´¹æ—¥æœŸ
---   3. å‘ä¸šä¸»å‘é€ç¼´è´¹ç¡®è®¤é€šçŸ¥
+-- TR3: ½É·Ñºó×Ô¶¯¸üÐÂÕËµ¥×´Ì¬´¥·¢Æ÷
+-- ´¥·¢Ê±»ú: AFTER INSERT ON payment
+-- ºËÐÄÂß¼­:
+--   1. ¸ù¾Ý :NEW.bill_id ÕÒµ½¶ÔÓ¦ÕËµ¥
+--   2. ¸üÐÂÕËµ¥×´Ì¬Îª 'PAID'£¬¼ÇÂ¼½É·ÑÈÕÆÚ
+--   3. ÏòÒµÖ÷·¢ËÍ½É·ÑÈ·ÈÏÍ¨Öª
 --
--- äº‹åŠ¡æŽ§åˆ¶è¯´æ˜Ž:
---   æ­¤è§¦å‘å™¨ä¸Ž INSERT payment å±žäºŽåŒä¸€äº‹åŠ¡ã€‚
---   è‹¥æ›´æ–° bill æˆ–æ’å…¥ notification å¤±è´¥ï¼Œæ•´ä¸ªæ’å…¥å›žæ»šã€‚
+-- ÊÂÎñ¿ØÖÆËµÃ÷:
+--   ´Ë´¥·¢Æ÷Óë INSERT payment ÊôÓÚÍ¬Ò»ÊÂÎñ¡£
+--   Èô¸üÐÂ bill »ò²åÈë notification Ê§°Ü£¬Õû¸ö²åÈë»Ø¹ö¡£
 -- ============================================================================
 CREATE OR REPLACE TRIGGER tr3_payment_update_bill
 AFTER INSERT ON payment
@@ -351,33 +351,33 @@ DECLARE
     v_bill_month bill.bill_month%TYPE;
     v_amount     bill.total_amount%TYPE;
 BEGIN
-    -- æ­¥éª¤1: æ›´æ–°å¯¹åº”è´¦å•ä¸ºå·²ç¼´è´¹çŠ¶æ€
-    --        åŒæ—¶è®°å½•å®žé™…ç¼´è´¹æ—¥æœŸ
+    -- ²½Öè1: ¸üÐÂ¶ÔÓ¦ÕËµ¥ÎªÒÑ½É·Ñ×´Ì¬
+    --        Í¬Ê±¼ÇÂ¼Êµ¼Ê½É·ÑÈÕÆÚ
     UPDATE bill
     SET status       = 'PAID',
         payment_date = :NEW.payment_time
     WHERE bill_id    = :NEW.bill_id;
 
-    -- æ­¥éª¤2: èŽ·å–è´¦å•ä¿¡æ¯ç”¨äºŽé€šçŸ¥å†…å®¹
+    -- ²½Öè2: »ñÈ¡ÕËµ¥ÐÅÏ¢ÓÃÓÚÍ¨ÖªÄÚÈÝ
     SELECT b.bill_month, b.total_amount
     INTO   v_bill_month, v_amount
     FROM   bill b
     WHERE  b.bill_id = :NEW.bill_id;
 
-    -- æ­¥éª¤3: å‘ç¼´è´¹äººå‘é€ç¼´è´¹æˆåŠŸé€šçŸ¥
+    -- ²½Öè3: Ïò½É·ÑÈË·¢ËÍ½É·Ñ³É¹¦Í¨Öª
     INSERT INTO notification (
         user_id, type, title, content, related_id, is_read, created_at
     ) VALUES (
         :NEW.payer_id,
         'PAYMENT_CONFIRM',
-        'ç¼´è´¹æˆåŠŸé€šçŸ¥',
-        'æ‚¨å·²æˆåŠŸç¼´çº³ ' || v_bill_month || ' æœˆç”µè´¹ '
-        || TO_CHAR(v_amount, 'FM999990.00') || 'å…ƒã€‚'
+        '½É·Ñ³É¹¦Í¨Öª',
+        'ÄúÒÑ³É¹¦½ÉÄÉ ' || v_bill_month || ' ÔÂµç·Ñ '
+        || TO_CHAR(v_amount, 'FM999990.00') || 'Ôª¡£'
         || CASE WHEN :NEW.late_fee_paid > 0
-               THEN 'ï¼ˆå«æ»žçº³é‡‘ ' || TO_CHAR(:NEW.late_fee_paid, 'FM999990.00') || 'å…ƒï¼‰'
+               THEN '£¨º¬ÖÍÄÉ½ð ' || TO_CHAR(:NEW.late_fee_paid, 'FM999990.00') || 'Ôª£©'
                ELSE ''
           END
-        || 'æ„Ÿè°¢æ‚¨çš„ä½¿ç”¨ï¼',
+        || '¸ÐÐ»ÄúµÄÊ¹ÓÃ£¡',
         :NEW.bill_id,
         'N',
         SYSDATE
@@ -385,28 +385,28 @@ BEGIN
 
 EXCEPTION
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('TR3 å¼‚å¸¸: ' || SQLERRM);
-        RAISE;  -- æŠ›å‡ºå¼‚å¸¸ï¼Œä½¿æ•´ä¸ª INSERT payment å›žæ»š
+        DBMS_OUTPUT.PUT_LINE('TR3 Òì³£: ' || SQLERRM);
+        RAISE;  -- Å×³öÒì³££¬Ê¹Õû¸ö INSERT payment »Ø¹ö
 END tr3_payment_update_bill;
 /
 
 -- ============================================================================
--- TR4: å¼‚å¸¸æ£€æµ‹è§¦å‘å™¨
--- åˆ†ä¸ºä¸¤ä¸ªç‹¬ç«‹è§¦å‘å™¨:
---   TR4a: æ’å…¥æŠ„è¡¨è®°å½•åŽæ£€æµ‹"è¯»æ•°å€’è½¬"ï¼ˆè¡Œçº§è§¦å‘å™¨ï¼Œæ’å…¥ alertï¼‰
---   TR4b: æ’å…¥è´¦å•åŽæ£€æµ‹"ç”¨ç”µé£™å‡/éª¤é™"ï¼ˆå¤åˆè§¦å‘å™¨ï¼Œé¿å…å˜å¼‚è¡¨é—®é¢˜ï¼‰
+-- TR4: Òì³£¼ì²â´¥·¢Æ÷
+-- ·ÖÎªÁ½¸ö¶ÀÁ¢´¥·¢Æ÷:
+--   TR4a: ²åÈë³­±í¼ÇÂ¼ºó¼ì²â"¶ÁÊýµ¹×ª"£¨ÐÐ¼¶´¥·¢Æ÷£¬²åÈë alert£©
+--   TR4b: ²åÈëÕËµ¥ºó¼ì²â"ÓÃµçì­Éý/Öè½µ"£¨¸´ºÏ´¥·¢Æ÷£¬±ÜÃâ±äÒì±íÎÊÌâ£©
 -- ============================================================================
 
 -- ---------------------------------------------------------------------------
--- TR4a: æŠ„è¡¨æ•°æ®å€’è½¬æ£€æµ‹
--- è§¦å‘æ—¶æœº: AFTER INSERT ON meter_reading
--- æ ¸å¿ƒé€»è¾‘:
---   - æ£€æŸ¥ remarks å­—æ®µæ˜¯å¦åŒ…å« 'REVERSAL_DETECTED'ï¼ˆç”± TR1 æ ‡è®°ï¼‰
---   - å¦‚æ˜¯ï¼Œåˆ™å‘ alert è¡¨æ’å…¥ä¸€æ¡ REVERSAL ç±»åž‹å‘Šè­¦
---   - åŒæ—¶å‘è¯¥ç”µè¡¨çš„ä¸šä¸»å‘é€å‘Šè­¦é€šçŸ¥
+-- TR4a: ³­±íÊý¾Ýµ¹×ª¼ì²â
+-- ´¥·¢Ê±»ú: AFTER INSERT ON meter_reading
+-- ºËÐÄÂß¼­:
+--   - ¼ì²é remarks ×Ö¶ÎÊÇ·ñ°üº¬ 'REVERSAL_DETECTED'£¨ÓÉ TR1 ±ê¼Ç£©
+--   - ÈçÊÇ£¬ÔòÏò alert ±í²åÈëÒ»Ìõ REVERSAL ÀàÐÍ¸æ¾¯
+--   - Í¬Ê±Ïò¸Ãµç±íµÄÒµÖ÷·¢ËÍ¸æ¾¯Í¨Öª
 --
--- æ³¨æ„: æ­¤è§¦å‘å™¨ä¸Ž trg_meter_update_snapshot åŒæ˜¯ AFTER INSERT on meter_readingï¼Œ
---       ä½¿ç”¨ FOLLOWS å­å¥ç¡®ä¿å…ˆæ›´æ–°å¿«ç…§å†æ£€æµ‹å¼‚å¸¸ï¼ˆä¸ä¾èµ–é¡ºåºï¼Œä½†æ›´æ¸…æ™°ï¼‰
+-- ×¢Òâ: ´Ë´¥·¢Æ÷Óë trg_meter_update_snapshot Í¬ÊÇ AFTER INSERT on meter_reading£¬
+--       Ê¹ÓÃ FOLLOWS ×Ó¾äÈ·±£ÏÈ¸üÐÂ¿ìÕÕÔÙ¼ì²âÒì³££¨²»ÒÀÀµË³Ðò£¬µ«¸üÇåÎú£©
 -- ============================================================================
 CREATE OR REPLACE TRIGGER tr4a_reversal_detect
 AFTER INSERT ON meter_reading
@@ -415,27 +415,27 @@ DECLARE
     v_user_id   sys_user.user_id%TYPE;
     v_alert_id  NUMBER;
 BEGIN
-    -- æ­¥éª¤1: æ£€æŸ¥ TR1 æ˜¯å¦åœ¨ remarks ä¸­æ ‡è®°äº†å€’è½¬
+    -- ²½Öè1: ¼ì²é TR1 ÊÇ·ñÔÚ remarks ÖÐ±ê¼ÇÁËµ¹×ª
     IF :NEW.remarks LIKE '%REVERSAL_DETECTED%' THEN
 
-        -- æ­¥éª¤2: æŸ¥æ‰¾ä¸šä¸»
+        -- ²½Öè2: ²éÕÒÒµÖ÷
         SELECT u.user_id INTO v_user_id
         FROM   meter m
         JOIN   house h ON m.house_id = h.house_id
         JOIN   sys_user u ON h.user_id = u.user_id
         WHERE  m.meter_id = :NEW.meter_id;
 
-        -- æ­¥éª¤3: åˆ›å»ºå¼‚å¸¸å‘Šè­¦
+        -- ²½Öè3: ´´½¨Òì³£¸æ¾¯
         INSERT INTO alert (
-            alert_id, meter_id, bill_id, type, level,
+            alert_id, meter_id, bill_id, type, alert_level,
             description, status, handler_id, handled_at, created_at
         ) VALUES (
             seq_alert_id.NEXTVAL,
             :NEW.meter_id,
-            NULL,                -- å€’è½¬ä¸å…³è”ç‰¹å®šè´¦å•
+            NULL,                -- µ¹×ª²»¹ØÁªÌØ¶¨ÕËµ¥
             'REVERSAL',
-            'CRITICAL',          -- å€’è½¬æ˜¯ä¸¥é‡å¼‚å¸¸
-            :NEW.remarks,        -- ä½¿ç”¨ TR1 å†™å…¥çš„è¯¦ç»†ä¿¡æ¯
+            'CRITICAL',          -- µ¹×ªÊÇÑÏÖØÒì³£
+            :NEW.remarks,        -- Ê¹ÓÃ TR1 Ð´ÈëµÄÏêÏ¸ÐÅÏ¢
             'PENDING',
             NULL,
             NULL,
@@ -443,16 +443,16 @@ BEGIN
         )
         RETURNING alert_id INTO v_alert_id;
 
-        -- æ­¥éª¤4: é€šçŸ¥ä¸šä¸»
+        -- ²½Öè4: Í¨ÖªÒµÖ÷
         INSERT INTO notification (
             user_id, type, title, content, related_id, is_read, created_at
         ) VALUES (
             v_user_id,
             'ANOMALY',
-            'ç”µè¡¨è¯»æ•°å¼‚å¸¸å‘Šè­¦',
-            'æ‚¨çš„ç”µè¡¨ï¼ˆID: ' || :NEW.meter_id || 'ï¼‰åœ¨ '
+            'µç±í¶ÁÊýÒì³£¸æ¾¯',
+            'ÄúµÄµç±í£¨ID: ' || :NEW.meter_id || '£©ÔÚ '
             || TO_CHAR(:NEW.reading_date, 'YYYY-MM-DD')
-            || ' æ£€æµ‹åˆ°è¯»æ•°å€’è½¬å¼‚å¸¸ï¼Œè¯·è”ç³»ä¾›ç”µå…¬å¸æ ¸æŸ¥ã€‚',
+            || ' ¼ì²âµ½¶ÁÊýµ¹×ªÒì³££¬ÇëÁªÏµ¹©µç¹«Ë¾ºË²é¡£',
             v_alert_id,
             'N',
             SYSDATE
@@ -461,44 +461,44 @@ BEGIN
 
 EXCEPTION
     WHEN NO_DATA_FOUND THEN
-        DBMS_OUTPUT.PUT_LINE('TR4a: æ‰¾ä¸åˆ°ç”µè¡¨ ' || :NEW.meter_id || ' çš„ä¸šä¸»');
+        DBMS_OUTPUT.PUT_LINE('TR4a: ÕÒ²»µ½µç±í ' || :NEW.meter_id || ' µÄÒµÖ÷');
     WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('TR4a å¼‚å¸¸: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('TR4a Òì³£: ' || SQLERRM);
 END tr4a_reversal_detect;
 /
 
 -- ---------------------------------------------------------------------------
--- TR4b: ç”¨ç”µé‡é£™å‡/éª¤é™æ£€æµ‹ï¼ˆå¤åˆè§¦å‘å™¨ï¼‰
--- è§¦å‘æ—¶æœº: AFTER INSERT ON bill
--- ä¸ºä»€ä¹ˆç”¨å¤åˆè§¦å‘å™¨:
---   éœ€è¦åœ¨ AFTER STATEMENT é˜¶æ®µæŸ¥è¯¢ bill è¡¨è®¡ç®—åŽ†å²æœˆå‡å€¼ï¼Œ
---   è¡Œçº§è§¦å‘å™¨ä¸­æŸ¥è¯¢ bill è¡¨ä¼šå¯¼è‡´ ORA-04091 å˜å¼‚è¡¨é”™è¯¯ã€‚
---   Oracle 11g çš„å¤åˆè§¦å‘å™¨ (COMPOUND TRIGGER) å¯ä»¥å®Œç¾Žè§£å†³æ­¤é—®é¢˜ã€‚
+-- TR4b: ÓÃµçÁ¿ì­Éý/Öè½µ¼ì²â£¨¸´ºÏ´¥·¢Æ÷£©
+-- ´¥·¢Ê±»ú: AFTER INSERT ON bill
+-- ÎªÊ²Ã´ÓÃ¸´ºÏ´¥·¢Æ÷:
+--   ÐèÒªÔÚ AFTER STATEMENT ½×¶Î²éÑ¯ bill ±í¼ÆËãÀúÊ·ÔÂ¾ùÖµ£¬
+--   ÐÐ¼¶´¥·¢Æ÷ÖÐ²éÑ¯ bill ±í»áµ¼ÖÂ ORA-04091 ±äÒì±í´íÎó¡£
+--   Oracle 11g µÄ¸´ºÏ´¥·¢Æ÷ (COMPOUND TRIGGER) ¿ÉÒÔÍêÃÀ½â¾ö´ËÎÊÌâ¡£
 --
--- å¤åˆè§¦å‘å™¨ç»“æž„:
---   BEFORE STATEMENT  â€” æ•´ä¸ªè¯­å¥æ‰§è¡Œå‰ï¼ˆåˆå§‹åŒ–ï¼‰
---   BEFORE EACH ROW    â€” æ¯è¡Œæ’å…¥å‰
---   AFTER EACH ROW     â€” æ¯è¡Œæ’å…¥åŽã€æ”¶é›†æ•°æ®ã€‘
---   AFTER STATEMENT    â€” æ•´ä¸ªè¯­å¥æ‰§è¡ŒåŽã€å¤„ç†æ•°æ®ï¼Œå¯å®‰å…¨æŸ¥è¯¢ bill è¡¨ã€‘
+-- ¸´ºÏ´¥·¢Æ÷½á¹¹:
+--   BEFORE STATEMENT  ¡ª Õû¸öÓï¾äÖ´ÐÐÇ°£¨³õÊ¼»¯£©
+--   BEFORE EACH ROW    ¡ª Ã¿ÐÐ²åÈëÇ°
+--   AFTER EACH ROW     ¡ª Ã¿ÐÐ²åÈëºó¡¾ÊÕ¼¯Êý¾Ý¡¿
+--   AFTER STATEMENT    ¡ª Õû¸öÓï¾äÖ´ÐÐºó¡¾´¦ÀíÊý¾Ý£¬¿É°²È«²éÑ¯ bill ±í¡¿
 --
--- æ ¸å¿ƒé€»è¾‘:
---   1. AFTER EACH ROW: æ”¶é›†æ‰€æœ‰æ–°æ’å…¥è´¦å•çš„ (bill_id, meter_id, total_usage, bill_month)
---   2. AFTER STATEMENT: éåŽ†æ”¶é›†åˆ°çš„è´¦å•
---      a) æŸ¥è¯¢è¯¥ meter æœ€è¿‘ 6 ä¸ªæœˆçš„å¹³å‡ç”¨ç”µé‡
---      b) å¯¹æ¯”æœ¬æœˆç”¨é‡:
---         - total_usage > avg * 2  â†’ SURGE (é£™å‡)
---         - total_usage < avg * 0.5 â†’ PLUNGE (éª¤é™)
---      c) æ’å…¥ alert å’Œ notification
+-- ºËÐÄÂß¼­:
+--   1. AFTER EACH ROW: ÊÕ¼¯ËùÓÐÐÂ²åÈëÕËµ¥µÄ (bill_id, meter_id, total_usage, bill_month)
+--   2. AFTER STATEMENT: ±éÀúÊÕ¼¯µ½µÄÕËµ¥
+--      a) ²éÑ¯¸Ã meter ×î½ü 6 ¸öÔÂµÄÆ½¾ùÓÃµçÁ¿
+--      b) ¶Ô±È±¾ÔÂÓÃÁ¿:
+--         - total_usage > avg * 2  ¡ú SURGE (ì­Éý)
+--         - total_usage < avg * 0.5 ¡ú PLUNGE (Öè½µ)
+--      c) ²åÈë alert ºÍ notification
 -- ============================================================================
 CREATE OR REPLACE TRIGGER tr4b_surge_plunge_detect
 FOR INSERT ON bill
 COMPOUND TRIGGER
 
     -- =========================================================================
-    -- å£°æ˜Žéƒ¨åˆ†: å®šä¹‰æ•°æ®ç»“æž„ç”¨äºŽè·¨é˜¶æ®µå…±äº«æ•°æ®
+    -- ÉùÃ÷²¿·Ö: ¶¨ÒåÊý¾Ý½á¹¹ÓÃÓÚ¿ç½×¶Î¹²ÏíÊý¾Ý
     -- =========================================================================
 
-    -- å®šä¹‰å•æ¡è´¦å•è®°å½•ç±»åž‹
+    -- ¶¨Òåµ¥ÌõÕËµ¥¼ÇÂ¼ÀàÐÍ
     TYPE bill_rec IS RECORD (
         bill_id    bill.bill_id%TYPE,
         meter_id   bill.meter_id%TYPE,
@@ -506,30 +506,30 @@ COMPOUND TRIGGER
         bill_month bill.bill_month%TYPE
     );
 
-    -- å®šä¹‰è´¦å•è®°å½•é›†åˆï¼ˆå˜é•¿æ•°ç»„ï¼‰
+    -- ¶¨ÒåÕËµ¥¼ÇÂ¼¼¯ºÏ£¨±ä³¤Êý×é£©
     TYPE bill_tab IS TABLE OF bill_rec INDEX BY PLS_INTEGER;
 
-    -- ç”¨äºŽåœ¨è¡Œçº§å’Œè¯­å¥çº§ä¹‹é—´ä¼ é€’æ•°æ®çš„å…¨å±€å˜é‡
-    v_bills    bill_tab;  -- æ”¶é›†åˆ°çš„è´¦å•åˆ—è¡¨
-    v_count    PLS_INTEGER := 0;  -- è®¡æ•°å™¨
+    -- ÓÃÓÚÔÚÐÐ¼¶ºÍÓï¾ä¼¶Ö®¼ä´«µÝÊý¾ÝµÄÈ«¾Ö±äÁ¿
+    v_bills    bill_tab;  -- ÊÕ¼¯µ½µÄÕËµ¥ÁÐ±í
+    v_count    PLS_INTEGER := 0;  -- ¼ÆÊýÆ÷
 
     -- =========================================================================
-    -- BEFORE STATEMENT: è¯­å¥çº§å‰ç½®ï¼ˆåˆå§‹åŒ–é›†åˆï¼‰
+    -- BEFORE STATEMENT: Óï¾ä¼¶Ç°ÖÃ£¨³õÊ¼»¯¼¯ºÏ£©
     -- =========================================================================
     BEFORE STATEMENT IS
     BEGIN
         v_count := 0;
-        -- æ¸…ç©ºé›†åˆï¼ˆOracle å¤åˆè§¦å‘å™¨ä¸­æ— éœ€æ˜¾å¼æ¸…ç©ºï¼Œä½†è‰¯å¥½çš„ç¼–ç¨‹ä¹ æƒ¯ï¼‰
+        -- Çå¿Õ¼¯ºÏ£¨Oracle ¸´ºÏ´¥·¢Æ÷ÖÐÎÞÐèÏÔÊ½Çå¿Õ£¬µ«Á¼ºÃµÄ±à³ÌÏ°¹ß£©
         v_bills.DELETE;
     END BEFORE STATEMENT;
 
     -- =========================================================================
-    -- AFTER EACH ROW: è¡Œçº§åŽç½®ï¼ˆæ”¶é›†æ¯è¡Œæ•°æ®ï¼‰
+    -- AFTER EACH ROW: ÐÐ¼¶ºóÖÃ£¨ÊÕ¼¯Ã¿ÐÐÊý¾Ý£©
     -- =========================================================================
     AFTER EACH ROW IS
     BEGIN
         v_count := v_count + 1;
-        -- å°†æ–°æ’å…¥çš„è´¦å•ä¿¡æ¯å­˜å…¥é›†åˆ
+        -- ½«ÐÂ²åÈëµÄÕËµ¥ÐÅÏ¢´æÈë¼¯ºÏ
         v_bills(v_count).bill_id    := :NEW.bill_id;
         v_bills(v_count).meter_id   := :NEW.meter_id;
         v_bills(v_count).total_usage := :NEW.total_usage;
@@ -537,23 +537,23 @@ COMPOUND TRIGGER
     END AFTER EACH ROW;
 
     -- =========================================================================
-    -- AFTER STATEMENT: è¯­å¥çº§åŽç½®ï¼ˆæ‰§è¡Œå¼‚å¸¸æ£€æµ‹ï¼‰
-    --   æ­¤æ—¶æ‰€æœ‰è¡Œå·²æ’å…¥ bill è¡¨ï¼Œå¯ä»¥å®‰å…¨æŸ¥è¯¢
+    -- AFTER STATEMENT: Óï¾ä¼¶ºóÖÃ£¨Ö´ÐÐÒì³£¼ì²â£©
+    --   ´ËÊ±ËùÓÐÐÐÒÑ²åÈë bill ±í£¬¿ÉÒÔ°²È«²éÑ¯
     -- =========================================================================
     AFTER STATEMENT IS
-        -- åŽ†å²æœˆå‡ç”¨ç”µé‡ï¼ˆæ¸¸æ ‡å˜é‡ï¼‰
+        -- ÀúÊ·ÔÂ¾ùÓÃµçÁ¿£¨ÓÎ±ê±äÁ¿£©
         v_avg_usage  NUMBER(10,2);
         v_user_id    sys_user.user_id%TYPE;
         v_address    house.address%TYPE;
         v_alert_id   alert.alert_id%TYPE;
         v_notif_id   notification.notif_id%TYPE;
     BEGIN
-        -- éåŽ†æ‰€æœ‰æ–°æ’å…¥çš„è´¦å•
+        -- ±éÀúËùÓÐÐÂ²åÈëµÄÕËµ¥
         FOR i IN 1..v_count LOOP
 
             -- ---------------------------------------------------------------
-            -- æ­¥éª¤1: è®¡ç®—è¯¥ç”µè¡¨æœ€è¿‘6ä¸ªæœˆçš„å¹³å‡ç”¨ç”µé‡
-            --        æŽ’é™¤æœ¬æœˆï¼ˆbill_month < å½“å‰æœˆï¼‰ï¼Œæœ€å¤šå–6æ¡
+            -- ²½Öè1: ¼ÆËã¸Ãµç±í×î½ü6¸öÔÂµÄÆ½¾ùÓÃµçÁ¿
+            --        ÅÅ³ý±¾ÔÂ£¨bill_month < µ±Ç°ÔÂ£©£¬×î¶àÈ¡6Ìõ
             -- ---------------------------------------------------------------
             BEGIN
                 SELECT AVG(total_usage) INTO v_avg_usage
@@ -563,32 +563,32 @@ COMPOUND TRIGGER
                     WHERE  meter_id   = v_bills(i).meter_id
                       AND  bill_month < v_bills(i).bill_month
                       AND  status     IN ('PAID', 'PENDING', 'OVERDUE')
-                      -- æŽ’é™¤å¼‚å¸¸æ•°æ®ï¼šç”¨é‡ä¸º 0 çš„è®°å½•å¯èƒ½æ˜¯æ•°æ®é—®é¢˜
+                      -- ÅÅ³ýÒì³£Êý¾Ý£ºÓÃÁ¿Îª 0 µÄ¼ÇÂ¼¿ÉÄÜÊÇÊý¾ÝÎÊÌâ
                       AND  total_usage > 0
                     ORDER BY bill_month DESC
                 )
-                WHERE ROWNUM <= 6;  -- Oracle 11g ä¸æ”¯æŒ FETCH FIRSTï¼Œç”¨ ROWNUM
+                WHERE ROWNUM <= 6;  -- Oracle 11g ²»Ö§³Ö FETCH FIRST£¬ÓÃ ROWNUM
 
-                -- å¦‚æžœèšåˆç»“æžœä¸º NULLï¼ˆæ²¡æœ‰åŽ†å²æ•°æ®ï¼‰ï¼Œè·³è¿‡æœ¬æ¬¡æ£€æµ‹
+                -- Èç¹û¾ÛºÏ½á¹ûÎª NULL£¨Ã»ÓÐÀúÊ·Êý¾Ý£©£¬Ìø¹ý±¾´Î¼ì²â
                 IF v_avg_usage IS NULL OR v_avg_usage = 0 THEN
                     CONTINUE;
                 END IF;
 
             EXCEPTION
                 WHEN NO_DATA_FOUND THEN
-                    -- æ²¡æœ‰åŽ†å²è´¦å•ï¼Œè·³è¿‡ï¼ˆæ–°è£…ç”µè¡¨æ­£å¸¸æƒ…å†µï¼‰
+                    -- Ã»ÓÐÀúÊ·ÕËµ¥£¬Ìø¹ý£¨ÐÂ×°µç±íÕý³£Çé¿ö£©
                     CONTINUE;
             END;
 
             -- ---------------------------------------------------------------
-            -- æ­¥éª¤2: åˆ¤æ–­å¼‚å¸¸ç±»åž‹
-            --   SURGE  (é£™å‡): æœ¬æœˆ > åŽ†å²å‡å€¼ Ã— 2
-            --   PLUNGE (éª¤é™): æœ¬æœˆ < åŽ†å²å‡å€¼ Ã— 0.5
+            -- ²½Öè2: ÅÐ¶ÏÒì³£ÀàÐÍ
+            --   SURGE  (ì­Éý): ±¾ÔÂ > ÀúÊ·¾ùÖµ ¡Á 2
+            --   PLUNGE (Öè½µ): ±¾ÔÂ < ÀúÊ·¾ùÖµ ¡Á 0.5
             -- ---------------------------------------------------------------
             IF v_bills(i).total_usage > v_avg_usage * 2 THEN
 
-                -- æ­¥éª¤3a: é£™å‡å‘Šè­¦
-                -- æŸ¥æ‰¾ä¸šä¸»ä¿¡æ¯
+                -- ²½Öè3a: ì­Éý¸æ¾¯
+                -- ²éÕÒÒµÖ÷ÐÅÏ¢
                 BEGIN
                     SELECT u.user_id, h.address
                     INTO   v_user_id, v_address
@@ -597,9 +597,9 @@ COMPOUND TRIGGER
                     JOIN   sys_user u ON h.user_id = u.user_id
                     WHERE  m.meter_id = v_bills(i).meter_id;
 
-                    -- æ’å…¥å‘Šè­¦è®°å½•
+                    -- ²åÈë¸æ¾¯¼ÇÂ¼
                     INSERT INTO alert (
-                        alert_id, meter_id, bill_id, type, level,
+                        alert_id, meter_id, bill_id, type, alert_level,
                         description, status, created_at
                     ) VALUES (
                         seq_alert_id.NEXTVAL,
@@ -607,37 +607,37 @@ COMPOUND TRIGGER
                         v_bills(i).bill_id,
                         'SURGE',
                         'WARN',
-                        'ç”¨ç”µé‡é£™å‡å¼‚å¸¸ï¼šæœ¬æœˆç”¨ç”µ '
-                        || TO_CHAR(v_bills(i).total_usage, 'FM999990.00') || ' åº¦ï¼Œ'
-                        || 'è¿‘6ä¸ªæœˆå‡å€¼ ' || TO_CHAR(v_avg_usage, 'FM999990.00') || ' åº¦ï¼Œ'
-                        || 'å¢žå¹… ' || TO_CHAR(ROUND((v_bills(i).total_usage/v_avg_usage - 1) * 100, 1))
-                        || '%ã€‚åœ°å€: ' || v_address,
+                        'ÓÃµçÁ¿ì­ÉýÒì³££º±¾ÔÂÓÃµç '
+                        || TO_CHAR(v_bills(i).total_usage, 'FM999990.00') || ' ¶È£¬'
+                        || '½ü6¸öÔÂ¾ùÖµ ' || TO_CHAR(v_avg_usage, 'FM999990.00') || ' ¶È£¬'
+                        || 'Ôö·ù ' || TO_CHAR(ROUND((v_bills(i).total_usage/v_avg_usage - 1) * 100, 1))
+                        || '%¡£µØÖ·: ' || v_address,
                         'PENDING',
                         SYSDATE
                     )
                     RETURNING alert_id INTO v_alert_id;
 
-                    -- é€šçŸ¥ä¸šä¸»
+                    -- Í¨ÖªÒµÖ÷
                     INSERT INTO notification (
                         user_id, type, title, content, related_id, is_read, created_at
                     ) VALUES (
                         v_user_id, 'ANOMALY',
-                        'ç”¨ç”µé‡é£™å‡æé†’',
-                        'æ‚¨ä½äºŽ ' || v_address || ' çš„æˆ¿äº§æœ¬æœˆç”¨ç”µé‡å¼‚å¸¸åé«˜ï¼ˆ'
-                        || TO_CHAR(v_bills(i).total_usage, 'FM999990.00') || 'åº¦ï¼‰ï¼Œ'
-                        || 'è¶…è¿‡åŽ†å²å‡å€¼ï¼ˆ' || TO_CHAR(v_avg_usage, 'FM999990.00')
-                        || 'åº¦ï¼‰çš„200%ã€‚è¯·æ£€æŸ¥æ˜¯å¦æœ‰æ¼ç”µæˆ–å¼‚å¸¸ç”¨ç”µæƒ…å†µã€‚',
+                        'ÓÃµçÁ¿ì­ÉýÌáÐÑ',
+                        'ÄúÎ»ÓÚ ' || v_address || ' µÄ·¿²ú±¾ÔÂÓÃµçÁ¿Òì³£Æ«¸ß£¨'
+                        || TO_CHAR(v_bills(i).total_usage, 'FM999990.00') || '¶È£©£¬'
+                        || '³¬¹ýÀúÊ·¾ùÖµ£¨' || TO_CHAR(v_avg_usage, 'FM999990.00')
+                        || '¶È£©µÄ200%¡£Çë¼ì²éÊÇ·ñÓÐÂ©µç»òÒì³£ÓÃµçÇé¿ö¡£',
                         v_alert_id, 'N', SYSDATE
                     );
 
                 EXCEPTION
                     WHEN NO_DATA_FOUND THEN
-                        DBMS_OUTPUT.PUT_LINE('TR4b: æ‰¾ä¸åˆ°ç”µè¡¨ ' || v_bills(i).meter_id || ' çš„ä¸šä¸»');
+                        DBMS_OUTPUT.PUT_LINE('TR4b: ÕÒ²»µ½µç±í ' || v_bills(i).meter_id || ' µÄÒµÖ÷');
                 END;
 
             ELSIF v_bills(i).total_usage < v_avg_usage * 0.5 THEN
 
-                -- æ­¥éª¤3b: éª¤é™å‘Šè­¦
+                -- ²½Öè3b: Öè½µ¸æ¾¯
                 BEGIN
                     SELECT u.user_id, h.address
                     INTO   v_user_id, v_address
@@ -647,7 +647,7 @@ COMPOUND TRIGGER
                     WHERE  m.meter_id = v_bills(i).meter_id;
 
                     INSERT INTO alert (
-                        alert_id, meter_id, bill_id, type, level,
+                        alert_id, meter_id, bill_id, type, alert_level,
                         description, status, created_at
                     ) VALUES (
                         seq_alert_id.NEXTVAL,
@@ -655,11 +655,11 @@ COMPOUND TRIGGER
                         v_bills(i).bill_id,
                         'PLUNGE',
                         'INFO',
-                        'ç”¨ç”µé‡éª¤é™å¼‚å¸¸ï¼šæœ¬æœˆç”¨ç”µ '
-                        || TO_CHAR(v_bills(i).total_usage, 'FM999990.00') || ' åº¦ï¼Œ'
-                        || 'è¿‘6ä¸ªæœˆå‡å€¼ ' || TO_CHAR(v_avg_usage, 'FM999990.00') || ' åº¦ï¼Œ'
-                        || 'é™å¹… ' || TO_CHAR(ROUND((1 - v_bills(i).total_usage/v_avg_usage) * 100, 1))
-                        || '%ã€‚åœ°å€: ' || v_address,
+                        'ÓÃµçÁ¿Öè½µÒì³££º±¾ÔÂÓÃµç '
+                        || TO_CHAR(v_bills(i).total_usage, 'FM999990.00') || ' ¶È£¬'
+                        || '½ü6¸öÔÂ¾ùÖµ ' || TO_CHAR(v_avg_usage, 'FM999990.00') || ' ¶È£¬'
+                        || '½µ·ù ' || TO_CHAR(ROUND((1 - v_bills(i).total_usage/v_avg_usage) * 100, 1))
+                        || '%¡£µØÖ·: ' || v_address,
                         'PENDING',
                         SYSDATE
                     )
@@ -669,50 +669,50 @@ COMPOUND TRIGGER
                         user_id, type, title, content, related_id, is_read, created_at
                     ) VALUES (
                         v_user_id, 'ANOMALY',
-                        'ç”¨ç”µé‡éª¤é™æé†’',
-                        'æ‚¨ä½äºŽ ' || v_address || ' çš„æˆ¿äº§æœ¬æœˆç”¨ç”µé‡å¼‚å¸¸åä½Žï¼ˆ'
-                        || TO_CHAR(v_bills(i).total_usage, 'FM999990.00') || 'åº¦ï¼‰ï¼Œ'
-                        || 'ä¸è¶³åŽ†å²å‡å€¼ï¼ˆ' || TO_CHAR(v_avg_usage, 'FM999990.00')
-                        || 'åº¦ï¼‰çš„50%ã€‚è‹¥æˆ¿å±‹ç©ºç½®å±žæ­£å¸¸ï¼Œå¦åˆ™è¯·æ£€æŸ¥ç”µè¡¨æ˜¯å¦æ•…éšœã€‚',
+                        'ÓÃµçÁ¿Öè½µÌáÐÑ',
+                        'ÄúÎ»ÓÚ ' || v_address || ' µÄ·¿²ú±¾ÔÂÓÃµçÁ¿Òì³£Æ«µÍ£¨'
+                        || TO_CHAR(v_bills(i).total_usage, 'FM999990.00') || '¶È£©£¬'
+                        || '²»×ãÀúÊ·¾ùÖµ£¨' || TO_CHAR(v_avg_usage, 'FM999990.00')
+                        || '¶È£©µÄ50%¡£Èô·¿ÎÝ¿ÕÖÃÊôÕý³££¬·ñÔòÇë¼ì²éµç±íÊÇ·ñ¹ÊÕÏ¡£',
                         v_alert_id, 'N', SYSDATE
                     );
 
                 EXCEPTION
                     WHEN NO_DATA_FOUND THEN
-                        DBMS_OUTPUT.PUT_LINE('TR4b: æ‰¾ä¸åˆ°ç”µè¡¨ ' || v_bills(i).meter_id || ' çš„ä¸šä¸»');
+                        DBMS_OUTPUT.PUT_LINE('TR4b: ÕÒ²»µ½µç±í ' || v_bills(i).meter_id || ' µÄÒµÖ÷');
                 END;
 
-            END IF;  -- å¼‚å¸¸åˆ¤æ–­ç»“æŸ
+            END IF;  -- Òì³£ÅÐ¶Ï½áÊø
 
-        END LOOP;  -- è´¦å•éåŽ†ç»“æŸ
+        END LOOP;  -- ÕËµ¥±éÀú½áÊø
 
     END AFTER STATEMENT;
 
 END tr4b_surge_plunge_detect;
 /
 
-PROMPT ========== ä¸šåŠ¡è§¦å‘å™¨åˆ›å»ºå®Œæ¯• ==========
+PROMPT ========== ÒµÎñ´¥·¢Æ÷´´½¨Íê±Ï ==========
 PROMPT
-PROMPT è§¦å‘å™¨æ¸…å•:
-PROMPT   è‡ªå¢žè§¦å‘å™¨ (11ä¸ª):
-PROMPT     trg_user_bi         - SYS_USER ä¸»é”®è‡ªå¢ž
-PROMPT     trg_house_bi        - HOUSE ä¸»é”®è‡ªå¢ž
-PROMPT     trg_meter_bi        - METER ä¸»é”®è‡ªå¢ž + è¯»æ•°å¿«ç…§åˆå§‹åŒ–
-PROMPT     trg_reading_bi      - METER_READING ä¸»é”®è‡ªå¢ž
-PROMPT     trg_price_config_bi - PRICE_CONFIG ä¸»é”®è‡ªå¢ž
-PROMPT     trg_bill_bi         - BILL ä¸»é”®è‡ªå¢ž
-PROMPT     trg_payment_bi      - PAYMENT ä¸»é”®è‡ªå¢ž
-PROMPT     trg_notif_bi        - NOTIFICATION ä¸»é”®è‡ªå¢ž
-PROMPT     trg_alert_bi        - ALERT ä¸»é”®è‡ªå¢ž
-PROMPT     trg_ticket_bi       - TICKET ä¸»é”®è‡ªå¢ž
-PROMPT     trg_reply_bi        - TICKET_REPLY ä¸»é”®è‡ªå¢ž
+PROMPT ´¥·¢Æ÷Çåµ¥:
+PROMPT   ×ÔÔö´¥·¢Æ÷ (11¸ö):
+PROMPT     trg_user_bi         - SYS_USER Ö÷¼ü×ÔÔö
+PROMPT     trg_house_bi        - HOUSE Ö÷¼ü×ÔÔö
+PROMPT     trg_meter_bi        - METER Ö÷¼ü×ÔÔö + ¶ÁÊý¿ìÕÕ³õÊ¼»¯
+PROMPT     trg_reading_bi      - METER_READING Ö÷¼ü×ÔÔö
+PROMPT     trg_price_config_bi - PRICE_CONFIG Ö÷¼ü×ÔÔö
+PROMPT     trg_bill_bi         - BILL Ö÷¼ü×ÔÔö
+PROMPT     trg_payment_bi      - PAYMENT Ö÷¼ü×ÔÔö
+PROMPT     trg_notif_bi        - NOTIFICATION Ö÷¼ü×ÔÔö
+PROMPT     trg_alert_bi        - ALERT Ö÷¼ü×ÔÔö
+PROMPT     trg_ticket_bi       - TICKET Ö÷¼ü×ÔÔö
+PROMPT     trg_reply_bi        - TICKET_REPLY Ö÷¼ü×ÔÔö
 PROMPT
-PROMPT   ä¸šåŠ¡è§¦å‘å™¨ (5ä¸ª):
-PROMPT     TR1  tr1_calc_daily_usage      - æ’å…¥æŠ„è¡¨è®°å½•: è‡ªåŠ¨è®¡ç®—æ—¥ç”¨ç”µé‡
-PROMPT          trg_meter_update_snapshot  - æ’å…¥æŠ„è¡¨è®°å½•: æ›´æ–°ç”µè¡¨è¯»æ•°å¿«ç…§
-PROMPT     TR2  tr2_arrears_notify        - è´¦å•é€¾æœŸ: è‡ªåŠ¨ç”Ÿæˆæ¬ è´¹é€šçŸ¥
-PROMPT     TR3  tr3_payment_update_bill   - ç¼´è´¹æˆåŠŸ: è‡ªåŠ¨æ›´æ–°è´¦å•çŠ¶æ€
-PROMPT     TR4a tr4a_reversal_detect      - æŠ„è¡¨å¼‚å¸¸: æ£€æµ‹è¯»æ•°å€’è½¬
-PROMPT     TR4b tr4b_surge_plunge_detect  - è´¦å•ç”Ÿæˆ: æ£€æµ‹ç”¨ç”µé£™å‡/éª¤é™(å¤åˆè§¦å‘å™¨)
+PROMPT   ÒµÎñ´¥·¢Æ÷ (5¸ö):
+PROMPT     TR1  tr1_calc_daily_usage      - ²åÈë³­±í¼ÇÂ¼: ×Ô¶¯¼ÆËãÈÕÓÃµçÁ¿
+PROMPT          trg_meter_update_snapshot  - ²åÈë³­±í¼ÇÂ¼: ¸üÐÂµç±í¶ÁÊý¿ìÕÕ
+PROMPT     TR2  tr2_arrears_notify        - ÕËµ¥ÓâÆÚ: ×Ô¶¯Éú³ÉÇ··ÑÍ¨Öª
+PROMPT     TR3  tr3_payment_update_bill   - ½É·Ñ³É¹¦: ×Ô¶¯¸üÐÂÕËµ¥×´Ì¬
+PROMPT     TR4a tr4a_reversal_detect      - ³­±íÒì³£: ¼ì²â¶ÁÊýµ¹×ª
+PROMPT     TR4b tr4b_surge_plunge_detect  - ÕËµ¥Éú³É: ¼ì²âÓÃµçì­Éý/Öè½µ(¸´ºÏ´¥·¢Æ÷)
 PROMPT
-PROMPT ========== 03_create_triggers.sql æ‰§è¡Œå®Œæ¯• ==========
+PROMPT ========== 03_create_triggers.sql Ö´ÐÐÍê±Ï ==========

@@ -1,15 +1,15 @@
 -- ============================================================================
--- 民用电缴费系统 — 视图脚本
--- 兼容版本: Oracle 11g
--- 说明: 创建 6 个核心业务视图，简化常用查询，供后端接口直接调用
--- 执行顺序: 第 5 步，在建表、序列、触发器、存储过程之后
+-- ���õ�ɷ�ϵͳ �� ��ͼ�ű�
+-- ���ݰ汾: Oracle 11g
+-- ˵��: ���� 6 ������ҵ����ͼ���򻯳��ò�ѯ������˽ӿ�ֱ�ӵ���
+-- ִ��˳��: �� 5 �����ڽ��������С����������洢����֮��
 -- ============================================================================
 
 SET ECHO ON
 SET SERVEROUTPUT ON
 SET LINESIZE 300
 
--- 清理旧视图
+-- ��������ͼ
 BEGIN
   FOR v IN (SELECT view_name FROM user_views
             WHERE view_name LIKE 'V_%')
@@ -19,13 +19,13 @@ BEGIN
 END;
 /
 
-PROMPT ========== 旧视图已清理 ==========
+PROMPT ========== ����ͼ������ ==========
 
 -- ============================================================================
--- 视图1: V_USER_BILLS — 用户账单视图
--- 用途: 居民查看自己名下所有房产的电费账单
--- 联表: bill → meter → house → sys_user
--- 包含: 业主信息、房屋地址、电表编号、账期、用电量、阶梯明细、缴费状态
+-- ��ͼ1: V_USER_BILLS �� �û��˵���ͼ
+-- ��;: ����鿴�Լ��������з����ĵ���˵�
+-- ����: bill �� meter �� house �� sys_user
+-- ����: ҵ����Ϣ�����ݵ�ַ�������š����ڡ��õ�����������ϸ���ɷ�״̬
 -- ============================================================================
 CREATE OR REPLACE VIEW v_user_bills AS
 SELECT
@@ -49,7 +49,7 @@ SELECT
     b.tier3_amount,
     b.total_amount,
     b.late_fee,
-    b.total_amount + b.late_fee AS total_due,  -- 应缴总额（含滞纳金）
+    b.total_amount + b.late_fee AS total_due,  -- Ӧ���ܶ�����ɽ�
     b.status,
     b.due_date,
     b.payment_date,
@@ -58,7 +58,7 @@ SELECT
         WHEN b.status = 'OVERDUE' THEN TRUNC(SYSDATE) - TRUNC(b.due_date)
         WHEN b.due_date >= TRUNC(SYSDATE) THEN 0
         ELSE TRUNC(SYSDATE) - TRUNC(b.due_date)
-    END AS days_overdue,                        -- 逾期天数
+    END AS days_overdue,                        -- ��������
     b.created_at
 FROM
     bill b
@@ -68,13 +68,13 @@ FROM
 ORDER BY
     u.user_id, h.house_id, b.bill_month DESC;
 
-COMMENT ON TABLE v_user_bills IS '用户账单视图: 居民查看名下所有房产的电费账单';
+COMMENT ON TABLE v_user_bills IS '�û��˵���ͼ: ����鿴�������з����ĵ���˵�';
 
 -- ============================================================================
--- 视图2: V_METER_USAGE_SUMMARY — 电表月度用电统计视图
--- 用途: 管理员/收费员查看各电表月度用电趋势
--- 联表: bill → meter → house
--- 包含: 当月用电量、同比变化率、环比变化率
+-- ��ͼ2: V_METER_USAGE_SUMMARY �� ����¶��õ�ͳ����ͼ
+-- ��;: ����Ա/�շ�Ա�鿴������¶��õ�����
+-- ����: bill �� meter �� house
+-- ����: �����õ�����ͬ�ȱ仯�ʡ����ȱ仯��
 -- ============================================================================
 CREATE OR REPLACE VIEW v_meter_usage_summary AS
 SELECT
@@ -86,7 +86,7 @@ SELECT
     b.total_amount,
     b.late_fee,
     b.status,
-    -- 环比变化率: (本月 - 上月) / 上月 × 100
+    -- ���ȱ仯��: (���� - ����) / ���� �� 100
     CASE
         WHEN LAG(b.total_usage) OVER (
             PARTITION BY b.meter_id ORDER BY b.bill_month
@@ -102,8 +102,8 @@ SELECT
             ) * 100, 1
         )
         ELSE NULL
-    END AS mom_change_pct,  -- Month-over-Month 环比
-    -- 同比变化率: (本月 - 去年同月) / 去年同月 × 100
+    END AS mom_change_pct,  -- Month-over-Month ����
+    -- ͬ�ȱ仯��: (���� - ȥ��ͬ��) / ȥ��ͬ�� �� 100
     CASE
         WHEN LAG(b.total_usage, 12) OVER (
             PARTITION BY b.meter_id ORDER BY b.bill_month
@@ -119,7 +119,7 @@ SELECT
             ) * 100, 1
         )
         ELSE NULL
-    END AS yoy_change_pct,  -- Year-over-Year 同比
+    END AS yoy_change_pct,  -- Year-over-Year ͬ��
     b.created_at
 FROM
     bill b
@@ -128,19 +128,19 @@ FROM
 ORDER BY
     b.meter_id, b.bill_month;
 
-COMMENT ON TABLE v_meter_usage_summary IS '电表月度用电统计视图: 含环比/同比变化率';
+COMMENT ON TABLE v_meter_usage_summary IS '����¶��õ�ͳ����ͼ: ������/ͬ�ȱ仯��';
 
 -- ============================================================================
--- 视图3: V_PENDING_ALERTS — 待处理异常告警视图
--- 用途: 管理员/收费员查看所有未处理的异常告警
--- 联表: alert → meter → house → sys_user
--- 包含: 告警详情、电表信息、业主联系方式
+-- ��ͼ3: V_PENDING_ALERTS �� �������쳣�澯��ͼ
+-- ��;: ����Ա/�շ�Ա�鿴����δ�������쳣�澯
+-- ����: alert �� meter �� house �� sys_user
+-- ����: �澯���顢�����Ϣ��ҵ����ϵ��ʽ
 -- ============================================================================
 CREATE OR REPLACE VIEW v_pending_alerts AS
 SELECT
     a.alert_id,
     a.type         AS alert_type,
-    a.level        AS alert_level,
+    a.alert_level        AS alert_level,
     a.description,
     a.status       AS alert_status,
     a.created_at   AS alert_time,
@@ -163,20 +163,20 @@ FROM
 WHERE
     a.status = 'PENDING'
 ORDER BY
-    CASE a.level
+    CASE a.alert_level
         WHEN 'CRITICAL' THEN 1
         WHEN 'WARN' THEN 2
         WHEN 'INFO' THEN 3
     END,
     a.created_at DESC;
 
-COMMENT ON TABLE v_pending_alerts IS '待处理异常告警视图: 按严重级别排序';
+COMMENT ON TABLE v_pending_alerts IS '�������쳣�澯��ͼ: �����ؼ�������';
 
 -- ============================================================================
--- 视图4: V_TICKET_DETAILS — 工单详情视图
--- 用途: 管理员/收费员查看工单及其回复
--- 联表: ticket → sys_user(提交人) → ticket_reply → sys_user(回复人)
--- 包含: 工单信息、提交人、回复内容、回复人
+-- ��ͼ4: V_TICKET_DETAILS �� ����������ͼ
+-- ��;: ����Ա/�շ�Ա�鿴��������ظ�
+-- ����: ticket �� sys_user(�ύ��) �� ticket_reply �� sys_user(�ظ���)
+-- ����: ������Ϣ���ύ�ˡ��ظ����ݡ��ظ���
 -- ============================================================================
 CREATE OR REPLACE VIEW v_ticket_details AS
 SELECT
@@ -203,34 +203,34 @@ ORDER BY
     CASE t.status WHEN 'PENDING' THEN 0 ELSE 1 END,
     t.created_at DESC;
 
-COMMENT ON TABLE v_ticket_details IS '工单详情视图: 含提交人、回复内容、回复人';
+COMMENT ON TABLE v_ticket_details IS '����������ͼ: ���ύ�ˡ��ظ����ݡ��ظ���';
 
 -- ============================================================================
--- 视图5: V_REVENUE_SUMMARY — 月度营收汇总视图
--- 用途: 管理员查看各月度的电费收入统计
--- 数据来源: payment 表（仅已缴费账单）
--- 包含: 已缴户数、电费收入、滞纳金收入、线上/线下占比
+-- ��ͼ5: V_REVENUE_SUMMARY �� �¶�Ӫ�ջ�����ͼ
+-- ��;: ����Ա�鿴���¶ȵĵ������ͳ��
+-- ������Դ: payment �������ѽɷ��˵���
+-- ����: �ѽɻ�����������롢���ɽ����롢����/����ռ��
 -- ============================================================================
 CREATE OR REPLACE VIEW v_revenue_summary AS
 SELECT
     SUBSTR(b.bill_month, 1, 4) AS year,
     SUBSTR(b.bill_month, 5, 2) AS month,
     b.bill_month,
-    COUNT(DISTINCT b.bill_id)  AS total_bills,        -- 总账单数
+    COUNT(DISTINCT b.bill_id)  AS total_bills,        -- ���˵���
     COUNT(DISTINCT CASE WHEN b.status = 'PAID' THEN b.bill_id END)
-                                AS paid_bills,         -- 已缴账单数
+                                AS paid_bills,         -- �ѽ��˵���
     NVL(SUM(CASE WHEN b.status = 'PAID' THEN p.amount ELSE 0 END), 0)
-                                AS total_revenue,      -- 总电费收入
+                                AS total_revenue,      -- �ܵ������
     NVL(SUM(CASE WHEN b.status = 'PAID' THEN p.late_fee_paid ELSE 0 END), 0)
-                                AS total_late_fee,     -- 总滞纳金收入
+                                AS total_late_fee,     -- �����ɽ�����
     NVL(SUM(CASE WHEN b.status = 'PAID' AND p.channel = 'ONLINE' THEN p.amount ELSE 0 END), 0)
-                                AS online_revenue,     -- 线上收入
+                                AS online_revenue,     -- ��������
     NVL(SUM(CASE WHEN b.status = 'PAID' AND p.channel = 'OFFLINE' THEN p.amount ELSE 0 END), 0)
-                                AS offline_revenue,    -- 线下收入
+                                AS offline_revenue,    -- ��������
     COUNT(CASE WHEN b.status = 'OVERDUE' THEN 1 END)
-                                AS overdue_bills,      -- 欠费账单数
+                                AS overdue_bills,      -- Ƿ���˵���
     NVL(SUM(CASE WHEN b.status = 'OVERDUE' THEN b.total_amount + b.late_fee ELSE 0 END), 0)
-                                AS outstanding_amount  -- 应收未收金额
+                                AS outstanding_amount  -- Ӧ��δ�ս��
 FROM
     bill b
     LEFT JOIN payment p ON b.bill_id = p.bill_id
@@ -241,13 +241,13 @@ GROUP BY
 ORDER BY
     b.bill_month DESC;
 
-COMMENT ON TABLE v_revenue_summary IS '月度营收汇总视图: 电费+滞纳金+渠道占比';
+COMMENT ON TABLE v_revenue_summary IS '�¶�Ӫ�ջ�����ͼ: ���+���ɽ�+����ռ��';
 
 -- ============================================================================
--- 视图6: V_METER_DAILY_USAGE — 电表每日用电趋势视图
--- 用途: 前端折线图展示某个电表的日用电趋势
--- 数据来源: meter_reading
--- 包含: 日期、日用电量、累计读数、7日移动平均
+-- ��ͼ6: V_METER_DAILY_USAGE �� ���ÿ���õ�������ͼ
+-- ��;: ǰ������ͼչʾĳ����������õ�����
+-- ������Դ: meter_reading
+-- ����: ���ڡ����õ������ۼƶ�����7���ƶ�ƽ��
 -- ============================================================================
 CREATE OR REPLACE VIEW v_meter_daily_usage AS
 SELECT
@@ -260,7 +260,7 @@ SELECT
     mr.daily_usage,
     mr.reading_type,
     mr.remarks,
-    -- 7日移动平均: 平滑日用电波动，展示趋势
+    -- 7���ƶ�ƽ��: ƽ�����õ粨����չʾ����
     ROUND(AVG(mr.daily_usage) OVER (
         PARTITION BY mr.meter_id
         ORDER BY mr.reading_date
@@ -273,16 +273,16 @@ FROM
 ORDER BY
     mr.meter_id, mr.reading_date;
 
-COMMENT ON TABLE v_meter_daily_usage IS '电表日用电趋势视图: 含7日移动平均线';
+COMMENT ON TABLE v_meter_daily_usage IS '������õ�������ͼ: ��7���ƶ�ƽ����';
 
-PROMPT ========== 6 个业务视图创建完毕 ==========
+PROMPT ========== 6 ��ҵ����ͼ������� ==========
 PROMPT
-PROMPT 视图清单:
-PROMPT   V_USER_BILLS          - 用户账单视图 (居民查账单)
-PROMPT   V_METER_USAGE_SUMMARY  - 电表月度统计视图 (含环比/同比)
-PROMPT   V_PENDING_ALERTS       - 待处理告警视图 (按严重级别排序)
-PROMPT   V_TICKET_DETAILS       - 工单详情视图 (含回复)
-PROMPT   V_REVENUE_SUMMARY      - 月度营收汇总视图 (电费+渠道占比)
-PROMPT   V_METER_DAILY_USAGE    - 日用电趋势视图 (含7日移动平均)
+PROMPT ��ͼ�嵥:
+PROMPT   V_USER_BILLS          - �û��˵���ͼ (������˵�)
+PROMPT   V_METER_USAGE_SUMMARY  - ����¶�ͳ����ͼ (������/ͬ��)
+PROMPT   V_PENDING_ALERTS       - �������澯��ͼ (�����ؼ�������)
+PROMPT   V_TICKET_DETAILS       - ����������ͼ (���ظ�)
+PROMPT   V_REVENUE_SUMMARY      - �¶�Ӫ�ջ�����ͼ (���+����ռ��)
+PROMPT   V_METER_DAILY_USAGE    - ���õ�������ͼ (��7���ƶ�ƽ��)
 PROMPT
-PROMPT ========== 05_create_views.sql 执行完毕 ==========
+PROMPT ========== 05_create_views.sql ִ����� ==========

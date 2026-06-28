@@ -1,14 +1,14 @@
 -- ============================================================================
--- æ°‘ç”¨ç”µç¼´è´¹ç³»ç»Ÿ â€” åºåˆ—åˆ›å»ºè„šæœ¬
--- å…¼å®¹ç‰ˆæœ¬: Oracle 11g
--- è¯´æ˜Ž: ä¸ºæ¯å¼ ä¸»è¡¨åˆ›å»ºè‡ªå¢žåºåˆ—ï¼ŒOracle 11g ä¸æ”¯æŒ IDENTITY åˆ—ï¼Œç”¨åºåˆ—+è§¦å‘å™¨æ¨¡æ‹Ÿ
--- æ‰§è¡Œé¡ºåº: ç¬¬ 2 æ­¥ï¼Œåœ¨å»ºè¡¨ä¹‹åŽã€ä¸šåŠ¡è§¦å‘å™¨ä¹‹å‰æ‰§è¡Œ
+-- ÃñÓÃµç½É·ÑÏµÍ³ ¡ª ÐòÁÐ´´½¨½Å±¾
+-- ¼æÈÝ°æ±¾: Oracle 11g
+-- ËµÃ÷: ÎªÃ¿ÕÅÖ÷±í´´½¨×ÔÔöÐòÁÐ£¬Oracle 11g ²»Ö§³Ö IDENTITY ÁÐ£¬ÓÃÐòÁÐ+´¥·¢Æ÷Ä£Äâ
+-- Ö´ÐÐË³Ðò: µÚ 2 ²½£¬ÔÚ½¨±íÖ®ºó¡¢ÒµÎñ´¥·¢Æ÷Ö®Ç°Ö´ÐÐ
 -- ============================================================================
 
 SET ECHO ON
 SET SERVEROUTPUT ON
 
--- æ¸…ç†æ—§åºåˆ—
+-- ÇåÀí¾ÉÐòÁÐ
 BEGIN
   FOR s IN (SELECT sequence_name FROM user_sequences
             WHERE sequence_name LIKE 'SEQ_%')
@@ -18,106 +18,106 @@ BEGIN
 END;
 /
 
-PROMPT ========== æ—§åºåˆ—å·²æ¸…ç† ==========
+PROMPT ========== ¾ÉÐòÁÐÒÑÇåÀí ==========
 
 -- ============================================================================
--- åºåˆ—å®šä¹‰è§„åˆ™ï¼š
---   START WITH 1001   â€” ä»Ž 1001 å¼€å§‹ï¼Œä¸ºæ‰‹åŠ¨æ’å…¥é¢„ç•™ 1~1000 èŒƒå›´
---   INCREMENT BY 1    â€” æ¯æ¬¡é€’å¢ž 1
---   NOCACHE           â€” ä¸ç¼“å­˜ï¼ˆè¯¾ç¨‹è®¾è®¡çŽ¯å¢ƒï¼Œé¿å…åºåˆ—æ–­å±‚å›°æƒ‘ï¼‰
---   NOCYCLE           â€” ä¸å¾ªçŽ¯
+-- ÐòÁÐ¶¨Òå¹æÔò£º
+--   START WITH 1001   ¡ª ´Ó 1001 ¿ªÊ¼£¬ÎªÊÖ¶¯²åÈëÔ¤Áô 1~1000 ·¶Î§
+--   INCREMENT BY 1    ¡ª Ã¿´ÎµÝÔö 1
+--   NOCACHE           ¡ª ²»»º´æ£¨¿Î³ÌÉè¼Æ»·¾³£¬±ÜÃâÐòÁÐ¶Ï²ãÀ§»ó£©
+--   NOCYCLE           ¡ª ²»Ñ­»·
 -- ============================================================================
 
--- ç”¨æˆ·åºåˆ—
+-- ÓÃ»§ÐòÁÐ
 CREATE SEQUENCE seq_user_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- æˆ¿äº§åºåˆ—
+-- ·¿²úÐòÁÐ
 CREATE SEQUENCE seq_house_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- ç”µè¡¨åºåˆ—
+-- µç±íÐòÁÐ
 CREATE SEQUENCE seq_meter_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- æŠ„è¡¨è®°å½•åºåˆ—
+-- ³­±í¼ÇÂ¼ÐòÁÐ
 CREATE SEQUENCE seq_reading_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- ç”µä»·é…ç½®åºåˆ—
+-- µç¼ÛÅäÖÃÐòÁÐ
 CREATE SEQUENCE seq_price_config_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- è´¦å•åºåˆ—
+-- ÕËµ¥ÐòÁÐ
 CREATE SEQUENCE seq_bill_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- ç¼´è´¹è®°å½•åºåˆ—
+-- ½É·Ñ¼ÇÂ¼ÐòÁÐ
 CREATE SEQUENCE seq_payment_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- é€šçŸ¥åºåˆ—
+-- Í¨ÖªÐòÁÐ
 CREATE SEQUENCE seq_notif_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- å‘Šè­¦åºåˆ—
+-- ¸æ¾¯ÐòÁÐ
 CREATE SEQUENCE seq_alert_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- å·¥å•åºåˆ—
+-- ¹¤µ¥ÐòÁÐ
 CREATE SEQUENCE seq_ticket_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
--- å·¥å•å›žå¤åºåˆ—
+-- ¹¤µ¥»Ø¸´ÐòÁÐ
 CREATE SEQUENCE seq_reply_id
     START WITH 1001
     INCREMENT BY 1
     NOCACHE
     NOCYCLE;
 
-PROMPT ========== 11 ä¸ªåºåˆ—åˆ›å»ºå®Œæ¯• ==========
+PROMPT ========== 11 ¸öÐòÁÐ´´½¨Íê±Ï ==========
 PROMPT
-PROMPT åºåˆ—æ¸…å•:
-PROMPT   SEQ_USER_ID          â†’ SYS_USER
-PROMPT   SEQ_HOUSE_ID         â†’ HOUSE
-PROMPT   SEQ_METER_ID         â†’ METER
-PROMPT   SEQ_READING_ID       â†’ METER_READING
-PROMPT   SEQ_PRICE_CONFIG_ID  â†’ PRICE_CONFIG
-PROMPT   SEQ_BILL_ID          â†’ BILL
-PROMPT   SEQ_PAYMENT_ID       â†’ PAYMENT
-PROMPT   SEQ_NOTIF_ID         â†’ NOTIFICATION
-PROMPT   SEQ_ALERT_ID         â†’ ALERT
-PROMPT   SEQ_TICKET_ID        â†’ TICKET
-PROMPT   SEQ_REPLY_ID         â†’ TICKET_REPLY
+PROMPT ÐòÁÐÇåµ¥:
+PROMPT   SEQ_USER_ID          ¡ú SYS_USER
+PROMPT   SEQ_HOUSE_ID         ¡ú HOUSE
+PROMPT   SEQ_METER_ID         ¡ú METER
+PROMPT   SEQ_READING_ID       ¡ú METER_READING
+PROMPT   SEQ_PRICE_CONFIG_ID  ¡ú PRICE_CONFIG
+PROMPT   SEQ_BILL_ID          ¡ú BILL
+PROMPT   SEQ_PAYMENT_ID       ¡ú PAYMENT
+PROMPT   SEQ_NOTIF_ID         ¡ú NOTIFICATION
+PROMPT   SEQ_ALERT_ID         ¡ú ALERT
+PROMPT   SEQ_TICKET_ID        ¡ú TICKET
+PROMPT   SEQ_REPLY_ID         ¡ú TICKET_REPLY
 PROMPT
-PROMPT ========== 02_create_sequences.sql æ‰§è¡Œå®Œæ¯• ==========
+PROMPT ========== 02_create_sequences.sql Ö´ÐÐÍê±Ï ==========

@@ -52,6 +52,9 @@
         <ojdbc.version>19.8.0.0</ojdbc.version>
         <!-- 说明: ojdbc8 19.x 兼容 Java 24 且向下兼容 Oracle 11g -->
         <!--       如果你的 Oracle 是 21c+，可换为 ojdbc11 -->
+
+        <!-- Lombok 版本（覆盖父 POM 默认的 1.18.34，Java 24 需要 ≥ 1.18.38） -->
+        <lombok.version>1.18.38</lombok.version>
     </properties>
 
     <!-- ================================================================ -->

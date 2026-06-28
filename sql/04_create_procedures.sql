@@ -1,81 +1,81 @@
 -- ============================================================================
--- æ°‘ç”¨ç”µç¼´è´¹ç³»ç»Ÿ â€” å­˜å‚¨è¿‡ç¨‹è„šæœ¬
--- å…¼å®¹ç‰ˆæœ¬: Oracle 11g
--- è¯´æ˜Ž: åŒ…å« 4 ä¸ªæ ¸å¿ƒå­˜å‚¨è¿‡ç¨‹ SP1~SP4ï¼Œä»¥åŠ 1 ä¸ªæµ‹è¯•è¾…åŠ©è¿‡ç¨‹
--- æ‰§è¡Œé¡ºåº: ç¬¬ 4 æ­¥ï¼Œåœ¨å»ºè¡¨ã€åºåˆ—ã€è§¦å‘å™¨ä¹‹åŽ
+-- ÃñÓÃµç½É·ÑÏµÍ³ ¡ª ´æ´¢¹ý³Ì½Å±¾
+-- ¼æÈÝ°æ±¾: Oracle 11g
+-- ËµÃ÷: °üº¬ 4 ¸öºËÐÄ´æ´¢¹ý³Ì SP1~SP4£¬ÒÔ¼° 1 ¸ö²âÊÔ¸¨Öú¹ý³Ì
+-- Ö´ÐÐË³Ðò: µÚ 4 ²½£¬ÔÚ½¨±í¡¢ÐòÁÐ¡¢´¥·¢Æ÷Ö®ºó
 -- ============================================================================
 
 SET ECHO ON
 SET SERVEROUTPUT ON
 SET LINESIZE 300
 
-PROMPT ========== å¼€å§‹åˆ›å»ºå­˜å‚¨è¿‡ç¨‹ ==========
+PROMPT ========== ¿ªÊ¼´´½¨´æ´¢¹ý³Ì ==========
 
 -- ============================================================================
--- SP1: æœˆåˆæ‰¹é‡ç”Ÿæˆè´¦å•
--- åŠŸèƒ½æè¿°:
---   æ¯æœˆ 1 å·å‡Œæ™¨æ‰§è¡Œï¼ˆç”±æ•°æ®åº“è°ƒåº¦ä»»åŠ¡æˆ–åº”ç”¨å±‚å®šæ—¶è§¦å‘ï¼‰ã€‚
---   éåŽ†æ‰€æœ‰åœ¨ç”¨(NORMAL)ç”µè¡¨ï¼Œè®¡ç®—ä¸Šæœˆç”¨ç”µé‡ï¼Œåº”ç”¨é˜¶æ¢¯ç”µä»·ï¼Œç”Ÿæˆè´¦å•ã€‚
+-- SP1: ÔÂ³õÅúÁ¿Éú³ÉÕËµ¥
+-- ¹¦ÄÜÃèÊö:
+--   Ã¿ÔÂ 1 ºÅÁè³¿Ö´ÐÐ£¨ÓÉÊý¾Ý¿âµ÷¶ÈÈÎÎñ»òÓ¦ÓÃ²ã¶¨Ê±´¥·¢£©¡£
+--   ±éÀúËùÓÐÔÚÓÃ(NORMAL)µç±í£¬¼ÆËãÉÏÔÂÓÃµçÁ¿£¬Ó¦ÓÃ½×ÌÝµç¼Û£¬Éú³ÉÕËµ¥¡£
 --
--- æ‰§è¡Œæµç¨‹:
---   1. ç¡®å®šä¸Šæœˆè´¦æœŸï¼ˆä¾‹å¦‚å½“å‰æ˜¯ 2026-06-01ï¼Œåˆ™è´¦æœŸä¸º 202605ï¼‰
---   2. æŸ¥è¯¢å½“å‰æœ‰æ•ˆç”µä»·é…ç½®ï¼ˆis_active = 'Y'ï¼‰
---   3. éåŽ†æ‰€æœ‰ NORMAL çŠ¶æ€ç”µè¡¨:
---      a) æŸ¥æ‰¾ä¸Šæœˆæœ€åŽä¸€æ¡æŠ„è¡¨è®°å½• â†’ curr_reading
---      b) æŸ¥æ‰¾ä¸Šä¸Šæœˆæœ€åŽä¸€æ¡æŠ„è¡¨è®°å½• â†’ prev_reading
---         ï¼ˆè‹¥æ— ï¼Œåˆ™ä½¿ç”¨ meter.initial_readingï¼‰
---      c) è®¡ç®— total_usage = curr_reading - prev_reading
---      d) æŒ‰é˜¶æ¢¯è®¡ç®—ç”µè´¹
---      e) æ£€æŸ¥æ˜¯å¦å·²å­˜åœ¨è¯¥æœˆè´¦å•ï¼ˆå¹‚ç­‰æ€§: é‡å¤æ‰§è¡Œä¸ç”Ÿæˆé‡å¤è´¦å•ï¼‰
---      f) æ’å…¥ bill è®°å½•
---   4. è¾“å‡ºæ‰§è¡Œæ—¥å¿—
+-- Ö´ÐÐÁ÷³Ì:
+--   1. È·¶¨ÉÏÔÂÕËÆÚ£¨ÀýÈçµ±Ç°ÊÇ 2026-06-01£¬ÔòÕËÆÚÎª 202605£©
+--   2. ²éÑ¯µ±Ç°ÓÐÐ§µç¼ÛÅäÖÃ£¨is_active = 'Y'£©
+--   3. ±éÀúËùÓÐ NORMAL ×´Ì¬µç±í:
+--      a) ²éÕÒÉÏÔÂ×îºóÒ»Ìõ³­±í¼ÇÂ¼ ¡ú curr_reading
+--      b) ²éÕÒÉÏÉÏÔÂ×îºóÒ»Ìõ³­±í¼ÇÂ¼ ¡ú prev_reading
+--         £¨ÈôÎÞ£¬ÔòÊ¹ÓÃ meter.initial_reading£©
+--      c) ¼ÆËã total_usage = curr_reading - prev_reading
+--      d) °´½×ÌÝ¼ÆËãµç·Ñ
+--      e) ¼ì²éÊÇ·ñÒÑ´æÔÚ¸ÃÔÂÕËµ¥£¨ÃÝµÈÐÔ: ÖØ¸´Ö´ÐÐ²»Éú³ÉÖØ¸´ÕËµ¥£©
+--      f) ²åÈë bill ¼ÇÂ¼
+--   4. Êä³öÖ´ÐÐÈÕÖ¾
 --
--- å‚æ•°:
---   p_bill_month IN VARCHAR2(6)  â€” å¯é€‰ï¼ŒæŒ‡å®šè´¦æœŸ(YYYYMM)ã€‚é»˜è®¤è‡ªåŠ¨è®¡ç®—ä¸Šæœˆã€‚
---   p_commit_interval IN NUMBER  â€” æ¯å¤„ç†Nä¸ªç”µè¡¨æäº¤ä¸€æ¬¡
+-- ²ÎÊý:
+--   p_bill_month IN VARCHAR2(6)  ¡ª ¿ÉÑ¡£¬Ö¸¶¨ÕËÆÚ(YYYYMM)¡£Ä¬ÈÏ×Ô¶¯¼ÆËãÉÏÔÂ¡£
+--   p_commit_interval IN NUMBER  ¡ª Ã¿´¦ÀíN¸öµç±íÌá½»Ò»´Î
 -- ============================================================================
 CREATE OR REPLACE PROCEDURE sp_generate_monthly_bills(
     p_bill_month      IN VARCHAR2 DEFAULT NULL,
     p_commit_interval IN NUMBER   DEFAULT 100
 ) IS
-    -- è´¦æœŸ
+    -- ÕËÆÚ
     v_bill_month   VARCHAR2(6);
 
-    -- ç”µä»·é…ç½®ï¼ˆä¸‰ä¸ªæ¡£ä½ï¼‰
-    v_price1       price_config.unit_price%TYPE;  -- ç¬¬ä¸€æ¡£å•ä»·
-    v_price2       price_config.unit_price%TYPE;  -- ç¬¬äºŒæ¡£å•ä»·
-    v_price3       price_config.unit_price%TYPE;  -- ç¬¬ä¸‰æ¡£å•ä»·
-    v_limit1       price_config.upper_limit%TYPE; -- ç¬¬ä¸€æ¡£ä¸Šé™(200)
-    v_limit2       price_config.upper_limit%TYPE; -- ç¬¬äºŒæ¡£ä¸Šé™(400)
+    -- µç¼ÛÅäÖÃ£¨Èý¸öµµÎ»£©
+    v_price1       price_config.unit_price%TYPE;  -- µÚÒ»µµµ¥¼Û
+    v_price2       price_config.unit_price%TYPE;  -- µÚ¶þµµµ¥¼Û
+    v_price3       price_config.unit_price%TYPE;  -- µÚÈýµµµ¥¼Û
+    v_limit1       price_config.upper_limit%TYPE; -- µÚÒ»µµÉÏÏÞ(200)
+    v_limit2       price_config.upper_limit%TYPE; -- µÚ¶þµµÉÏÏÞ(400)
 
-    -- æŠ„è¡¨è¯»æ•°
-    v_prev_reading meter_reading.reading_value%TYPE;  -- ä¸ŠæœŸè¯»æ•°
-    v_curr_reading meter_reading.reading_value%TYPE;  -- æœ¬æœŸè¯»æ•°
+    -- ³­±í¶ÁÊý
+    v_prev_reading meter_reading.reading_value%TYPE;  -- ÉÏÆÚ¶ÁÊý
+    v_curr_reading meter_reading.reading_value%TYPE;  -- ±¾ÆÚ¶ÁÊý
 
-    -- ç”¨ç”µé‡
+    -- ÓÃµçÁ¿
     v_total_usage  NUMBER(10,2);
-    v_tier1_usage  NUMBER(10,2);  -- ç¬¬ä¸€æ¡£ç”¨é‡
-    v_tier2_usage  NUMBER(10,2);  -- ç¬¬äºŒæ¡£ç”¨é‡
-    v_tier3_usage  NUMBER(10,2);  -- ç¬¬ä¸‰æ¡£ç”¨é‡
+    v_tier1_usage  NUMBER(10,2);  -- µÚÒ»µµÓÃÁ¿
+    v_tier2_usage  NUMBER(10,2);  -- µÚ¶þµµÓÃÁ¿
+    v_tier3_usage  NUMBER(10,2);  -- µÚÈýµµÓÃÁ¿
 
-    -- è´¹ç”¨
+    -- ·ÑÓÃ
     v_tier1_amount NUMBER(12,2);
     v_tier2_amount NUMBER(12,2);
     v_tier3_amount NUMBER(12,2);
     v_total_amount NUMBER(12,2);
 
-    -- ç¼´è´¹æˆªæ­¢æ—¥ (å‡ºè´¦æ—¥+15å¤©)
+    -- ½É·Ñ½ØÖ¹ÈÕ (³öÕËÈÕ+15Ìì)
     v_due_date     DATE;
 
-    -- è®¡æ•°
+    -- ¼ÆÊý
     v_count        NUMBER := 0;
     v_due_count    NUMBER := 0;
 
-    -- ä¸Šæœˆæ—¥æœŸèŒƒå›´
+    -- ÉÏÔÂÈÕÆÚ·¶Î§
     v_last_month_start DATE;
     v_last_month_end   DATE;
 
-    -- æ¸¸æ ‡: éåŽ†æ‰€æœ‰æ­£å¸¸ç”µè¡¨
+    -- ÓÎ±ê: ±éÀúËùÓÐÕý³£µç±í
     CURSOR c_meters IS
         SELECT m.meter_id, m.meter_no, m.initial_reading
         FROM   meter m
@@ -83,13 +83,13 @@ CREATE OR REPLACE PROCEDURE sp_generate_monthly_bills(
         ORDER BY m.meter_id;
 
 BEGIN
-    DBMS_OUTPUT.PUT_LINE('===== SP1: æœˆåº¦è´¦å•ç”Ÿæˆå¼€å§‹ =====');
-    DBMS_OUTPUT.PUT_LINE('æ‰§è¡Œæ—¶é—´: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'));
+    DBMS_OUTPUT.PUT_LINE('===== SP1: ÔÂ¶ÈÕËµ¥Éú³É¿ªÊ¼ =====');
+    DBMS_OUTPUT.PUT_LINE('Ö´ÐÐÊ±¼ä: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'));
 
     -- -----------------------------------------------------------------------
-    -- æ­¥éª¤1: ç¡®å®šè´¦æœŸ
-    --   è‹¥æœªæŒ‡å®šï¼Œé»˜è®¤ç”Ÿæˆä¸Šä¸ªæœˆçš„è´¦å•
-    --   ä¾‹å¦‚å½“å‰æ—¥æœŸ 2026-06-01 â†’ è´¦æœŸ 202605
+    -- ²½Öè1: È·¶¨ÕËÆÚ
+    --   ÈôÎ´Ö¸¶¨£¬Ä¬ÈÏÉú³ÉÉÏ¸öÔÂµÄÕËµ¥
+    --   ÀýÈçµ±Ç°ÈÕÆÚ 2026-06-01 ¡ú ÕËÆÚ 202605
     -- -----------------------------------------------------------------------
     IF p_bill_month IS NULL THEN
         v_bill_month := TO_CHAR(ADD_MONTHS(SYSDATE, -1), 'YYYYMM');
@@ -97,15 +97,15 @@ BEGIN
         v_bill_month := p_bill_month;
     END IF;
 
-    DBMS_OUTPUT.PUT_LINE('ç›®æ ‡è´¦æœŸ: ' || v_bill_month);
+    DBMS_OUTPUT.PUT_LINE('Ä¿±êÕËÆÚ: ' || v_bill_month);
 
-    -- è®¡ç®—ä¸Šæœˆèµ·æ­¢æ—¥æœŸï¼ˆç”¨äºŽæŸ¥è¯¢æŠ„è¡¨è®°å½•ï¼‰
+    -- ¼ÆËãÉÏÔÂÆðÖ¹ÈÕÆÚ£¨ÓÃÓÚ²éÑ¯³­±í¼ÇÂ¼£©
     v_last_month_start := TO_DATE(v_bill_month || '01', 'YYYYMMDD');
     v_last_month_end   := LAST_DAY(v_last_month_start);
 
     -- -----------------------------------------------------------------------
-    -- æ­¥éª¤2: åŠ è½½å½“å‰æœ‰æ•ˆç”µä»·é…ç½®
-    --   æŸ¥è¯¢ is_active = 'Y' çš„ä¸‰æ¡£ç”µä»·ï¼ŒæŒ‰æ¡£ä½æŽ’åº
+    -- ²½Öè2: ¼ÓÔØµ±Ç°ÓÐÐ§µç¼ÛÅäÖÃ
+    --   ²éÑ¯ is_active = 'Y' µÄÈýµµµç¼Û£¬°´µµÎ»ÅÅÐò
     -- -----------------------------------------------------------------------
     BEGIN
         SELECT unit_price INTO v_price1
@@ -118,12 +118,18 @@ BEGIN
         WHERE tier_no = 2 AND is_active = 'Y'
           AND ROWNUM = 1;
 
-        SELECT unit_price, upper_limit INTO v_price3, v_limit2
+        SELECT unit_price INTO v_price3
         FROM price_config
         WHERE tier_no = 3 AND is_active = 'Y'
           AND ROWNUM = 1;
 
-        -- ç¬¬ä¸€æ¡£ä¸Šé™
+        -- µÚ¶þµµÉÏÏÞ£¨ÐÞ¸´£º´Ó tier_no=2 ¶ÁÈ¡ÉÏÏÞÖµ 400£©
+        SELECT upper_limit INTO v_limit2
+        FROM price_config
+        WHERE tier_no = 2 AND is_active = 'Y'
+          AND ROWNUM = 1;
+
+        -- µÚÒ»µµÉÏÏÞ
         SELECT upper_limit INTO v_limit1
         FROM price_config
         WHERE tier_no = 1 AND is_active = 'Y'
@@ -131,35 +137,35 @@ BEGIN
 
     EXCEPTION
         WHEN NO_DATA_FOUND THEN
-            DBMS_OUTPUT.PUT_LINE('SP1 é”™è¯¯: æœªæ‰¾åˆ°æœ‰æ•ˆç”µä»·é…ç½®ï¼Œè¯·å…ˆåˆå§‹åŒ– price_config è¡¨');
+            DBMS_OUTPUT.PUT_LINE('SP1 ´íÎó: Î´ÕÒµ½ÓÐÐ§µç¼ÛÅäÖÃ£¬ÇëÏÈ³õÊ¼»¯ price_config ±í');
             RAISE;
     END;
 
-    DBMS_OUTPUT.PUT_LINE('ç”µä»·é…ç½®: ç¬¬ä¸€æ¡£ 0-' || v_limit1 || 'åº¦, '
-                      || v_price1 || 'å…ƒ/åº¦ | ç¬¬äºŒæ¡£ '
-                      || v_limit1 || '-' || v_limit2 || 'åº¦, '
-                      || v_price2 || 'å…ƒ/åº¦ | ç¬¬ä¸‰æ¡£ '
-                      || v_limit2 || 'åº¦ä»¥ä¸Š, ' || v_price3 || 'å…ƒ/åº¦');
+    DBMS_OUTPUT.PUT_LINE('µç¼ÛÅäÖÃ: µÚÒ»µµ 0-' || v_limit1 || '¶È, '
+                      || v_price1 || 'Ôª/¶È | µÚ¶þµµ '
+                      || v_limit1 || '-' || v_limit2 || '¶È, '
+                      || v_price2 || 'Ôª/¶È | µÚÈýµµ '
+                      || v_limit2 || '¶ÈÒÔÉÏ, ' || v_price3 || 'Ôª/¶È');
 
     -- -----------------------------------------------------------------------
-    -- æ­¥éª¤3: éåŽ†æ‰€æœ‰ç”µè¡¨ï¼Œä¸ºæ¯ä¸ªç”µè¡¨ç”Ÿæˆè´¦å•
+    -- ²½Öè3: ±éÀúËùÓÐµç±í£¬ÎªÃ¿¸öµç±íÉú³ÉÕËµ¥
     -- -----------------------------------------------------------------------
     FOR rec IN c_meters LOOP
 
-        -- æ£€æŸ¥æ˜¯å¦å·²å­˜åœ¨è¯¥ç”µè¡¨å½“æœˆçš„è´¦å•ï¼ˆå¹‚ç­‰æ€§ä¿è¯ï¼‰
-        -- è‹¥å·²å­˜åœ¨ï¼Œè·³è¿‡ï¼Œé¿å…é‡å¤ç”Ÿæˆ
+        -- ¼ì²éÊÇ·ñÒÑ´æÔÚ¸Ãµç±íµ±ÔÂµÄÕËµ¥£¨ÃÝµÈÐÔ±£Ö¤£©
+        -- ÈôÒÑ´æÔÚ£¬Ìø¹ý£¬±ÜÃâÖØ¸´Éú³É
         SELECT COUNT(*) INTO v_due_count
         FROM bill
         WHERE meter_id = rec.meter_id AND bill_month = v_bill_month;
 
         IF v_due_count > 0 THEN
-            DBMS_OUTPUT.PUT_LINE('  ç”µè¡¨ ' || rec.meter_no || ' è´¦æœŸ ' || v_bill_month || ' è´¦å•å·²å­˜åœ¨ï¼Œè·³è¿‡');
+            DBMS_OUTPUT.PUT_LINE('  µç±í ' || rec.meter_no || ' ÕËÆÚ ' || v_bill_month || ' ÕËµ¥ÒÑ´æÔÚ£¬Ìø¹ý');
             CONTINUE;
         END IF;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤3a: èŽ·å–æœ¬æœŸè¯»æ•°ï¼ˆä¸Šä¸ªæœˆæœ€åŽä¸€å¤©çš„ç´¯è®¡è¯»æ•°ï¼‰
-        --   ä»Ž meter_reading è¡¨ä¸­æŸ¥æ‰¾ reading_date â‰¤ ä¸Šæœˆæœ€åŽä¸€å¤© çš„æœ€æ–°è®°å½•
+        -- ²½Öè3a: »ñÈ¡±¾ÆÚ¶ÁÊý£¨ÉÏ¸öÔÂ×îºóÒ»ÌìµÄÀÛ¼Æ¶ÁÊý£©
+        --   ´Ó meter_reading ±íÖÐ²éÕÒ reading_date ¡Ü ÉÏÔÂ×îºóÒ»Ìì µÄ×îÐÂ¼ÇÂ¼
         -- -------------------------------------------------------------------
         BEGIN
             SELECT reading_value INTO v_curr_reading
@@ -173,16 +179,16 @@ BEGIN
             WHERE ROWNUM = 1;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                -- è¯¥ç”µè¡¨åœ¨ä¸Šæœˆæ²¡æœ‰æŠ„è¡¨è®°å½•
-                -- å¯èƒ½æ˜¯æ–°è£…ç”µè¡¨ / SP3 æœªè¦†ç›– / æ•°æ®ç¼ºå¤±
-                DBMS_OUTPUT.PUT_LINE('  ç”µè¡¨ ' || rec.meter_no || ' åœ¨ ' || v_bill_month || ' æ— æŠ„è¡¨è®°å½•ï¼Œè·³è¿‡');
+                -- ¸Ãµç±íÔÚÉÏÔÂÃ»ÓÐ³­±í¼ÇÂ¼
+                -- ¿ÉÄÜÊÇÐÂ×°µç±í / SP3 Î´¸²¸Ç / Êý¾ÝÈ±Ê§
+                DBMS_OUTPUT.PUT_LINE('  µç±í ' || rec.meter_no || ' ÔÚ ' || v_bill_month || ' ÎÞ³­±í¼ÇÂ¼£¬Ìø¹ý');
                 CONTINUE;
         END;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤3b: èŽ·å–ä¸ŠæœŸè¯»æ•°ï¼ˆä¸Šä¸Šä¸ªæœˆæœ€åŽä¸€å¤©çš„ç´¯è®¡è¯»æ•°ï¼‰
-        --   åŒæ ·ä»Ž meter_reading æŸ¥æ‰¾ã€‚
-        --   è‹¥æŸ¥ä¸åˆ°ï¼ˆæ–°è£…ç”µè¡¨ç¬¬ä¸€ä»½è´¦å•ï¼‰ï¼Œä½¿ç”¨ meter.initial_reading
+        -- ²½Öè3b: »ñÈ¡ÉÏÆÚ¶ÁÊý£¨ÉÏÉÏ¸öÔÂ×îºóÒ»ÌìµÄÀÛ¼Æ¶ÁÊý£©
+        --   Í¬Ñù´Ó meter_reading ²éÕÒ¡£
+        --   Èô²é²»µ½£¨ÐÂ×°µç±íµÚÒ»·ÝÕËµ¥£©£¬Ê¹ÓÃ meter.initial_reading
         -- -------------------------------------------------------------------
         DECLARE
             v_prev_month_end DATE := LAST_DAY(ADD_MONTHS(v_last_month_start, -1));
@@ -198,32 +204,32 @@ BEGIN
             WHERE ROWNUM = 1;
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                -- æ²¡æœ‰ä¸Šä¸Šæœˆè¯»æ•°ï¼Œä½¿ç”¨ç”µè¡¨åˆå§‹è¯»æ•°ä½œä¸ºåŸºå‡†
+                -- Ã»ÓÐÉÏÉÏÔÂ¶ÁÊý£¬Ê¹ÓÃµç±í³õÊ¼¶ÁÊý×÷Îª»ù×¼
                 v_prev_reading := rec.initial_reading;
         END;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤3c: è®¡ç®—æ€»ç”¨ç”µé‡
-        --   å¦‚æžœæœ¬æœŸè¯»æ•°ä¸å¤§äºŽä¸ŠæœŸè¯»æ•°ï¼ˆå€’è½¬/æ•°æ®å¼‚å¸¸ï¼‰ï¼Œç”¨é‡è®¾ä¸º0å¹¶è®°å½•
+        -- ²½Öè3c: ¼ÆËã×ÜÓÃµçÁ¿
+        --   Èç¹û±¾ÆÚ¶ÁÊý²»´óÓÚÉÏÆÚ¶ÁÊý£¨µ¹×ª/Êý¾ÝÒì³££©£¬ÓÃÁ¿ÉèÎª0²¢¼ÇÂ¼
         -- -------------------------------------------------------------------
         v_total_usage := v_curr_reading - v_prev_reading;
         IF v_total_usage < 0 THEN
-            DBMS_OUTPUT.PUT_LINE('  è­¦å‘Š: ç”µè¡¨ ' || rec.meter_no
-                || ' è¯»æ•°å€’è½¬ (prev=' || v_prev_reading
-                || ', curr=' || v_curr_reading || ')ï¼Œç”¨é‡è®¾ä¸º0');
+            DBMS_OUTPUT.PUT_LINE('  ¾¯¸æ: µç±í ' || rec.meter_no
+                || ' ¶ÁÊýµ¹×ª (prev=' || v_prev_reading
+                || ', curr=' || v_curr_reading || ')£¬ÓÃÁ¿ÉèÎª0');
             v_total_usage := 0;
         END IF;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤3d: é˜¶æ¢¯ç”µä»·è®¡ç®—
+        -- ²½Öè3d: ½×ÌÝµç¼Û¼ÆËã
         --
-        -- ç®—æ³•:
-        --   ç¬¬ä¸€æ¡£ç”¨é‡ = MIN(æ€»ç”¨é‡, ç¬¬ä¸€æ¡£ä¸Šé™)
-        --   ç¬¬äºŒæ¡£ç”¨é‡ = MAX(0, MIN(æ€»ç”¨é‡ - ç¬¬ä¸€æ¡£ä¸Šé™, ç¬¬äºŒæ¡£ä¸Šé™ - ç¬¬ä¸€æ¡£ä¸Šé™))
-        --   ç¬¬ä¸‰æ¡£ç”¨é‡ = MAX(0, æ€»ç”¨é‡ - ç¬¬äºŒæ¡£ä¸Šé™)
+        -- Ëã·¨:
+        --   µÚÒ»µµÓÃÁ¿ = MIN(×ÜÓÃÁ¿, µÚÒ»µµÉÏÏÞ)
+        --   µÚ¶þµµÓÃÁ¿ = MAX(0, MIN(×ÜÓÃÁ¿ - µÚÒ»µµÉÏÏÞ, µÚ¶þµµÉÏÏÞ - µÚÒ»µµÉÏÏÞ))
+        --   µÚÈýµµÓÃÁ¿ = MAX(0, ×ÜÓÃÁ¿ - µÚ¶þµµÉÏÏÞ)
         --
-        --   å„æ¡£è´¹ç”¨ = å„æ¡£ç”¨é‡ Ã— å„æ¡£å•ä»·
-        --   æ€»è´¹ç”¨   = å„æ¡£è´¹ç”¨ä¹‹å’Œ
+        --   ¸÷µµ·ÑÓÃ = ¸÷µµÓÃÁ¿ ¡Á ¸÷µµµ¥¼Û
+        --   ×Ü·ÑÓÃ   = ¸÷µµ·ÑÓÃÖ®ºÍ
         -- -------------------------------------------------------------------
         v_tier1_usage := LEAST(v_total_usage, v_limit1);
         v_tier2_usage := GREATEST(0, LEAST(v_total_usage - v_limit1, v_limit2 - v_limit1));
@@ -235,17 +241,17 @@ BEGIN
         v_total_amount := v_tier1_amount + v_tier2_amount + v_tier3_amount;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤3e: ç¡®å®šç¼´è´¹æˆªæ­¢æ—¥ = å½“å‰æ—¥æœŸ + 15å¤©
-        --   (å®žé™…åœºæ™¯æ˜¯å‡ºè´¦æ—¥+15å¤©ï¼Œæ­¤å¤„ä»¥è¿‡ç¨‹æ‰§è¡Œæ—¥æœŸä¸ºå‡ºè´¦æ—¥)
+        -- ²½Öè3e: È·¶¨½É·Ñ½ØÖ¹ÈÕ = µ±Ç°ÈÕÆÚ + 15Ìì
+        --   (Êµ¼Ê³¡¾°ÊÇ³öÕËÈÕ+15Ìì£¬´Ë´¦ÒÔ¹ý³ÌÖ´ÐÐÈÕÆÚÎª³öÕËÈÕ)
         -- -------------------------------------------------------------------
         v_due_date := TRUNC(SYSDATE) + 15;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤3f: æ’å…¥è´¦å•è®°å½•
-        --   ä½¿ç”¨åºåˆ—æ˜¾å¼æä¾› bill_id
-        --   è§¦å‘æ•ˆæžœ:
-        --     - TR4b (å¤åˆè§¦å‘å™¨) ä¼šåœ¨è¯­å¥ç»“æŸåŽæ£€æµ‹ç”¨ç”µé£™å‡/éª¤é™
-        --     - å¦‚æœ‰å¼‚å¸¸ï¼Œè‡ªåŠ¨æ’å…¥ alert å’Œ notification
+        -- ²½Öè3f: ²åÈëÕËµ¥¼ÇÂ¼
+        --   Ê¹ÓÃÐòÁÐÏÔÊ½Ìá¹© bill_id
+        --   ´¥·¢Ð§¹û:
+        --     - TR4b (¸´ºÏ´¥·¢Æ÷) »áÔÚÓï¾ä½áÊøºó¼ì²âÓÃµçì­Éý/Öè½µ
+        --     - ÈçÓÐÒì³££¬×Ô¶¯²åÈë alert ºÍ notification
         -- -------------------------------------------------------------------
         INSERT INTO bill (
             bill_id, meter_id, bill_month,
@@ -266,128 +272,128 @@ BEGIN
             v_tier1_usage, v_tier2_usage, v_tier3_usage,
             v_tier1_amount, v_tier2_amount, v_tier3_amount,
             v_total_amount,
-            0,          -- åˆå§‹æ»žçº³é‡‘ä¸º 0
-            'PENDING',  -- åˆå§‹çŠ¶æ€: å¾…ç¼´è´¹
+            0,          -- ³õÊ¼ÖÍÄÉ½ðÎª 0
+            'PENDING',  -- ³õÊ¼×´Ì¬: ´ý½É·Ñ
             v_due_date,
             SYSDATE
         );
 
         v_count := v_count + 1;
 
-        -- é˜¶æ®µæ€§æäº¤ï¼ˆé¿å…é•¿äº‹åŠ¡ï¼‰
+        -- ½×¶ÎÐÔÌá½»£¨±ÜÃâ³¤ÊÂÎñ£©
         IF MOD(v_count, p_commit_interval) = 0 THEN
             COMMIT;
-            DBMS_OUTPUT.PUT_LINE('  å·²å¤„ç† ' || v_count || ' ä¸ªç”µè¡¨ï¼Œæäº¤');
+            DBMS_OUTPUT.PUT_LINE('  ÒÑ´¦Àí ' || v_count || ' ¸öµç±í£¬Ìá½»');
         END IF;
 
     END LOOP;
 
-    -- æœ€ç»ˆæäº¤
+    -- ×îÖÕÌá½»
     COMMIT;
 
     -- -----------------------------------------------------------------------
-    -- æ­¥éª¤4: è¾“å‡ºæ‰§è¡Œæ±‡æ€»
+    -- ²½Öè4: Êä³öÖ´ÐÐ»ã×Ü
     -- -----------------------------------------------------------------------
-    DBMS_OUTPUT.PUT_LINE('===== SP1 æ‰§è¡Œå®Œæˆ =====');
-    DBMS_OUTPUT.PUT_LINE('è´¦æœŸ: ' || v_bill_month);
-    DBMS_OUTPUT.PUT_LINE('ç”Ÿæˆè´¦å•æ•°: ' || v_count);
+    DBMS_OUTPUT.PUT_LINE('===== SP1 Ö´ÐÐÍê³É =====');
+    DBMS_OUTPUT.PUT_LINE('ÕËÆÚ: ' || v_bill_month);
+    DBMS_OUTPUT.PUT_LINE('Éú³ÉÕËµ¥Êý: ' || v_count);
     DBMS_OUTPUT.PUT_LINE('========================');
 
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        DBMS_OUTPUT.PUT_LINE('SP1 æ‰§è¡Œå¤±è´¥ï¼Œå·²å›žæ»š: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('SP1 Ö´ÐÐÊ§°Ü£¬ÒÑ»Ø¹ö: ' || SQLERRM);
         RAISE;
 END sp_generate_monthly_bills;
 /
 
-PROMPT SP1 (sp_generate_monthly_bills) åˆ›å»ºå®Œæ¯• âœ“
+PROMPT SP1 (sp_generate_monthly_bills) ´´½¨Íê±Ï ?
 
 
 -- ============================================================================
--- SP2: æ¯æ—¥æ»žçº³é‡‘è®¡ç®—
--- åŠŸèƒ½æè¿°:
---   æ¯å¤©å‡Œæ™¨æ‰§è¡Œã€‚æ‰«ææ‰€æœ‰æœªç¼´è´¹è´¦å•ï¼Œå¯¹è¶…è¿‡å®½é™æœŸï¼ˆ15å¤©ï¼‰çš„è´¦å•è®¡ç®—æ»žçº³é‡‘ã€‚
---   åŒæ—¶æ›´æ–°é€¾æœŸè´¦å•çŠ¶æ€ä¸º OVERDUEï¼ˆæ­¤æ“ä½œä¼šè§¦å‘ TR2 ç”Ÿæˆæ¬ è´¹é€šçŸ¥ï¼‰ã€‚
+-- SP2: Ã¿ÈÕÖÍÄÉ½ð¼ÆËã
+-- ¹¦ÄÜÃèÊö:
+--   Ã¿ÌìÁè³¿Ö´ÐÐ¡£É¨ÃèËùÓÐÎ´½É·ÑÕËµ¥£¬¶Ô³¬¹ý¿íÏÞÆÚ£¨15Ìì£©µÄÕËµ¥¼ÆËãÖÍÄÉ½ð¡£
+--   Í¬Ê±¸üÐÂÓâÆÚÕËµ¥×´Ì¬Îª OVERDUE£¨´Ë²Ù×÷»á´¥·¢ TR2 Éú³ÉÇ··ÑÍ¨Öª£©¡£
 --
--- æ»žçº³é‡‘è§„åˆ™:
---   - å®½é™æœŸ: 15å¤©ï¼ˆå‡ºè´¦æ—¥è‡³ due_dateï¼‰
---   - è¶…è¿‡ due_date ä»æœªç¼´è´¹ = é€¾æœŸ
---   - æ»žçº³é‡‘ = total_amount Ã— 0.001 Ã— (å½“å‰æ—¥æœŸ - due_date)
---   - æ¯æ—¥ç´¯è®¡ï¼Œä½†ä¸è¶…è¿‡æœ¬é‡‘ï¼ˆä¸šåŠ¡åˆç†æ€§çº¦æŸï¼‰
+-- ÖÍÄÉ½ð¹æÔò:
+--   - ¿íÏÞÆÚ: 15Ìì£¨³öÕËÈÕÖÁ due_date£©
+--   - ³¬¹ý due_date ÈÔÎ´½É·Ñ = ÓâÆÚ
+--   - ÖÍÄÉ½ð = total_amount ¡Á 0.001 ¡Á (µ±Ç°ÈÕÆÚ - due_date)
+--   - Ã¿ÈÕÀÛ¼Æ£¬µ«²»³¬¹ý±¾½ð£¨ÒµÎñºÏÀíÐÔÔ¼Êø£©
 --
--- æ‰§è¡Œæµç¨‹:
---   1. æ‰«æ status IN ('PENDING', 'OVERDUE') ä¸” due_date < SYSDATE çš„è´¦å•
---   2. å¯¹æ¯æ¡è´¦å•:
---      a) è®¡ç®—é€¾æœŸå¤©æ•° = TRUNC(SYSDATE) - TRUNC(due_date)
---      b) æ›´æ–° late_fee = total_amount Ã— 0.001 Ã— é€¾æœŸå¤©æ•°ï¼ˆæ»žçº³é‡‘ä¸è¶…è¿‡æœ¬é‡‘ï¼‰
---      c) è‹¥ status = 'PENDING' ä¸”å·²é€¾æœŸ â†’ æ›´æ–°ä¸º 'OVERDUE'ï¼ˆè§¦å‘ TR2 æ¬ è´¹é€šçŸ¥ï¼‰
---   3. æäº¤
+-- Ö´ÐÐÁ÷³Ì:
+--   1. É¨Ãè status IN ('PENDING', 'OVERDUE') ÇÒ due_date < SYSDATE µÄÕËµ¥
+--   2. ¶ÔÃ¿ÌõÕËµ¥:
+--      a) ¼ÆËãÓâÆÚÌìÊý = TRUNC(SYSDATE) - TRUNC(due_date)
+--      b) ¸üÐÂ late_fee = total_amount ¡Á 0.001 ¡Á ÓâÆÚÌìÊý£¨ÖÍÄÉ½ð²»³¬¹ý±¾½ð£©
+--      c) Èô status = 'PENDING' ÇÒÒÑÓâÆÚ ¡ú ¸üÐÂÎª 'OVERDUE'£¨´¥·¢ TR2 Ç··ÑÍ¨Öª£©
+--   3. Ìá½»
 --
--- å‚æ•°: æ— 
+-- ²ÎÊý: ÎÞ
 -- ============================================================================
 CREATE OR REPLACE PROCEDURE sp_calc_late_fees IS
 
-    -- æ¸¸æ ‡: æ‰€æœ‰æœªç¼´è´¹ä¸”å·²è¿‡æœŸçš„è´¦å•
+    -- ÓÎ±ê: ËùÓÐÎ´½É·ÑÇÒÒÑ¹ýÆÚµÄÕËµ¥
     CURSOR c_overdue_bills IS
         SELECT bill_id, meter_id, total_amount, late_fee, status,
                due_date, bill_month
         FROM   bill
         WHERE  status IN ('PENDING', 'OVERDUE')
-          AND  due_date < TRUNC(SYSDATE) -- å·²è¿‡æˆªæ­¢æ—¥
+          AND  due_date < TRUNC(SYSDATE) -- ÒÑ¹ý½ØÖ¹ÈÕ
         ORDER BY bill_id;
 
-    v_days_overdue  NUMBER;          -- é€¾æœŸå¤©æ•°
-    v_new_late_fee  bill.late_fee%TYPE;  -- æ–°çš„æ»žçº³é‡‘
-    v_updated       NUMBER := 0;     -- æ›´æ–°è®¡æ•°
+    v_days_overdue  NUMBER;          -- ÓâÆÚÌìÊý
+    v_new_late_fee  bill.late_fee%TYPE;  -- ÐÂµÄÖÍÄÉ½ð
+    v_updated       NUMBER := 0;     -- ¸üÐÂ¼ÆÊý
 
 BEGIN
-    DBMS_OUTPUT.PUT_LINE('===== SP2: æ»žçº³é‡‘è®¡ç®—å¼€å§‹ =====');
-    DBMS_OUTPUT.PUT_LINE('æ‰§è¡Œæ—¶é—´: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'));
+    DBMS_OUTPUT.PUT_LINE('===== SP2: ÖÍÄÉ½ð¼ÆËã¿ªÊ¼ =====');
+    DBMS_OUTPUT.PUT_LINE('Ö´ÐÐÊ±¼ä: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'));
 
-    -- éåŽ†æ‰€æœ‰è¿‡æœŸæœªç¼´è´¦å•
+    -- ±éÀúËùÓÐ¹ýÆÚÎ´½ÉÕËµ¥
     FOR rec IN c_overdue_bills LOOP
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤1: è®¡ç®—é€¾æœŸå¤©æ•°
-        --   å¤©æ•°ä»Ž due_date æ¬¡æ—¥å¼€å§‹ç®—èµ·
-        --   ä¾‹å¦‚ due_date = 1æœˆ15æ—¥ï¼Œä»Šå¤©æ˜¯1æœˆ20æ—¥ â†’ é€¾æœŸ5å¤©
+        -- ²½Öè1: ¼ÆËãÓâÆÚÌìÊý
+        --   ÌìÊý´Ó due_date ´ÎÈÕ¿ªÊ¼ËãÆð
+        --   ÀýÈç due_date = 1ÔÂ15ÈÕ£¬½ñÌìÊÇ1ÔÂ20ÈÕ ¡ú ÓâÆÚ5Ìì
         -- -------------------------------------------------------------------
         v_days_overdue := TRUNC(SYSDATE) - TRUNC(rec.due_date);
 
         IF v_days_overdue <= 0 THEN
-            CONTINUE;  -- è™½ç„¶æ¸¸æ ‡å·²è¿‡æ»¤ï¼Œä½†åšé˜²å¾¡æ€§æ£€æŸ¥
+            CONTINUE;  -- ËäÈ»ÓÎ±êÒÑ¹ýÂË£¬µ«×ö·ÀÓùÐÔ¼ì²é
         END IF;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤2: è®¡ç®—æ»žçº³é‡‘
-        --   å…¬å¼: æ»žçº³é‡‘ = ç”µè´¹æœ¬é‡‘ Ã— 0.001 Ã— é€¾æœŸå¤©æ•°
-        --   æ»žçº³é‡‘æ€»é¢ä¸è¶…è¿‡ç”µè´¹æœ¬é‡‘ï¼ˆä¸šåŠ¡åˆç†æ€§çº¦æŸï¼‰
+        -- ²½Öè2: ¼ÆËãÖÍÄÉ½ð
+        --   ¹«Ê½: ÖÍÄÉ½ð = µç·Ñ±¾½ð ¡Á 0.001 ¡Á ÓâÆÚÌìÊý
+        --   ÖÍÄÉ½ð×Ü¶î²»³¬¹ýµç·Ñ±¾½ð£¨ÒµÎñºÏÀíÐÔÔ¼Êø£©
         -- -------------------------------------------------------------------
         v_new_late_fee := ROUND(rec.total_amount * 0.001 * v_days_overdue, 2);
 
-        -- æ»žçº³é‡‘ä¸Šé™ = ç”µè´¹æœ¬é‡‘
+        -- ÖÍÄÉ½ðÉÏÏÞ = µç·Ñ±¾½ð
         IF v_new_late_fee > rec.total_amount THEN
             v_new_late_fee := rec.total_amount;
         END IF;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤3: æ›´æ–°è´¦å•
-        --   è‹¥çŠ¶æ€è¿˜æ˜¯ PENDING â†’ æ›´æ–°ä¸º OVERDUE
-        --   ï¼ˆæ­¤ UPDATE ä¼šè§¦å‘ TR2 tr2_arrears_notifyï¼Œè‡ªåŠ¨ç”Ÿæˆæ¬ è´¹é€šçŸ¥ï¼‰
+        -- ²½Öè3: ¸üÐÂÕËµ¥
+        --   Èô×´Ì¬»¹ÊÇ PENDING ¡ú ¸üÐÂÎª OVERDUE
+        --   £¨´Ë UPDATE »á´¥·¢ TR2 tr2_arrears_notify£¬×Ô¶¯Éú³ÉÇ··ÑÍ¨Öª£©
         -- -------------------------------------------------------------------
         IF rec.status = 'PENDING' THEN
-            -- çŠ¶æ€å˜æ›´ + æ»žçº³é‡‘æ›´æ–°
+            -- ×´Ì¬±ä¸ü + ÖÍÄÉ½ð¸üÐÂ
             UPDATE bill
             SET status   = 'OVERDUE',
                 late_fee = v_new_late_fee
             WHERE bill_id = rec.bill_id;
         ELSE
-            -- ä»…æ›´æ–°æ»žçº³é‡‘ï¼ˆçŠ¶æ€å·²æ˜¯ OVERDUEï¼‰
+            -- ½ö¸üÐÂÖÍÄÉ½ð£¨×´Ì¬ÒÑÊÇ OVERDUE£©
             UPDATE bill
             SET late_fee = v_new_late_fee
             WHERE bill_id = rec.bill_id
-              AND late_fee <> v_new_late_fee;  -- ä»…åœ¨é‡‘é¢å˜åŒ–æ—¶æ›´æ–°
+              AND late_fee <> v_new_late_fee;  -- ½öÔÚ½ð¶î±ä»¯Ê±¸üÐÂ
         END IF;
 
         v_updated := v_updated + 1;
@@ -396,61 +402,61 @@ BEGIN
 
     COMMIT;
 
-    DBMS_OUTPUT.PUT_LINE('===== SP2 æ‰§è¡Œå®Œæˆ =====');
-    DBMS_OUTPUT.PUT_LINE('æ›´æ–°è´¦å•æ•°: ' || v_updated);
-    DBMS_OUTPUT.PUT_LINE('å½“å‰æ—¥æœŸ: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD'));
+    DBMS_OUTPUT.PUT_LINE('===== SP2 Ö´ÐÐÍê³É =====');
+    DBMS_OUTPUT.PUT_LINE('¸üÐÂÕËµ¥Êý: ' || v_updated);
+    DBMS_OUTPUT.PUT_LINE('µ±Ç°ÈÕÆÚ: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD'));
     DBMS_OUTPUT.PUT_LINE('========================');
 
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        DBMS_OUTPUT.PUT_LINE('SP2 æ‰§è¡Œå¤±è´¥ï¼Œå·²å›žæ»š: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('SP2 Ö´ÐÐÊ§°Ü£¬ÒÑ»Ø¹ö: ' || SQLERRM);
         RAISE;
 END sp_calc_late_fees;
 /
 
-PROMPT SP2 (sp_calc_late_fees) åˆ›å»ºå®Œæ¯• âœ“
+PROMPT SP2 (sp_calc_late_fees) ´´½¨Íê±Ï ?
 
 
 -- ============================================================================
--- SP3: æ¨¡æ‹Ÿæ™ºèƒ½ç”µè¡¨è¯»æ•°
--- åŠŸèƒ½æè¿°:
---   æ¯å¤©å‡Œæ™¨ 2:00 æ‰§è¡Œã€‚ä¸ºæ¯ä¸ªåœ¨ç”¨(NORMAL)ç”µè¡¨ç”Ÿæˆä¸€æ¡å½“æ—¥æŠ„è¡¨è®°å½•ã€‚
---   é€šè¿‡éšæœºå‡½æ•°æ¨¡æ‹ŸçœŸå®žçš„æ—¥ç”¨ç”µé‡æ³¢åŠ¨ï¼Œä½“çŽ°æ™ºèƒ½ç”µè¡¨è‡ªåŠ¨æŠ„è¡¨ã€‚
+-- SP3: Ä£ÄâÖÇÄÜµç±í¶ÁÊý
+-- ¹¦ÄÜÃèÊö:
+--   Ã¿ÌìÁè³¿ 2:00 Ö´ÐÐ¡£ÎªÃ¿¸öÔÚÓÃ(NORMAL)µç±íÉú³ÉÒ»Ìõµ±ÈÕ³­±í¼ÇÂ¼¡£
+--   Í¨¹ýËæ»úº¯ÊýÄ£ÄâÕæÊµµÄÈÕÓÃµçÁ¿²¨¶¯£¬ÌåÏÖÖÇÄÜµç±í×Ô¶¯³­±í¡£
 --
--- éšæœºè§„åˆ™:
---   - åŸºç¡€ç”¨ç”µ: 5 ~ 15 åº¦/å¤©ï¼ˆæ¨¡æ‹Ÿæ—¥å¸¸å®¶åº­ç”¨ç”µï¼‰
---   - å­£èŠ‚æ€§æ³¢åŠ¨: å†¬å­£(12-2æœˆ)å’Œå¤å­£(6-8æœˆ) Ã— 1.5ï¼ˆç©ºè°ƒ/å–æš–ï¼‰
---   - ä¼‘æ¯æ—¥æ³¢åŠ¨: å‘¨æœ« Ã— 1.2ï¼ˆåœ¨å®¶æ—¶é—´æ›´é•¿ï¼‰
---   - æœ€ç»ˆç”¨ç”µé‡ = åŸºç¡€ Ã— å­£èŠ‚ç³»æ•° Ã— å‘¨æœ«ç³»æ•°
---   - æ·»åŠ  Â±20% çš„éšæœºæŠ–åŠ¨
+-- Ëæ»ú¹æÔò:
+--   - »ù´¡ÓÃµç: 5 ~ 15 ¶È/Ìì£¨Ä£ÄâÈÕ³£¼ÒÍ¥ÓÃµç£©
+--   - ¼¾½ÚÐÔ²¨¶¯: ¶¬¼¾(12-2ÔÂ)ºÍÏÄ¼¾(6-8ÔÂ) ¡Á 1.5£¨¿Õµ÷/È¡Å¯£©
+--   - ÐÝÏ¢ÈÕ²¨¶¯: ÖÜÄ© ¡Á 1.2£¨ÔÚ¼ÒÊ±¼ä¸ü³¤£©
+--   - ×îÖÕÓÃµçÁ¿ = »ù´¡ ¡Á ¼¾½ÚÏµÊý ¡Á ÖÜÄ©ÏµÊý
+--   - Ìí¼Ó ¡À20% µÄËæ»ú¶¶¶¯
 --
--- è®¾è®¡è¦ç‚¹:
---   - æ£€æŸ¥å½“å¤©æ˜¯å¦å·²ç”Ÿæˆè¯»æ•°ï¼ˆå¹‚ç­‰æ€§: é˜²æ­¢é‡å¤æ‰§è¡Œå¯¼è‡´é‡å¤æ•°æ®ï¼‰
---   - æ¯æ¡è®°å½•ä½¿ç”¨ seq_reading_id.NEXTVAL æ˜¾å¼æä¾› reading_id
---   - æ’å…¥åŽä¼šä¾æ¬¡è§¦å‘:
---       TR1 (è®¡ç®— daily_usage, æ£€æµ‹å€’è½¬)
---       trg_meter_update_snapshot (æ›´æ–° meter.last_reading)
---       TR4a (è‹¥å€’è½¬, ç”Ÿæˆå‘Šè­¦)
+-- Éè¼ÆÒªµã:
+--   - ¼ì²éµ±ÌìÊÇ·ñÒÑÉú³É¶ÁÊý£¨ÃÝµÈÐÔ: ·ÀÖ¹ÖØ¸´Ö´ÐÐµ¼ÖÂÖØ¸´Êý¾Ý£©
+--   - Ã¿Ìõ¼ÇÂ¼Ê¹ÓÃ seq_reading_id.NEXTVAL ÏÔÊ½Ìá¹© reading_id
+--   - ²åÈëºó»áÒÀ´Î´¥·¢:
+--       TR1 (¼ÆËã daily_usage, ¼ì²âµ¹×ª)
+--       trg_meter_update_snapshot (¸üÐÂ meter.last_reading)
+--       TR4a (Èôµ¹×ª, Éú³É¸æ¾¯)
 --
--- å‚æ•°:
---   p_reading_date IN DATE â€” å¯é€‰ï¼ŒæŒ‡å®šæŠ„è¡¨æ—¥æœŸã€‚é»˜è®¤å½“å¤©ã€‚
+-- ²ÎÊý:
+--   p_reading_date IN DATE ¡ª ¿ÉÑ¡£¬Ö¸¶¨³­±íÈÕÆÚ¡£Ä¬ÈÏµ±Ìì¡£
 -- ============================================================================
 CREATE OR REPLACE PROCEDURE sp_simulate_meter_reading(
     p_reading_date IN DATE DEFAULT NULL
 ) IS
     v_reading_date  DATE;
     v_reading_value meter_reading.reading_value%TYPE;
-    v_base_usage    NUMBER(10,2);  -- åŸºç¡€ç”¨ç”µé‡
-    v_season_factor NUMBER(4,2);   -- å­£èŠ‚ç³»æ•°
-    v_weekend_factor NUMBER(4,2);  -- å‘¨æœ«ç³»æ•°
-    v_jitter         NUMBER(4,2);  -- éšæœºæŠ–åŠ¨
-    v_final_usage   NUMBER(10,2);  -- æœ€ç»ˆæ—¥ç”¨ç”µé‡
+    v_base_usage    NUMBER(10,2);  -- »ù´¡ÓÃµçÁ¿
+    v_season_factor NUMBER(4,2);   -- ¼¾½ÚÏµÊý
+    v_weekend_factor NUMBER(4,2);  -- ÖÜÄ©ÏµÊý
+    v_jitter         NUMBER(4,2);  -- Ëæ»ú¶¶¶¯
+    v_final_usage   NUMBER(10,2);  -- ×îÖÕÈÕÓÃµçÁ¿
     v_last_reading  meter.last_reading%TYPE;
     v_count         NUMBER := 0;
     v_exists        NUMBER;
 
-    -- æ¸¸æ ‡: æ‰€æœ‰æ­£å¸¸ç”µè¡¨
+    -- ÓÎ±ê: ËùÓÐÕý³£µç±í
     CURSOR c_meters IS
         SELECT m.meter_id, m.meter_no, m.last_reading, m.last_reading_date
         FROM   meter m
@@ -459,7 +465,7 @@ CREATE OR REPLACE PROCEDURE sp_simulate_meter_reading(
 
 BEGIN
     -- -----------------------------------------------------------------------
-    -- æ­¥éª¤1: ç¡®å®šæŠ„è¡¨æ—¥æœŸ
+    -- ²½Öè1: È·¶¨³­±íÈÕÆÚ
     -- -----------------------------------------------------------------------
     IF p_reading_date IS NULL THEN
         v_reading_date := TRUNC(SYSDATE);
@@ -467,41 +473,41 @@ BEGIN
         v_reading_date := TRUNC(p_reading_date);
     END IF;
 
-    -- æ—¥æœŸä¸èƒ½æ˜¯æœªæ¥æ—¥æœŸï¼ˆå¯¹äºŽç”Ÿäº§çŽ¯å¢ƒï¼‰
+    -- ÈÕÆÚ²»ÄÜÊÇÎ´À´ÈÕÆÚ£¨¶ÔÓÚÉú²ú»·¾³£©
     IF v_reading_date > TRUNC(SYSDATE) THEN
-        DBMS_OUTPUT.PUT_LINE('SP3 è­¦å‘Š: æŠ„è¡¨æ—¥æœŸ ' || TO_CHAR(v_reading_date, 'YYYY-MM-DD')
-                          || ' æ˜¯æœªæ¥æ—¥æœŸï¼Œå°†ä½¿ç”¨å½“å¤©æ—¥æœŸ');
+        DBMS_OUTPUT.PUT_LINE('SP3 ¾¯¸æ: ³­±íÈÕÆÚ ' || TO_CHAR(v_reading_date, 'YYYY-MM-DD')
+                          || ' ÊÇÎ´À´ÈÕÆÚ£¬½«Ê¹ÓÃµ±ÌìÈÕÆÚ');
         v_reading_date := TRUNC(SYSDATE);
     END IF;
 
-    DBMS_OUTPUT.PUT_LINE('===== SP3: æ™ºèƒ½ç”µè¡¨è¯»æ•°æ¨¡æ‹Ÿå¼€å§‹ =====');
-    DBMS_OUTPUT.PUT_LINE('æ‰§è¡Œæ—¶é—´: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'));
-    DBMS_OUTPUT.PUT_LINE('æŠ„è¡¨æ—¥æœŸ: ' || TO_CHAR(v_reading_date, 'YYYY-MM-DD'));
+    DBMS_OUTPUT.PUT_LINE('===== SP3: ÖÇÄÜµç±í¶ÁÊýÄ£Äâ¿ªÊ¼ =====');
+    DBMS_OUTPUT.PUT_LINE('Ö´ÐÐÊ±¼ä: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'));
+    DBMS_OUTPUT.PUT_LINE('³­±íÈÕÆÚ: ' || TO_CHAR(v_reading_date, 'YYYY-MM-DD'));
 
     -- -----------------------------------------------------------------------
-    -- æ­¥éª¤2: è®¡ç®—å­£èŠ‚ç³»æ•°
-    --   å†¬å­£(12,1,2): 1.5  |  å¤å­£(6,7,8): 1.5  |  æ˜¥ç§‹: 1.0
+    -- ²½Öè2: ¼ÆËã¼¾½ÚÏµÊý
+    --   ¶¬¼¾(12,1,2): 1.5  |  ÏÄ¼¾(6,7,8): 1.5  |  ´ºÇï: 1.0
     -- -----------------------------------------------------------------------
     DECLARE
         v_month NUMBER := TO_NUMBER(TO_CHAR(v_reading_date, 'MM'));
     BEGIN
         IF v_month IN (12, 1, 2) THEN
-            v_season_factor := 1.5;  -- å†¬å­£å–æš–
+            v_season_factor := 1.5;  -- ¶¬¼¾È¡Å¯
         ELSIF v_month IN (6, 7, 8) THEN
-            v_season_factor := 1.5;  -- å¤å­£ç©ºè°ƒ
+            v_season_factor := 1.5;  -- ÏÄ¼¾¿Õµ÷
         ELSE
-            v_season_factor := 1.0;  -- æ˜¥ç§‹å­£æ­£å¸¸
+            v_season_factor := 1.0;  -- ´ºÇï¼¾Õý³£
         END IF;
     END;
 
     -- -----------------------------------------------------------------------
-    -- æ­¥éª¤3: è®¡ç®—å‘¨æœ«ç³»æ•°
-    --   å‘¨å…­/å‘¨æ—¥: 1.2  |  å·¥ä½œæ—¥: 1.0
+    -- ²½Öè3: ¼ÆËãÖÜÄ©ÏµÊý
+    --   ÖÜÁù/ÖÜÈÕ: 1.2  |  ¹¤×÷ÈÕ: 1.0
     -- -----------------------------------------------------------------------
     DECLARE
         v_day NUMBER := TO_NUMBER(TO_CHAR(v_reading_date, 'D'));
     BEGIN
-        -- Oracle ä¸­: 1=å‘¨æ—¥, 7=å‘¨å…­
+        -- Oracle ÖÐ: 1=ÖÜÈÕ, 7=ÖÜÁù
         IF v_day IN (1, 7) THEN
             v_weekend_factor := 1.2;
         ELSE
@@ -510,53 +516,53 @@ BEGIN
     END;
 
     -- -----------------------------------------------------------------------
-    -- æ­¥éª¤4: éåŽ†æ¯ä¸ªç”µè¡¨ï¼Œç”Ÿæˆå½“æ—¥è¯»æ•°
+    -- ²½Öè4: ±éÀúÃ¿¸öµç±í£¬Éú³Éµ±ÈÕ¶ÁÊý
     -- -----------------------------------------------------------------------
     FOR rec IN c_meters LOOP
 
-        -- æ£€æŸ¥ä»Šå¤©æ˜¯å¦å·²æœ‰è¯»æ•°ï¼ˆå¹‚ç­‰æ€§ï¼‰
+        -- ¼ì²é½ñÌìÊÇ·ñÒÑÓÐ¶ÁÊý£¨ÃÝµÈÐÔ£©
         SELECT COUNT(*) INTO v_exists
         FROM meter_reading
         WHERE meter_id = rec.meter_id
           AND reading_date = v_reading_date;
 
         IF v_exists > 0 THEN
-            DBMS_OUTPUT.PUT_LINE('  ç”µè¡¨ ' || rec.meter_no || ' åœ¨ '
-                || TO_CHAR(v_reading_date, 'YYYY-MM-DD') || ' å·²æœ‰è¯»æ•°ï¼Œè·³è¿‡');
+            DBMS_OUTPUT.PUT_LINE('  µç±í ' || rec.meter_no || ' ÔÚ '
+                || TO_CHAR(v_reading_date, 'YYYY-MM-DD') || ' ÒÑÓÐ¶ÁÊý£¬Ìø¹ý');
             CONTINUE;
         END IF;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤4a: ç”Ÿæˆéšæœºæ—¥ç”¨ç”µé‡
+        -- ²½Öè4a: Éú³ÉËæ»úÈÕÓÃµçÁ¿
         --
-        --   DBMS_RANDOM.VALUE(low, high): è¿”å›ž [low, high) ä¹‹é—´çš„éšæœºæ•°
-        --   åŸºç¡€ç”¨ç”µ: 3 ~ 12 åº¦
-        --   Ã— å­£èŠ‚ç³»æ•° Ã— å‘¨æœ«ç³»æ•°
-        --   Ã— (0.8 ~ 1.2) éšæœºæŠ–åŠ¨
+        --   DBMS_RANDOM.VALUE(low, high): ·µ»Ø [low, high) Ö®¼äµÄËæ»úÊý
+        --   »ù´¡ÓÃµç: 3 ~ 12 ¶È
+        --   ¡Á ¼¾½ÚÏµÊý ¡Á ÖÜÄ©ÏµÊý
+        --   ¡Á (0.8 ~ 1.2) Ëæ»ú¶¶¶¯
         -- -------------------------------------------------------------------
         v_base_usage := DBMS_RANDOM.VALUE(3, 12);
         v_jitter     := DBMS_RANDOM.VALUE(0.8, 1.2);
         v_final_usage := ROUND(v_base_usage * v_season_factor * v_weekend_factor * v_jitter, 2);
 
-        -- ç”¨ç”µé‡ä¸èƒ½ä¸ºè´Ÿæˆ–ä¸º0
+        -- ÓÃµçÁ¿²»ÄÜÎª¸º»òÎª0
         IF v_final_usage <= 0 THEN
             v_final_usage := 1.0;
         END IF;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤4b: è®¡ç®—æ–°çš„ç´¯è®¡è¯»æ•°
-        --   æ–°ç´¯è®¡è¯»æ•° = ä¸Šæ¬¡ç´¯è®¡è¯»æ•° + ä»Šæ—¥ç”¨ç”µå¢žé‡
+        -- ²½Öè4b: ¼ÆËãÐÂµÄÀÛ¼Æ¶ÁÊý
+        --   ÐÂÀÛ¼Æ¶ÁÊý = ÉÏ´ÎÀÛ¼Æ¶ÁÊý + ½ñÈÕÓÃµçÔöÁ¿
         -- -------------------------------------------------------------------
         v_last_reading := NVL(rec.last_reading, 0);
         v_reading_value := v_last_reading + v_final_usage;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤4c: æ’å…¥æŠ„è¡¨è®°å½•
+        -- ²½Öè4c: ²åÈë³­±í¼ÇÂ¼
         --
-        --   è§¦å‘å™¨é“¾:
-        --     trg_reading_bi (è‡ªå¢ž) â†’ TR1 (è®¡ç®—daily_usage/æ£€æµ‹å€’è½¬)
-        --     â†’ trg_meter_update_snapshot (æ›´æ–°meter.last_reading)
-        --     â†’ TR4a (è‹¥å€’è½¬åˆ™åˆ›å»ºå‘Šè­¦)
+        --   ´¥·¢Æ÷Á´:
+        --     trg_reading_bi (×ÔÔö) ¡ú TR1 (¼ÆËãdaily_usage/¼ì²âµ¹×ª)
+        --     ¡ú trg_meter_update_snapshot (¸üÐÂmeter.last_reading)
+        --     ¡ú TR4a (Èôµ¹×ªÔò´´½¨¸æ¾¯)
         -- -------------------------------------------------------------------
         BEGIN
             INSERT INTO meter_reading (
@@ -568,8 +574,8 @@ BEGIN
                 rec.meter_id,
                 v_reading_date,
                 v_reading_value,
-                NULL,            -- daily_usage ç”± TR1 è‡ªåŠ¨è®¡ç®—
-                'AUTO',          -- æ ‡è®°ä¸ºè‡ªåŠ¨æ¨¡æ‹Ÿ
+                NULL,            -- daily_usage ÓÉ TR1 ×Ô¶¯¼ÆËã
+                'AUTO',          -- ±ê¼ÇÎª×Ô¶¯Ä£Äâ
                 SYSDATE
             );
 
@@ -577,7 +583,7 @@ BEGIN
 
         EXCEPTION
             WHEN OTHERS THEN
-                DBMS_OUTPUT.PUT_LINE('  SP3 æ’å…¥å¤±è´¥: ç”µè¡¨ ' || rec.meter_no
+                DBMS_OUTPUT.PUT_LINE('  SP3 ²åÈëÊ§°Ü: µç±í ' || rec.meter_no
                     || ' - ' || SQLERRM);
         END;
 
@@ -585,46 +591,46 @@ BEGIN
 
     COMMIT;
 
-    DBMS_OUTPUT.PUT_LINE('===== SP3 æ‰§è¡Œå®Œæˆ =====');
-    DBMS_OUTPUT.PUT_LINE('æŠ„è¡¨æ—¥æœŸ: ' || TO_CHAR(v_reading_date, 'YYYY-MM-DD'));
-    DBMS_OUTPUT.PUT_LINE('å­£èŠ‚ç³»æ•°: ' || v_season_factor || ' | å‘¨æœ«ç³»æ•°: ' || v_weekend_factor);
-    DBMS_OUTPUT.PUT_LINE('ç”Ÿæˆè¯»æ•°: ' || v_count || ' æ¡');
+    DBMS_OUTPUT.PUT_LINE('===== SP3 Ö´ÐÐÍê³É =====');
+    DBMS_OUTPUT.PUT_LINE('³­±íÈÕÆÚ: ' || TO_CHAR(v_reading_date, 'YYYY-MM-DD'));
+    DBMS_OUTPUT.PUT_LINE('¼¾½ÚÏµÊý: ' || v_season_factor || ' | ÖÜÄ©ÏµÊý: ' || v_weekend_factor);
+    DBMS_OUTPUT.PUT_LINE('Éú³É¶ÁÊý: ' || v_count || ' Ìõ');
     DBMS_OUTPUT.PUT_LINE('========================');
 
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        DBMS_OUTPUT.PUT_LINE('SP3 æ‰§è¡Œå¤±è´¥ï¼Œå·²å›žæ»š: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('SP3 Ö´ÐÐÊ§°Ü£¬ÒÑ»Ø¹ö: ' || SQLERRM);
         RAISE;
 END sp_simulate_meter_reading;
 /
 
-PROMPT SP3 (sp_simulate_meter_reading) åˆ›å»ºå®Œæ¯• âœ“
+PROMPT SP3 (sp_simulate_meter_reading) ´´½¨Íê±Ï ?
 
 
 -- ============================================================================
--- SP4: æ¬ è´¹æ–­ç”µé¢„è­¦
--- åŠŸèƒ½æè¿°:
---   æ¯å¤©å‡Œæ™¨ 0:30 æ‰§è¡Œã€‚æ‰«ææ¬ è´¹è¶…è¿‡28å¤©çš„è´¦å•ï¼Œå‘ä¸šä¸»å‘é€æ–­ç”µé¢„è­¦é€šçŸ¥ã€‚
+-- SP4: Ç··Ñ¶ÏµçÔ¤¾¯
+-- ¹¦ÄÜÃèÊö:
+--   Ã¿ÌìÁè³¿ 0:30 Ö´ÐÐ¡£É¨ÃèÇ··Ñ³¬¹ý28ÌìµÄÕËµ¥£¬ÏòÒµÖ÷·¢ËÍ¶ÏµçÔ¤¾¯Í¨Öª¡£
 --
--- æ‰§è¡Œæµç¨‹:
---   1. æ‰«æ status = 'OVERDUE' ä¸” due_date + 28 å¤© â‰¤ SYSDATE çš„è´¦å•
---   2. é€šè¿‡ meter â†’ house â†’ sys_user é“¾è·¯æ‰¾åˆ°ä¸šä¸»
---   3. æ£€æŸ¥æ˜¯å¦å·²å‘é€è¿‡åŒä¸€è´¦å•çš„æ–­ç”µé¢„è­¦ï¼ˆåŽ»é‡ï¼‰
---   4. æ’å…¥ CUTOFF_WARNING ç±»åž‹é€šçŸ¥
+-- Ö´ÐÐÁ÷³Ì:
+--   1. É¨Ãè status = 'OVERDUE' ÇÒ due_date + 28 Ìì ¡Ü SYSDATE µÄÕËµ¥
+--   2. Í¨¹ý meter ¡ú house ¡ú sys_user Á´Â·ÕÒµ½ÒµÖ÷
+--   3. ¼ì²éÊÇ·ñÒÑ·¢ËÍ¹ýÍ¬Ò»ÕËµ¥µÄ¶ÏµçÔ¤¾¯£¨È¥ÖØ£©
+--   4. ²åÈë CUTOFF_WARNING ÀàÐÍÍ¨Öª
 --
--- å‚æ•°: æ— 
+-- ²ÎÊý: ÎÞ
 -- ============================================================================
 CREATE OR REPLACE PROCEDURE sp_power_cutoff_warning IS
 
-    -- æ¸¸æ ‡: æ¬ è´¹è¶…è¿‡28å¤©çš„è´¦å•
+    -- ÓÎ±ê: Ç··Ñ³¬¹ý28ÌìµÄÕËµ¥
     CURSOR c_cutoff_bills IS
         SELECT b.bill_id, b.meter_id, b.bill_month, b.total_amount,
                b.late_fee, b.due_date,
                TRUNC(SYSDATE) - TRUNC(b.due_date) AS days_overdue
         FROM   bill b
         WHERE  b.status = 'OVERDUE'
-          AND  b.due_date + 28 <= TRUNC(SYSDATE)  -- é€¾æœŸ â‰¥ 28 å¤©
+          AND  b.due_date + 28 <= TRUNC(SYSDATE)  -- ÓâÆÚ ¡Ý 28 Ìì
         ORDER BY b.bill_id;
 
     v_user_id    sys_user.user_id%TYPE;
@@ -633,14 +639,14 @@ CREATE OR REPLACE PROCEDURE sp_power_cutoff_warning IS
     v_count      NUMBER := 0;
 
 BEGIN
-    DBMS_OUTPUT.PUT_LINE('===== SP4: æ–­ç”µé¢„è­¦æ‰«æå¼€å§‹ =====');
-    DBMS_OUTPUT.PUT_LINE('æ‰§è¡Œæ—¶é—´: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'));
+    DBMS_OUTPUT.PUT_LINE('===== SP4: ¶ÏµçÔ¤¾¯É¨Ãè¿ªÊ¼ =====');
+    DBMS_OUTPUT.PUT_LINE('Ö´ÐÐÊ±¼ä: ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS'));
 
     FOR rec IN c_cutoff_bills LOOP
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤1: æŸ¥æ‰¾ä¸šä¸»ä¿¡æ¯
-        --   é€šè¿‡ ç”µè¡¨ â†’ æˆ¿äº§ â†’ ç”¨æˆ· ä¸‰è¡¨è”æŸ¥
+        -- ²½Öè1: ²éÕÒÒµÖ÷ÐÅÏ¢
+        --   Í¨¹ý µç±í ¡ú ·¿²ú ¡ú ÓÃ»§ Èý±íÁª²é
         -- -------------------------------------------------------------------
         BEGIN
             SELECT u.user_id, h.address
@@ -652,13 +658,13 @@ BEGIN
 
         EXCEPTION
             WHEN NO_DATA_FOUND THEN
-                DBMS_OUTPUT.PUT_LINE('  SP4: ç”µè¡¨ ' || rec.meter_id || ' æ‰¾ä¸åˆ°ä¸šä¸»ï¼Œè·³è¿‡');
+                DBMS_OUTPUT.PUT_LINE('  SP4: µç±í ' || rec.meter_id || ' ÕÒ²»µ½ÒµÖ÷£¬Ìø¹ý');
                 CONTINUE;
         END;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤2: æ£€æŸ¥æ˜¯å¦å·²å‘é€è¿‡æ–­ç”µé¢„è­¦ï¼ˆåŽ»é‡ï¼‰
-        --   åŒä¸€è´¦å• + åŒä¸€ç”¨æˆ· + æ–­ç”µé¢„è­¦ç±»åž‹
+        -- ²½Öè2: ¼ì²éÊÇ·ñÒÑ·¢ËÍ¹ý¶ÏµçÔ¤¾¯£¨È¥ÖØ£©
+        --   Í¬Ò»ÕËµ¥ + Í¬Ò»ÓÃ»§ + ¶ÏµçÔ¤¾¯ÀàÐÍ
         -- -------------------------------------------------------------------
         SELECT COUNT(*) INTO v_exists
         FROM notification
@@ -667,27 +673,27 @@ BEGIN
           AND related_id = rec.bill_id;
 
         IF v_exists > 0 THEN
-            -- å·²å‘é€è¿‡ï¼Œè·³è¿‡
+            -- ÒÑ·¢ËÍ¹ý£¬Ìø¹ý
             CONTINUE;
         END IF;
 
         -- -------------------------------------------------------------------
-        -- æ­¥éª¤3: æ’å…¥æ–­ç”µé¢„è­¦é€šçŸ¥
+        -- ²½Öè3: ²åÈë¶ÏµçÔ¤¾¯Í¨Öª
         -- -------------------------------------------------------------------
         INSERT INTO notification (
             user_id, type, title, content, related_id, is_read, created_at
         ) VALUES (
             v_user_id,
             'CUTOFF_WARNING',
-            'æ–­ç”µé¢„è­¦é€šçŸ¥',
-            'å°Šæ•¬çš„ä¸šä¸»ï¼Œæ‚¨ä½äºŽ ' || v_address
-            || ' çš„æˆ¿äº§ï¼ˆç”µè¡¨ID: ' || rec.meter_id || 'ï¼‰'
-            || rec.bill_month || ' æœˆç”µè´¹è´¦å•å·²é€¾æœŸ '
-            || rec.days_overdue || ' å¤©ã€‚'
-            || 'åº”ç¼´ç”µè´¹ï¼š' || TO_CHAR(rec.total_amount, 'FM999990.00') || 'å…ƒï¼Œ'
-            || 'æ»žçº³é‡‘ï¼š' || TO_CHAR(rec.late_fee, 'FM999990.00') || 'å…ƒã€‚'
-            || 'æ ¹æ®è§„å®šï¼Œé€¾æœŸè¶…è¿‡30å¤©å°†å¯èƒ½è¢«ä¸­æ–­ä¾›ç”µã€‚'
-            || 'è¯·å°½å¿«ç¼´è´¹ä»¥é¿å…åœç”µã€‚',
+            '¶ÏµçÔ¤¾¯Í¨Öª',
+            '×ð¾´µÄÒµÖ÷£¬ÄúÎ»ÓÚ ' || v_address
+            || ' µÄ·¿²ú£¨µç±íID: ' || rec.meter_id || '£©'
+            || rec.bill_month || ' ÔÂµç·ÑÕËµ¥ÒÑÓâÆÚ '
+            || rec.days_overdue || ' Ìì¡£'
+            || 'Ó¦½Éµç·Ñ£º' || TO_CHAR(rec.total_amount, 'FM999990.00') || 'Ôª£¬'
+            || 'ÖÍÄÉ½ð£º' || TO_CHAR(rec.late_fee, 'FM999990.00') || 'Ôª¡£'
+            || '¸ù¾Ý¹æ¶¨£¬ÓâÆÚ³¬¹ý30Ìì½«¿ÉÄÜ±»ÖÐ¶Ï¹©µç¡£'
+            || 'Çë¾¡¿ì½É·ÑÒÔ±ÜÃâÍ£µç¡£',
             rec.bill_id,
             'N',
             SYSDATE
@@ -699,34 +705,34 @@ BEGIN
 
     COMMIT;
 
-    DBMS_OUTPUT.PUT_LINE('===== SP4 æ‰§è¡Œå®Œæˆ =====');
-    DBMS_OUTPUT.PUT_LINE('ç”Ÿæˆæ–­ç”µé¢„è­¦: ' || v_count || ' æ¡');
+    DBMS_OUTPUT.PUT_LINE('===== SP4 Ö´ÐÐÍê³É =====');
+    DBMS_OUTPUT.PUT_LINE('Éú³É¶ÏµçÔ¤¾¯: ' || v_count || ' Ìõ');
     DBMS_OUTPUT.PUT_LINE('========================');
 
 EXCEPTION
     WHEN OTHERS THEN
         ROLLBACK;
-        DBMS_OUTPUT.PUT_LINE('SP4 æ‰§è¡Œå¤±è´¥ï¼Œå·²å›žæ»š: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('SP4 Ö´ÐÐÊ§°Ü£¬ÒÑ»Ø¹ö: ' || SQLERRM);
         RAISE;
 END sp_power_cutoff_warning;
 /
 
-PROMPT SP4 (sp_power_cutoff_warning) åˆ›å»ºå®Œæ¯• âœ“
+PROMPT SP4 (sp_power_cutoff_warning) ´´½¨Íê±Ï ?
 
 
 -- ============================================================================
--- æµ‹è¯•è¾…åŠ©è¿‡ç¨‹: æ‰¹é‡ç”ŸæˆåŽ†å²æŠ„è¡¨æ•°æ®
--- åŠŸèƒ½æè¿°:
---   ç”¨äºŽæµ‹è¯•çŽ¯å¢ƒæ‰¹é‡å¡«å……åŽ†å²æŠ„è¡¨è®°å½•ã€‚
---   å¯¹æŒ‡å®šæ—¥æœŸèŒƒå›´å†…çš„æ¯ä¸€å¤©ï¼Œä¸ºæ‰€æœ‰åœ¨ç”¨(NORMAL)ç”µè¡¨ç”Ÿæˆæ¨¡æ‹Ÿè¯»æ•°ã€‚
---   å†…éƒ¨å¾ªçŽ¯è°ƒç”¨ SP3 çš„å•æ—¥ç”Ÿæˆé€»è¾‘ã€‚
+-- ²âÊÔ¸¨Öú¹ý³Ì: ÅúÁ¿Éú³ÉÀúÊ·³­±íÊý¾Ý
+-- ¹¦ÄÜÃèÊö:
+--   ÓÃÓÚ²âÊÔ»·¾³ÅúÁ¿Ìî³äÀúÊ·³­±í¼ÇÂ¼¡£
+--   ¶ÔÖ¸¶¨ÈÕÆÚ·¶Î§ÄÚµÄÃ¿Ò»Ìì£¬ÎªËùÓÐÔÚÓÃ(NORMAL)µç±íÉú³ÉÄ£Äâ¶ÁÊý¡£
+--   ÄÚ²¿Ñ­»·µ÷ÓÃ SP3 µÄµ¥ÈÕÉú³ÉÂß¼­¡£
 --
--- å‚æ•°:
---   p_start_date IN DATE â€” å¼€å§‹æ—¥æœŸï¼ˆå«ï¼‰
---   p_end_date   IN DATE â€” ç»“æŸæ—¥æœŸï¼ˆå«ï¼‰
+-- ²ÎÊý:
+--   p_start_date IN DATE ¡ª ¿ªÊ¼ÈÕÆÚ£¨º¬£©
+--   p_end_date   IN DATE ¡ª ½áÊøÈÕÆÚ£¨º¬£©
 --
--- ä½¿ç”¨ç¤ºä¾‹:
---   -- ç”Ÿæˆ 2026å¹´1æœˆ1æ—¥ åˆ° 2026å¹´2æœˆ28æ—¥ çš„åŽ†å²æ•°æ®
+-- Ê¹ÓÃÊ¾Àý:
+--   -- Éú³É 2026Äê1ÔÂ1ÈÕ µ½ 2026Äê2ÔÂ28ÈÕ µÄÀúÊ·Êý¾Ý
 --   EXEC sp_test_backfill_readings(DATE '2026-01-01', DATE '2026-02-28');
 -- ============================================================================
 CREATE OR REPLACE PROCEDURE sp_test_backfill_readings(
@@ -738,36 +744,36 @@ CREATE OR REPLACE PROCEDURE sp_test_backfill_readings(
 BEGIN
     v_days := TRUNC(p_end_date) - TRUNC(p_start_date) + 1;
 
-    DBMS_OUTPUT.PUT_LINE('===== æµ‹è¯•è¾…åŠ©: æ‰¹é‡ç”ŸæˆåŽ†å²æŠ„è¡¨æ•°æ® =====');
-    DBMS_OUTPUT.PUT_LINE('æ—¥æœŸèŒƒå›´: ' || TO_CHAR(p_start_date, 'YYYY-MM-DD')
+    DBMS_OUTPUT.PUT_LINE('===== ²âÊÔ¸¨Öú: ÅúÁ¿Éú³ÉÀúÊ·³­±íÊý¾Ý =====');
+    DBMS_OUTPUT.PUT_LINE('ÈÕÆÚ·¶Î§: ' || TO_CHAR(p_start_date, 'YYYY-MM-DD')
                       || ' ~ ' || TO_CHAR(p_end_date, 'YYYY-MM-DD')
-                      || ' (' || v_days || ' å¤©)');
+                      || ' (' || v_days || ' Ìì)');
 
     v_date := TRUNC(p_start_date);
 
-    -- é€æ—¥å¾ªçŽ¯ï¼Œè°ƒç”¨ SP3 ä¸ºæ¯å¤©ç”Ÿæˆè¯»æ•°
+    -- ÖðÈÕÑ­»·£¬µ÷ÓÃ SP3 ÎªÃ¿ÌìÉú³É¶ÁÊý
     WHILE v_date <= TRUNC(p_end_date) LOOP
-        DBMS_OUTPUT.PUT_LINE('  å¤„ç†æ—¥æœŸ: ' || TO_CHAR(v_date, 'YYYY-MM-DD'));
+        DBMS_OUTPUT.PUT_LINE('  ´¦ÀíÈÕÆÚ: ' || TO_CHAR(v_date, 'YYYY-MM-DD'));
 
-        -- è°ƒç”¨ SP3 çš„æŠ„è¡¨é€»è¾‘ï¼ˆæŒ‡å®šæ—¥æœŸï¼‰
+        -- µ÷ÓÃ SP3 µÄ³­±íÂß¼­£¨Ö¸¶¨ÈÕÆÚ£©
         sp_simulate_meter_reading(v_date);
 
         v_date := v_date + 1;
     END LOOP;
 
-    DBMS_OUTPUT.PUT_LINE('===== æ‰¹é‡åŽ†å²æ•°æ®ç”Ÿæˆå®Œæ¯• =====');
-    DBMS_OUTPUT.PUT_LINE('æ€»è®¡ç”Ÿæˆå¤©æ•°: ' || v_days);
+    DBMS_OUTPUT.PUT_LINE('===== ÅúÁ¿ÀúÊ·Êý¾ÝÉú³ÉÍê±Ï =====');
+    DBMS_OUTPUT.PUT_LINE('×Ü¼ÆÉú³ÉÌìÊý: ' || v_days);
 END sp_test_backfill_readings;
 /
 
-PROMPT æµ‹è¯•è¾…åŠ©è¿‡ç¨‹ (sp_test_backfill_readings) åˆ›å»ºå®Œæ¯• âœ“
+PROMPT ²âÊÔ¸¨Öú¹ý³Ì (sp_test_backfill_readings) ´´½¨Íê±Ï ?
 
 
 PROMPT
-PROMPT ========== å­˜å‚¨è¿‡ç¨‹åˆ›å»ºæ±‡æ€» ==========
-PROMPT   SP1 sp_generate_monthly_bills  - æœˆåˆæ‰¹é‡ç”Ÿæˆè´¦å• (é˜¶æ¢¯ç”µä»·)
-PROMPT   SP2 sp_calc_late_fees          - æ¯æ—¥æ»žçº³é‡‘è®¡ç®—
-PROMPT   SP3 sp_simulate_meter_reading  - æ¨¡æ‹Ÿæ™ºèƒ½ç”µè¡¨è¯»æ•°
-PROMPT   SP4 sp_power_cutoff_warning    - æ¬ è´¹æ–­ç”µé¢„è­¦
-PROMPT   è¾…åŠ© sp_test_backfill_readings  - æµ‹è¯•ç”¨: æ‰¹é‡ç”ŸæˆåŽ†å²æŠ„è¡¨æ•°æ®
-PROMPT ========== 04_create_procedures.sql æ‰§è¡Œå®Œæ¯• ==========
+PROMPT ========== ´æ´¢¹ý³Ì´´½¨»ã×Ü ==========
+PROMPT   SP1 sp_generate_monthly_bills  - ÔÂ³õÅúÁ¿Éú³ÉÕËµ¥ (½×ÌÝµç¼Û)
+PROMPT   SP2 sp_calc_late_fees          - Ã¿ÈÕÖÍÄÉ½ð¼ÆËã
+PROMPT   SP3 sp_simulate_meter_reading  - Ä£ÄâÖÇÄÜµç±í¶ÁÊý
+PROMPT   SP4 sp_power_cutoff_warning    - Ç··Ñ¶ÏµçÔ¤¾¯
+PROMPT   ¸¨Öú sp_test_backfill_readings  - ²âÊÔÓÃ: ÅúÁ¿Éú³ÉÀúÊ·³­±íÊý¾Ý
+PROMPT ========== 04_create_procedures.sql Ö´ÐÐÍê±Ï ==========

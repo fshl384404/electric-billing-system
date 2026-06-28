@@ -1,149 +1,149 @@
 -- ============================================================================
--- æ°‘ç”¨ç”µç¼´è´¹ç³»ç»Ÿ â€” åˆå§‹åŒ–æ•°æ®è„šæœ¬
--- å…¼å®¹ç‰ˆæœ¬: Oracle 11g
--- è¯´æ˜: æ’å…¥ç³»ç»Ÿè¿è¡Œå¿…éœ€çš„ç§å­æ•°æ®
---   - ä¸‰ç±»è§’è‰²ç”¨æˆ·ï¼ˆç®¡ç†å‘˜ã€æ”¶è´¹å‘˜ã€å±…æ°‘ï¼‰
---   - æˆ¿äº§ä¸ç”µè¡¨
---   - é˜¶æ¢¯ç”µä»·é…ç½®
+-- ÃñÓÃµç½É·ÑÏµÍ³ ¡ª ³õÊ¼»¯Êı¾İ½Å±¾
+-- ¼æÈİ°æ±¾: Oracle 11g
+-- ËµÃ÷: ²åÈëÏµÍ³ÔËĞĞ±ØĞèµÄÖÖ×ÓÊı¾İ
+--   - ÈıÀà½ÇÉ«ÓÃ»§£¨¹ÜÀíÔ±¡¢ÊÕ·ÑÔ±¡¢¾ÓÃñ£©
+--   - ·¿²úÓëµç±í
+--   - ½×Ìİµç¼ÛÅäÖÃ
 --
--- æ³¨æ„:
---   - å¯†ç æ˜æ–‡å­˜å‚¨ä»…ç”¨äºè¯¾ç¨‹è®¾è®¡æ¼”ç¤ºï¼Œå®é™…é¡¹ç›®å¿…é¡»ä½¿ç”¨ BCrypt ç­‰å“ˆå¸Œ
---   - èº«ä»½è¯å·ä¸ºè™šæ‹Ÿç”Ÿæˆçš„æµ‹è¯•æ•°æ®ï¼ŒéçœŸå®ä¿¡æ¯
---   - åºåˆ—ä» 1 å¼€å§‹ï¼ˆæ¼”ç¤ºæ•°æ®é‡å°ï¼‰ï¼Œå»ºè¡¨è„šæœ¬çš„é»˜è®¤ START WITH 1001 å¯è¦†ç›–
+-- ×¢Òâ:
+--   - ÃÜÂëÃ÷ÎÄ´æ´¢½öÓÃÓÚ¿Î³ÌÉè¼ÆÑİÊ¾£¬Êµ¼ÊÏîÄ¿±ØĞëÊ¹ÓÃ BCrypt µÈ¹şÏ£
+--   - Éí·İÖ¤ºÅÎªĞéÄâÉú³ÉµÄ²âÊÔÊı¾İ£¬·ÇÕæÊµĞÅÏ¢
+--   - ĞòÁĞ´Ó 1 ¿ªÊ¼£¨ÑİÊ¾Êı¾İÁ¿Ğ¡£©£¬½¨±í½Å±¾µÄÄ¬ÈÏ START WITH 1001 ¿É¸²¸Ç
 --
--- æ‰§è¡Œé¡ºåº: ç¬¬ 6 æ­¥ï¼Œåœ¨å»ºè¡¨ã€åºåˆ—ã€è§¦å‘å™¨ã€å­˜å‚¨è¿‡ç¨‹ã€è§†å›¾ä¹‹å
+-- Ö´ĞĞË³Ğò: µÚ 6 ²½£¬ÔÚ½¨±í¡¢ĞòÁĞ¡¢´¥·¢Æ÷¡¢´æ´¢¹ı³Ì¡¢ÊÓÍ¼Ö®ºó
 -- ============================================================================
 
 SET ECHO ON
 SET SERVEROUTPUT ON
 SET LINESIZE 200
 
-PROMPT ========== å¼€å§‹æ’å…¥åˆå§‹åŒ–æ•°æ® ==========
+PROMPT ========== ¿ªÊ¼²åÈë³õÊ¼»¯Êı¾İ ==========
 
 -- ---------------------------------------------------------------------------
--- 1. ç³»ç»Ÿç”¨æˆ· (SYS_USER)
---    å¯†ç æ˜æ–‡ä»…ç”¨äºæµ‹è¯•ï¼Œå®é™…é¡¹ç›®å¿…é¡»åŠ å¯†
+-- 1. ÏµÍ³ÓÃ»§ (SYS_USER)
+--    ÃÜÂëÃ÷ÎÄ½öÓÃÓÚ²âÊÔ£¬Êµ¼ÊÏîÄ¿±ØĞë¼ÓÃÜ
 -- ---------------------------------------------------------------------------
 
--- 1.1 ç®¡ç†å‘˜
+-- 1.1 ¹ÜÀíÔ±
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, status, created_at)
-VALUES (1, 'admin', 'admin123', 'ç³»ç»Ÿç®¡ç†å‘˜', 'ADMIN', '13800000001', 'admin@power.com', 'ACTIVE', SYSDATE);
+VALUES (1, 'admin', 'admin123', 'ÏµÍ³¹ÜÀíÔ±', 'ADMIN', '13800000001', 'admin@power.com', 'ACTIVE', SYSDATE);
 
--- 1.2 æ”¶è´¹å‘˜
+-- 1.2 ÊÕ·ÑÔ±
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, status, created_at)
-VALUES (2, 'collector01', 'col123', 'å¼ æ”¶è´¹', 'COLLECTOR', '13800000002', 'zhang@power.com', 'ACTIVE', SYSDATE);
+VALUES (2, 'collector01', 'col123', 'ÕÅÊÕ·Ñ', 'COLLECTOR', '13800000002', 'zhang@power.com', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, status, created_at)
-VALUES (3, 'collector02', 'col123', 'ææ”¶è´¹', 'COLLECTOR', '13800000003', 'li@power.com', 'ACTIVE', SYSDATE);
+VALUES (3, 'collector02', 'col123', 'ÀîÊÕ·Ñ', 'COLLECTOR', '13800000003', 'li@power.com', 'ACTIVE', SYSDATE);
 
--- 1.3 å±…æ°‘ç”¨æˆ· (10 æˆ·)
+-- 1.3 ¾ÓÃñÓÃ»§ (10 »§)
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (4, 'resident01', 'res123', 'ç‹å°æ˜', 'RESIDENT', '13900000001', 'wangxm@test.com', '110101199001011234', 'ACTIVE', SYSDATE);
-
-INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (5, 'resident02', 'res123', 'èµµå°çº¢', 'RESIDENT', '13900000002', 'zhaoxh@test.com', '110101199102023456', 'ACTIVE', SYSDATE);
+VALUES (4, 'resident01', 'res123', 'ÍõĞ¡Ã÷', 'RESIDENT', '13900000001', 'wangxm@test.com', '110101199001011234', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (6, 'resident03', 'res123', 'åˆ˜å¤§ä¼Ÿ', 'RESIDENT', '13900000003', 'liudw@test.com', '110101199203035678', 'ACTIVE', SYSDATE);
+VALUES (5, 'resident02', 'res123', 'ÕÔĞ¡ºì', 'RESIDENT', '13900000002', 'zhaoxh@test.com', '110101199102023456', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (7, 'resident04', 'res123', 'é™ˆç¾ä¸½', 'RESIDENT', '13900000004', 'chenml@test.com', '110101199304047890', 'ACTIVE', SYSDATE);
+VALUES (6, 'resident03', 'res123', 'Áõ´óÎ°', 'RESIDENT', '13900000003', 'liudw@test.com', '110101199203035678', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (8, 'resident05', 'res123', 'æ¨å»ºå›½', 'RESIDENT', '13900000005', 'yangjg@test.com', '110101199405050123', 'ACTIVE', SYSDATE);
+VALUES (7, 'resident04', 'res123', '³ÂÃÀÀö', 'RESIDENT', '13900000004', 'chenml@test.com', '110101199304047890', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (9, 'resident06', 'res123', 'é»„ä¸½ä¸½', 'RESIDENT', '13900000006', 'huangll@test.com', '110101199506062345', 'ACTIVE', SYSDATE);
+VALUES (8, 'resident05', 'res123', 'Ñî½¨¹ú', 'RESIDENT', '13900000005', 'yangjg@test.com', '110101199405050123', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (10, 'resident07', 'res123', 'å‘¨æ–‡åš', 'RESIDENT', '13900000007', 'zhouwb@test.com', '110101199607074567', 'ACTIVE', SYSDATE);
+VALUES (9, 'resident06', 'res123', '»ÆÀöÀö', 'RESIDENT', '13900000006', 'huangll@test.com', '110101199506062345', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (11, 'resident08', 'res123', 'å´å°èŠ³', 'RESIDENT', '13900000008', 'wuxf@test.com', '110101199708086789', 'ACTIVE', SYSDATE);
+VALUES (10, 'resident07', 'res123', 'ÖÜÎÄ²©', 'RESIDENT', '13900000007', 'zhouwb@test.com', '110101199607074567', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (12, 'resident09', 'res123', 'éƒ‘å¿—å¼º', 'RESIDENT', '13900000009', 'zhengzq@test.com', '110101199809098901', 'ACTIVE', SYSDATE);
+VALUES (11, 'resident08', 'res123', 'ÎâĞ¡·¼', 'RESIDENT', '13900000008', 'wuxf@test.com', '110101199708086789', 'ACTIVE', SYSDATE);
 
 INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
-VALUES (13, 'resident10', 'res123', 'å­™æ™“ç‡•', 'RESIDENT', '13900000010', 'sunxy@test.com', '110101199910101234', 'ACTIVE', SYSDATE);
+VALUES (12, 'resident09', 'res123', 'Ö£Ö¾Ç¿', 'RESIDENT', '13900000009', 'zhengzq@test.com', '110101199809098901', 'ACTIVE', SYSDATE);
 
-PROMPT ç”¨æˆ·æ•°æ®æ’å…¥å®Œæ¯• (3 è§’è‰² Ã— 13 æ¡)
+INSERT INTO sys_user (user_id, username, password_hash, real_name, role, phone, email, id_card, status, created_at)
+VALUES (13, 'resident10', 'res123', 'ËïÏşÑà', 'RESIDENT', '13900000010', 'sunxy@test.com', '110101199910101234', 'ACTIVE', SYSDATE);
+
+PROMPT ÓÃ»§Êı¾İ²åÈëÍê±Ï (3 ½ÇÉ« ¡Á 13 Ìõ)
 
 
 -- ---------------------------------------------------------------------------
--- 2. æˆ¿äº§ä¿¡æ¯ (HOUSE)
---    æ¯ä¸ªå±…æ°‘è‡³å°‘æ‹¥æœ‰ä¸€å¥—æˆ¿äº§ã€‚
---    éƒ¨åˆ†å±…æ°‘æ‹¥æœ‰å¤šå¥—æˆ¿äº§ï¼ˆä½“ç°ä¸€æˆ·å¤šå®…ï¼‰ã€‚
+-- 2. ·¿²úĞÅÏ¢ (HOUSE)
+--    Ã¿¸ö¾ÓÃñÖÁÉÙÓµÓĞÒ»Ì×·¿²ú¡£
+--    ²¿·Ö¾ÓÃñÓµÓĞ¶àÌ×·¿²ú£¨ÌåÏÖÒ»»§¶àÕ¬£©¡£
 --
---    åˆ†é…æ–¹æ¡ˆ:
---      resident01 (ç‹å°æ˜): 2 å®…  (house 1, 2)
---      resident02 (èµµå°çº¢): 1 å®…  (house 3)
---      resident03 (åˆ˜å¤§ä¼Ÿ): 2 å®…  (house 4, 5)
---      resident04 (é™ˆç¾ä¸½): 1 å®…  (house 6)
---      resident05 (æ¨å»ºå›½): 1 å®…  (house 7)
---      resident06 (é»„ä¸½ä¸½): 1 å®…  (house 8)
---      resident07 (å‘¨æ–‡åš): 1 å®…  (house 9)
---      resident08 (å´å°èŠ³): 1 å®…  (house 10)
---      resident09 (éƒ‘å¿—å¼º): 1 å®…  (house 11)
---      resident10 (å­™æ™“ç‡•): 1 å®…  (house 12)
+--    ·ÖÅä·½°¸:
+--      resident01 (ÍõĞ¡Ã÷): 2 Õ¬  (house 1, 2)
+--      resident02 (ÕÔĞ¡ºì): 1 Õ¬  (house 3)
+--      resident03 (Áõ´óÎ°): 2 Õ¬  (house 4, 5)
+--      resident04 (³ÂÃÀÀö): 1 Õ¬  (house 6)
+--      resident05 (Ñî½¨¹ú): 1 Õ¬  (house 7)
+--      resident06 (»ÆÀöÀö): 1 Õ¬  (house 8)
+--      resident07 (ÖÜÎÄ²©): 1 Õ¬  (house 9)
+--      resident08 (ÎâĞ¡·¼): 1 Õ¬  (house 10)
+--      resident09 (Ö£Ö¾Ç¿): 1 Õ¬  (house 11)
+--      resident10 (ËïÏşÑà): 1 Õ¬  (house 12)
 -- ---------------------------------------------------------------------------
 
--- resident01 ç‹å°æ˜ â€” 2 å¥—æˆ¿
+-- resident01 ÍõĞ¡Ã÷ ¡ª 2 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (1, 4, 'åŒ—äº¬å¸‚æœé˜³åŒºé˜³å…‰èŠ±å›­1å·æ¥¼101å®¤', 89.5, 'RESIDENTIAL', SYSDATE);
+VALUES (1, 4, '±±¾©ÊĞ³¯ÑôÇøÑô¹â»¨Ô°1ºÅÂ¥101ÊÒ', 89.5, 'RESIDENTIAL', SYSDATE);
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (2, 4, 'åŒ—äº¬å¸‚æµ·æ·€åŒºç¿ å¾®å°åŒº3å·æ¥¼502å®¤', 120.0, 'RESIDENTIAL', SYSDATE);
+VALUES (2, 4, '±±¾©ÊĞº£µíÇø´äÎ¢Ğ¡Çø3ºÅÂ¥502ÊÒ', 120.0, 'RESIDENTIAL', SYSDATE);
 
--- resident02 èµµå°çº¢ â€” 1 å¥—æˆ¿
+-- resident02 ÕÔĞ¡ºì ¡ª 1 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (3, 5, 'åŒ—äº¬å¸‚æœé˜³åŒºé˜³å…‰èŠ±å›­2å·æ¥¼201å®¤', 95.0, 'RESIDENTIAL', SYSDATE);
+VALUES (3, 5, '±±¾©ÊĞ³¯ÑôÇøÑô¹â»¨Ô°2ºÅÂ¥201ÊÒ', 95.0, 'RESIDENTIAL', SYSDATE);
 
--- resident03 åˆ˜å¤§ä¼Ÿ â€” 2 å¥—æˆ¿
+-- resident03 Áõ´óÎ° ¡ª 2 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (4, 6, 'åŒ—äº¬å¸‚ä¸°å°åŒºæ˜Ÿæ²³è‹‘1å·æ¥¼1501å®¤', 135.0, 'RESIDENTIAL', SYSDATE);
+VALUES (4, 6, '±±¾©ÊĞ·áÌ¨ÇøĞÇºÓÔ·1ºÅÂ¥1501ÊÒ', 135.0, 'RESIDENTIAL', SYSDATE);
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (5, 6, 'åŒ—äº¬å¸‚å¤§å…´åŒºé¾™æ¹–å®¶å›­6å·æ¥¼303å®¤', 78.0, 'RESIDENTIAL', SYSDATE);
+VALUES (5, 6, '±±¾©ÊĞ´óĞËÇøÁúºş¼ÒÔ°6ºÅÂ¥303ÊÒ', 78.0, 'RESIDENTIAL', SYSDATE);
 
--- resident04 é™ˆç¾ä¸½ â€” 1 å¥—æˆ¿
+-- resident04 ³ÂÃÀÀö ¡ª 1 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (6, 7, 'åŒ—äº¬å¸‚æœé˜³åŒºé˜³å…‰èŠ±å›­3å·æ¥¼1102å®¤', 88.0, 'RESIDENTIAL', SYSDATE);
+VALUES (6, 7, '±±¾©ÊĞ³¯ÑôÇøÑô¹â»¨Ô°3ºÅÂ¥1102ÊÒ', 88.0, 'RESIDENTIAL', SYSDATE);
 
--- resident05 æ¨å»ºå›½ â€” 1 å¥—æˆ¿
+-- resident05 Ñî½¨¹ú ¡ª 1 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (7, 8, 'åŒ—äº¬å¸‚é€šå·åŒºæ–°åå°åŒº8å·æ¥¼402å®¤', 102.0, 'RESIDENTIAL', SYSDATE);
+VALUES (7, 8, '±±¾©ÊĞÍ¨ÖİÇøĞÂ»ªĞ¡Çø8ºÅÂ¥402ÊÒ', 102.0, 'RESIDENTIAL', SYSDATE);
 
--- resident06 é»„ä¸½ä¸½ â€” 1 å¥—æˆ¿
+-- resident06 »ÆÀöÀö ¡ª 1 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (8, 9, 'åŒ—äº¬å¸‚æµ·æ·€åŒºç¿ å¾®å°åŒº5å·æ¥¼701å®¤', 76.5, 'RESIDENTIAL', SYSDATE);
+VALUES (8, 9, '±±¾©ÊĞº£µíÇø´äÎ¢Ğ¡Çø5ºÅÂ¥701ÊÒ', 76.5, 'RESIDENTIAL', SYSDATE);
 
--- resident07 å‘¨æ–‡åš â€” 1 å¥—æˆ¿
+-- resident07 ÖÜÎÄ²© ¡ª 1 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (9, 10, 'åŒ—äº¬å¸‚æ˜Œå¹³åŒºå¤©é€šè‹‘ä¸œåŒº15å·æ¥¼2103å®¤', 145.0, 'RESIDENTIAL', SYSDATE);
+VALUES (9, 10, '±±¾©ÊĞ²ıÆ½ÇøÌìÍ¨Ô·¶«Çø15ºÅÂ¥2103ÊÒ', 145.0, 'RESIDENTIAL', SYSDATE);
 
--- resident08 å´å°èŠ³ â€” 1 å¥—æˆ¿
+-- resident08 ÎâĞ¡·¼ ¡ª 1 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (10, 11, 'åŒ—äº¬å¸‚çŸ³æ™¯å±±åŒºé‡‘é¡¶é˜³å…‰2å·æ¥¼602å®¤', 68.0, 'RESIDENTIAL', SYSDATE);
+VALUES (10, 11, '±±¾©ÊĞÊ¯¾°É½Çø½ğ¶¥Ñô¹â2ºÅÂ¥602ÊÒ', 68.0, 'RESIDENTIAL', SYSDATE);
 
--- resident09 éƒ‘å¿—å¼º â€” 1 å¥—æˆ¿
+-- resident09 Ö£Ö¾Ç¿ ¡ª 1 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (11, 12, 'åŒ—äº¬å¸‚ä¸°å°åŒºæ˜Ÿæ²³è‹‘3å·æ¥¼901å®¤', 110.0, 'RESIDENTIAL', SYSDATE);
+VALUES (11, 12, '±±¾©ÊĞ·áÌ¨ÇøĞÇºÓÔ·3ºÅÂ¥901ÊÒ', 110.0, 'RESIDENTIAL', SYSDATE);
 
--- resident10 å­™æ™“ç‡• â€” 1 å¥—æˆ¿
+-- resident10 ËïÏşÑà ¡ª 1 Ì×·¿
 INSERT INTO house (house_id, user_id, address, area, house_type, created_at)
-VALUES (12, 13, 'åŒ—äº¬å¸‚å¤§å…´åŒºé¾™æ¹–å®¶å›­2å·æ¥¼505å®¤', 92.0, 'RESIDENTIAL', SYSDATE);
+VALUES (12, 13, '±±¾©ÊĞ´óĞËÇøÁúºş¼ÒÔ°2ºÅÂ¥505ÊÒ', 92.0, 'RESIDENTIAL', SYSDATE);
 
-PROMPT æˆ¿äº§æ•°æ®æ’å…¥å®Œæ¯• (12 æ¡)
+PROMPT ·¿²úÊı¾İ²åÈëÍê±Ï (12 Ìõ)
 
 
 -- ---------------------------------------------------------------------------
--- 3. ç”µè¡¨ä¿¡æ¯ (METER)
---    ä¸€å®…ä¸€è¡¨ï¼Œæ¯ä¸ªæˆ¿äº§ç»‘å®šä¸€ä¸ªç”µè¡¨
---    ç”µè¡¨å®‰è£…æ—¥æœŸç»Ÿä¸€è®¾ä¸º 2025-12-01ï¼ˆåœ¨æµ‹è¯•æ•°æ®çš„æ—¶é—´çº¿ä¹‹å‰ï¼‰
---    åˆå§‹è¯»æ•°è®¾ä¸ºæ¨¡æ‹Ÿå€¼ï¼ˆå·²ä½¿ç”¨ä¸€æ®µæ—¶é—´çš„ç”µè¡¨ï¼‰
+-- 3. µç±íĞÅÏ¢ (METER)
+--    Ò»Õ¬Ò»±í£¬Ã¿¸ö·¿²ú°ó¶¨Ò»¸öµç±í
+--    µç±í°²×°ÈÕÆÚÍ³Ò»ÉèÎª 2025-12-01£¨ÔÚ²âÊÔÊı¾İµÄÊ±¼äÏßÖ®Ç°£©
+--    ³õÊ¼¶ÁÊıÉèÎªÄ£ÄâÖµ£¨ÒÑÊ¹ÓÃÒ»¶ÎÊ±¼äµÄµç±í£©
 -- ---------------------------------------------------------------------------
 
--- ç”µè¡¨ç¼–å·è§„åˆ™: METER-YYYY-NNNNN
--- åˆå§‹è¯»æ•°æ˜¯å®‰è£…ååˆ° 2025-12-01 çš„ç´¯è®¡è¯»æ•°
+-- µç±í±àºÅ¹æÔò: METER-YYYY-NNNNN
+-- ³õÊ¼¶ÁÊıÊÇ°²×°ºóµ½ 2025-12-01 µÄÀÛ¼Æ¶ÁÊı
 
 INSERT INTO meter (meter_id, house_id, meter_no, model, install_date, initial_reading, status, created_at)
 VALUES (1, 1, 'METER-2025-00001', 'DDZY102-Z', DATE '2025-12-01', 5230.5, 'NORMAL', SYSDATE);
@@ -181,47 +181,47 @@ VALUES (11, 11, 'METER-2025-00011', 'DDZY102-Z', DATE '2025-12-01', 6340.7, 'NOR
 INSERT INTO meter (meter_id, house_id, meter_no, model, install_date, initial_reading, status, created_at)
 VALUES (12, 12, 'METER-2025-00012', 'DDZY102-Z', DATE '2025-12-01', 4450.9, 'NORMAL', SYSDATE);
 
-PROMPT ç”µè¡¨æ•°æ®æ’å…¥å®Œæ¯• (12 æ¡ï¼Œå…¨éƒ¨ä¸º NORMAL çŠ¶æ€)
+PROMPT µç±íÊı¾İ²åÈëÍê±Ï (12 Ìõ£¬È«²¿Îª NORMAL ×´Ì¬)
 
 
 -- ---------------------------------------------------------------------------
--- 4. ç”µä»·é…ç½® (PRICE_CONFIG)
---    å…¨å›½ç»Ÿä¸€é˜¶æ¢¯ç”µä»·ï¼Œ3 ä¸ªæ¡£ä½
---    ç¬¬ä¸€æ¡£: 0 â€“ 200 åº¦, 0.50 å…ƒ/åº¦
---    ç¬¬äºŒæ¡£: 201 â€“ 400 åº¦, 0.55 å…ƒ/åº¦
---    ç¬¬ä¸‰æ¡£: 400 åº¦ä»¥ä¸Š, 0.80 å…ƒ/åº¦
---    ç”Ÿæ•ˆæ—¥æœŸ: 2025-01-01
---    ä¿®æ”¹äºº: admin (user_id=1)
+-- 4. µç¼ÛÅäÖÃ (PRICE_CONFIG)
+--    È«¹úÍ³Ò»½×Ìİµç¼Û£¬3 ¸öµµÎ»
+--    µÚÒ»µµ: 0 ¨C 200 ¶È, 0.50 Ôª/¶È
+--    µÚ¶şµµ: 201 ¨C 400 ¶È, 0.55 Ôª/¶È
+--    µÚÈıµµ: 400 ¶ÈÒÔÉÏ, 0.80 Ôª/¶È
+--    ÉúĞ§ÈÕÆÚ: 2025-01-01
+--    ĞŞ¸ÄÈË: admin (user_id=1)
 -- ---------------------------------------------------------------------------
 
 INSERT INTO price_config (config_id, tier_no, tier_name, lower_limit, upper_limit, unit_price, effective_date, is_active, updated_by, created_at)
-VALUES (1, 1, 'ç¬¬ä¸€æ¡£', 0, 200, 0.50, DATE '2025-01-01', 'Y', 1, SYSDATE);
+VALUES (1, 1, 'µÚÒ»µµ', 0, 200, 0.50, DATE '2025-01-01', 'Y', 1, SYSDATE);
 
 INSERT INTO price_config (config_id, tier_no, tier_name, lower_limit, upper_limit, unit_price, effective_date, is_active, updated_by, created_at)
-VALUES (2, 2, 'ç¬¬äºŒæ¡£', 201, 400, 0.55, DATE '2025-01-01', 'Y', 1, SYSDATE);
+VALUES (2, 2, 'µÚ¶şµµ', 201, 400, 0.55, DATE '2025-01-01', 'Y', 1, SYSDATE);
 
 INSERT INTO price_config (config_id, tier_no, tier_name, lower_limit, upper_limit, unit_price, effective_date, is_active, updated_by, created_at)
-VALUES (3, 3, 'ç¬¬ä¸‰æ¡£', 401, NULL, 0.80, DATE '2025-01-01', 'Y', 1, SYSDATE);
+VALUES (3, 3, 'µÚÈıµµ', 401, NULL, 0.80, DATE '2025-01-01', 'Y', 1, SYSDATE);
 
-PROMPT ç”µä»·é…ç½®æ’å…¥å®Œæ¯• (3 æ¡£é˜¶æ¢¯ç”µä»·)
+PROMPT µç¼ÛÅäÖÃ²åÈëÍê±Ï (3 µµ½×Ìİµç¼Û)
 
 
 -- ---------------------------------------------------------------------------
--- æäº¤æ‰€æœ‰æ•°æ®
+-- Ìá½»ËùÓĞÊı¾İ
 -- ---------------------------------------------------------------------------
 COMMIT;
 
 PROMPT
-PROMPT ========== åˆå§‹åŒ–æ•°æ®æ±‡æ€» ==========
-PROMPT   SYS_USER       : 13 æ¡ (1ç®¡ç†å‘˜ + 2æ”¶è´¹å‘˜ + 10å±…æ°‘)
-PROMPT   HOUSE          : 12 æ¡ (2ä¸ªä¸šä¸»å„2å¥—, å…¶ä½™å„1å¥—)
-PROMPT   METER          : 12 æ¡ (ä¸€å®…ä¸€è¡¨)
-PROMPT   PRICE_CONFIG   : 3 æ¡ (ä¸‰çº§é˜¶æ¢¯ç”µä»·)
+PROMPT ========== ³õÊ¼»¯Êı¾İ»ã×Ü ==========
+PROMPT   SYS_USER       : 13 Ìõ (1¹ÜÀíÔ± + 2ÊÕ·ÑÔ± + 10¾ÓÃñ)
+PROMPT   HOUSE          : 12 Ìõ (2¸öÒµÖ÷¸÷2Ì×, ÆäÓà¸÷1Ì×)
+PROMPT   METER          : 12 Ìõ (Ò»Õ¬Ò»±í)
+PROMPT   PRICE_CONFIG   : 3 Ìõ (Èı¼¶½×Ìİµç¼Û)
 PROMPT
-PROMPT   æ¼”ç¤ºè´¦å·:
-PROMPT     ç®¡ç†å‘˜   : admin      / admin123
-PROMPT     æ”¶è´¹å‘˜   : collector01 / col123
-PROMPT     å±…æ°‘     : resident01 / res123   (ç‹å°æ˜, 2å¥—æˆ¿)
-PROMPT               resident03 / res123   (åˆ˜å¤§ä¼Ÿ, 2å¥—æˆ¿)
-PROMPT               resident05 / res123   (æ¨å»ºå›½, 1å¥—æˆ¿)
-PROMPT ========== 06_init_data.sql æ‰§è¡Œå®Œæ¯• ==========
+PROMPT   ÑİÊ¾ÕËºÅ:
+PROMPT     ¹ÜÀíÔ±   : admin      / admin123
+PROMPT     ÊÕ·ÑÔ±   : collector01 / col123
+PROMPT     ¾ÓÃñ     : resident01 / res123   (ÍõĞ¡Ã÷, 2Ì×·¿)
+PROMPT               resident03 / res123   (Áõ´óÎ°, 2Ì×·¿)
+PROMPT               resident05 / res123   (Ñî½¨¹ú, 1Ì×·¿)
+PROMPT ========== 06_init_data.sql Ö´ĞĞÍê±Ï ==========
