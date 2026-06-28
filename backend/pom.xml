@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ================================================================ -->
+    <!-- 项目坐标                                                         -->
+    <!-- ================================================================ -->
+    <!-- groupId:    组织/团队标识，反向域名格式                           -->
+    <!-- artifactId: 项目唯一标识，生成 JAR 文件名的基础                   -->
+    <!-- version:    项目版本号，SNAPSHOT 表示开发中版本                   -->
+    <!-- packaging:  jar — Spring Boot 默认打包为可执行 JAR                -->
+    <!-- name:       项目显示名称                                         -->
+    <groupId>com.electric.billing</groupId>
+    <artifactId>electric-billing-system</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>electric-billing-system</name>
+    <description>民用电缴费系统 — 数据库课程设计</description>
+
+    <!-- ================================================================ -->
+    <!-- 父 POM: Spring Boot 3.4.0                                        -->
+    <!-- 继承自 spring-boot-starter-parent，统一管理:                     -->
+    <!--   - 所有 Spring Boot Starter 版本（无需逐个声明 version）         -->
+    <!--   - 默认编译插件配置（spring-boot-maven-plugin）                  -->
+    <!--   - 资源过滤、测试框架等默认配置                                  -->
+    <!--   - Java 编译版本由下方 <java.version> 属性控制                   -->
+    <!-- ================================================================ -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.4.0</version>
+        <relativePath/> <!-- 从 Maven 中央仓库查找父 POM，不从本地相对路径 -->
+    </parent>
+
+    <!-- ================================================================ -->
+    <!-- 全局属性                                                         -->
+    <!-- ================================================================ -->
+    <properties>
+        <!-- Java 源码和目标字节码版本（传递给 maven-compiler-plugin） -->
+        <java.version>24</java.version>
+
+        <!-- 源码文件编码 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- MyBatis-Plus 版本（手动指定，因为不属于 Spring Boot 官方 BOM） -->
+        <mybatis-plus.version>3.5.9</mybatis-plus.version>
+
+        <!-- Oracle JDBC 驱动版本（兼容 Oracle 11g ~ 23ai） -->
+        <ojdbc.version>19.8.0.0</ojdbc.version>
+        <!-- 说明: ojdbc8 19.x 兼容 Java 24 且向下兼容 Oracle 11g -->
+        <!--       如果你的 Oracle 是 21c+，可换为 ojdbc11 -->
+    </properties>
+
+    <!-- ================================================================ -->
+    <!-- 依赖列表                                                         -->
+    <!-- 所有 Spring Boot Starter 的版本由父 POM 统一管理                  -->
+    <!-- ================================================================ -->
+    <dependencies>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 1. Spring Boot Web 启动器                                   -->
+        <!--    包含: spring-webmvc, 内嵌 Tomcat, Jackson(JSON序列化)   -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 2. MyBatis-Plus 持久层框架                                  -->
+        <!--    优势: 内置 CRUD、分页插件、代码生成器                    -->
+        <!--    替代: Spring Data JPA / 原生 MyBatis                    -->
+        <!--    注意: 需要同时引入 MyBatis-Plus 的 Spring Boot Starter  -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <version>${mybatis-plus.version}</version>
+        </dependency>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 3. Oracle JDBC 驱动                                         -->
+        <!--    ojdbc8: 适用于 Oracle 11g/12c/18c/19c                    -->
+        <!--    注意: Oracle 驱动不在 Maven 中央仓库，需要:              -->
+        <!--          a) 手动安装到本地仓库，或                          -->
+        <!--          b) 配置 Oracle 官方 Maven 仓库镜像                  -->
+        <!--    如果本地没有，可运行:                                     -->
+        <!--    mvn install:install-file \                               -->
+        <!--      -Dfile=ojdbc8.jar \                                    -->
+        <!--      -DgroupId=com.oracle.database.jdbc \                   -->
+        <!--      -DartifactId=ojdbc8 \                                  -->
+        <!--      -Dversion=19.8.0.0 \                                   -->
+        <!--      -Dpackaging=jar                                        -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc8</artifactId>
+            <version>${ojdbc.version}</version>
+            <!-- 运行时作用域: 部署时由容器提供，开发时需要 -->
+        </dependency>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 4. Spring Boot Validation                                   -->
+        <!--    基于 Jakarta Bean Validation (Hibernate Validator)       -->
+        <!--    用于 Controller 参数校验: @Valid, @NotNull, @Pattern 等 -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 5. Spring Boot Test 启动器                                  -->
+        <!--    包含: JUnit 5, Mockito, Spring Test, AssertJ 等         -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+            <!-- 排除 JUnit 4 (vintage) 只用 JUnit 5 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 6. Lombok (可选)                                             -->
+        <!--    编译时注解处理器: @Data, @Getter, @Builder 等            -->
+        <!--    减少手写 getter/setter/构造器                            -->
+        <!--    scope=provided: 编译时需要，运行时不打包                  -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 7. Spring Boot DevTools (开发环境热重载)                     -->
+        <!--    optional=true: 不会传递给依赖此项目的其他模块             -->
+        <!--    生产环境通过 -Dspring.devtools.restart.enabled=false 禁用 -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+            <scope>runtime</scope>
+        </dependency>
+
+    </dependencies>
+
+    <!-- ================================================================ -->
+    <!-- 构建配置                                                         -->
+    <!-- ================================================================ -->
+    <build>
+        <!-- 最终生成的 JAR 文件名（不含版本号） -->
+        <finalName>electric-billing-system</finalName>
+
+        <plugins>
+            <!-- ——————————————————————————————————————————————————— -->
+            <!-- Spring Boot Maven Plugin                             -->
+            <!-- 功能:                                                -->
+            <!--   1. mvn spring-boot:run       → 运行应用            -->
+            <!--   2. mvn package                → 生成可执行 JAR     -->
+            <!--   3. 自动将所有依赖打包进 BOOT-INF                    -->
+            <!-- ——————————————————————————————————————————————————— -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 将 Lombok 从最终 JAR 中排除（运行时不需要） -->
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- ——————————————————————————————————————————————————— -->
+            <!-- Maven Compiler Plugin                                -->
+            <!-- 确保使用 Java 24 编译（覆盖父 POM 的默认配置）        -->
+            <!-- ——————————————————————————————————————————————————— -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>24</source>
+                    <target>24</target>
+                    <!-- 启用 Lombok 注解处理 -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

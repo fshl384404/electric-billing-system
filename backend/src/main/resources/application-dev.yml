@@ -1,0 +1,70 @@
+# ============================================================================
+# 民用电缴费系统 — 开发环境配置 (application-dev.yml)
+# ============================================================================
+# 此文件仅在 spring.profiles.active=dev 时加载。
+# 包含开发环境特有的配置: 本地数据库连接、调试开关等。
+#
+# 注意: 此文件包含数据库密码等敏感信息，不要提交到公开仓库！
+#       通常将敏感配置放在 application-local.yml（加入 .gitignore）中。
+#       课程设计阶段为方便演示，保留此文件。
+# ============================================================================
+
+# --------------------------------------------------------------------------
+# Spring 数据源配置 — Oracle 11g 数据库
+# --------------------------------------------------------------------------
+spring:
+  datasource:
+    # ---- JDBC 连接信息 ----
+    # Oracle JDBC URL 格式:
+    #   jdbc:oracle:thin:@//主机:端口/服务名     ← 推荐 (Service Name)
+    #   jdbc:oracle:thin:@主机:端口:SID          ← 旧格式 (SID)
+    #
+    # 常见默认值:
+    #   Oracle 11g XE:    端口 1521, 服务名 XE
+    #   Oracle 19c/21c:   端口 1521, 服务名 ORCL 或 FREEPDB1
+    #   Oracle 23ai Free: 端口 1521, 服务名 FREEPDB1
+    #
+    # 请根据你的 Oracle 实例修改以下三个值:
+    url: jdbc:oracle:thin:@//localhost:1521/FREEPDB1
+    username: electric_billing       # 数据库用户名（建议先创建专用用户）
+    password: electric_billing       # 数据库密码（生产环境需加密）
+
+    # ---- 连接驱动 ----
+    # Oracle 11g ~ 19c 使用 oracle.jdbc.OracleDriver
+    # Spring Boot 会根据 URL 自动检测，通常不需要显式指定
+    driver-class-name: oracle.jdbc.OracleDriver
+
+    # ---- HikariCP 连接池配置 (Spring Boot 默认连接池) ----
+    hikari:
+      # 连接池名称（显示在日志和 JMX 监控中）
+      pool-name: ElectricBillingHikariCP
+
+      # 连接池最小空闲连接数（应用启动时创建这么多连接备用）
+      minimum-idle: 5
+
+      # 最大连接池大小（同时最多这么多数据库连接）
+      # 开发环境设小一些，节省 Oracle 会话资源
+      maximum-pool-size: 20
+
+      # 空闲连接最大存活时间（毫秒）
+      # 10 分钟无活动则释放连接（回收多余空闲连接）
+      idle-timeout: 600000
+
+      # 连接最大生命周期（毫秒）
+      # 30 分钟后强制回收（Oracle 通常设为 1800000 = 30分钟）
+      max-lifetime: 1800000
+
+      # 获取连接超时时间（毫秒）
+      # 等待 30 秒后还没拿到连接则抛异常
+      connection-timeout: 30000
+
+      # 测试连接是否可用的 SQL
+      # Oracle: SELECT 1 FROM DUAL
+      connection-test-query: SELECT 1 FROM DUAL
+
+  # ---- SQL 初始化脚本 ----
+  # 注意: 建表脚本已由 sql/ 目录下的 SQL 文件手动管理
+  #       不在此处配置 spring.sql.init，避免每次启动都执行 DDL
+  sql:
+    init:
+      mode: never

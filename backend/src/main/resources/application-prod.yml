@@ -1,0 +1,48 @@
+# ============================================================================
+# 民用电缴费系统 — 生产环境配置 (application-prod.yml)
+# ============================================================================
+# 此文件仅在 spring.profiles.active=prod 时加载。
+# 与开发环境的主要区别:
+#   1. 数据库连接池更大（应对并发请求）
+#   2. 关闭 MyBatis SQL 日志（保护用户数据隐私）
+#   3. 关闭 DevTools 热重载
+#   4. 全局日志级别提升为 WARN
+#
+# 部署时激活方式:
+#   java -jar app.jar --spring.profiles.active=prod
+# 或者:
+#   export SPRING_PROFILES_ACTIVE=prod
+# ============================================================================
+
+spring:
+  datasource:
+    # 生产数据库连接（从环境变量读取敏感信息更安全）
+    url: jdbc:oracle:thin:@//${DB_HOST:localhost}:${DB_PORT:1521}/${DB_SERVICE:ORCL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+    hikari:
+      pool-name: ElectricBillingHikariCP-Prod
+      minimum-idle: 10            # 生产环境保持更多空闲连接
+      maximum-pool-size: 50       # 更大的连接池
+      idle-timeout: 300000        # 5 分钟
+      max-lifetime: 1200000       # 20 分钟
+      connection-timeout: 10000   # 10 秒（生产环境更快失败，避免请求堆积）
+      connection-test-query: SELECT 1 FROM DUAL
+
+  devtools:
+    restart:
+      enabled: false              # 生产环境禁止热重载
+
+mybatis-plus:
+  configuration:
+    # 生产环境关闭 SQL stdout 输出
+    # 必要时使用 SLF4J 输出到日志文件（可审计）
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+logging:
+  level:
+    root: WARN
+    com.electric.billing: INFO   # 生产环境不用 DEBUG
+    org.springframework: WARN

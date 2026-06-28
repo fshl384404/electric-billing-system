@@ -1,0 +1,118 @@
+# ============================================================================
+# 民用电缴费系统 — 全局应用配置 (application.yml)
+# ============================================================================
+# 此文件包含所有环境共用的配置项。
+# 环境特定配置（如 dev/prod 的数据库连接）请写在对应的 profile 文件中:
+#   application-dev.yml   — 开发环境
+#   application-prod.yml  — 生产环境
+#
+# 激活方式:
+#   1. 命令行:  java -jar app.jar --spring.profiles.active=dev
+#   2. 环境变量: export SPRING_PROFILES_ACTIVE=dev
+#   3. IDEA:     Run Configuration → Active profiles → dev
+# ============================================================================
+
+# --------------------------------------------------------------------------
+# Spring 核心配置
+# --------------------------------------------------------------------------
+spring:
+  application:
+    # 应用名称（显示在日志、Actuator 端点、注册中心中）
+    name: electric-billing-system
+
+  # 默认激活的 Profile（开发环境）
+  # 生产部署时通过环境变量 SPRING_PROFILES_ACTIVE=prod 覆盖
+  profiles:
+    active: dev
+
+  # Jackson JSON 序列化配置
+  jackson:
+    # 日期格式化: 全局统一为 yyyy-MM-dd HH:mm:ss
+    date-format: yyyy-MM-dd HH:mm:ss
+    # 时区: 中国标准时间
+    time-zone: Asia/Shanghai
+    # 序列化选项:
+    #   WRITE_DATES_AS_TIMESTAMPS=false  → 日期不序列化为毫秒数，用字符串
+    #   FAIL_ON_UNKNOWN_PROPERTIES=false → 反序列化时忽略未知字段
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+  # Spring DevTools 热重载（仅开发时生效）
+  devtools:
+    restart:
+      # 热重载开关。生产环境通过 -Dspring.devtools.restart.enabled=false 关闭
+      enabled: true
+
+# --------------------------------------------------------------------------
+# 内嵌 Tomcat 服务器配置
+# --------------------------------------------------------------------------
+server:
+  # 监听端口（默认 8080）
+  port: 8080
+  # Servlet 上下文路径（留空 = 根路径 "/"）
+  # 设置为 /api 会让所有接口以 /api 开头，这里用根路径更灵活
+  servlet:
+    context-path: /
+    # 编码配置
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+# --------------------------------------------------------------------------
+# MyBatis-Plus 持久层配置
+# --------------------------------------------------------------------------
+mybatis-plus:
+  # 全局配置
+  global-config:
+    db-config:
+      # 主键类型: AUTO=数据库自增, INPUT=手动指定, ASSIGN_ID=雪花算法
+      id-type: input
+      # 逻辑删除字段名（数据库字段）
+      logic-delete-field: deleted
+      # 逻辑删除值: 1=已删除
+      logic-delete-value: 1
+      # 逻辑未删除值: 0=未删除
+      logic-not-delete-value: 0
+      # 表名前缀（如所有表以 t_ 开头则填 "t_"）
+      # table-prefix: t_
+
+  # MyBatis 原生配置
+  configuration:
+    # SQL 日志输出（开发环境开启，生产环境在 application-prod.yml 中关闭）
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 下划线转驼峰: 数据库字段 user_name → Java 属性 userName
+    map-underscore-to-camel-case: true
+    # 懒加载开关
+    lazy-loading-enabled: true
+    # 缓存开关
+    cache-enabled: true
+
+  # Mapper XML 文件位置（如果使用 XML 写 SQL）
+  # mapper-locations: classpath*:/mapper/**/*.xml
+
+# --------------------------------------------------------------------------
+# 日志配置
+# --------------------------------------------------------------------------
+logging:
+  # 全局日志级别
+  level:
+    # 根日志: WARN 级别（只输出警告和错误）
+    root: WARN
+    # 本项目的包: DEBUG 级别（输出所有调试信息）
+    com.electric.billing: DEBUG
+    # Spring 框架: INFO 级别
+    org.springframework: INFO
+    # MyBatis: DEBUG 级别（输出 SQL 语句，与 mybatis-plus.configuration.log-impl 配合）
+    com.baomidou.mybatisplus: DEBUG
+
+  # 日志输出格式
+  # %d{...}   — 日期时间
+  # %-5level  — 日志级别（左对齐，5字符宽）
+  # %logger   — 类全限定名（截取36字符）
+  # %msg       — 日志消息
+  # %n         — 换行
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
