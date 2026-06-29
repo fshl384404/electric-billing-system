@@ -201,11 +201,6 @@ electric-billing-system/
 │   ├── 06_init_data.sql                 # 种子数据
 │   └── 07_test_scripts.sql              # 10 项集成测试
 │
-├── docs/                                 # 项目文档
-│   ├── TEST_PLAN.md                      # 71 项集成测试计划
-│   ├── TEST_REPORT_TEMPLATE.md           # 测试报告模板
-│   └── report.md                         # 课程设计报告
-│
 └── .gitignore
 ```
 
@@ -358,13 +353,7 @@ User ─1:N─→ House ─1:1─→ Meter ─1:N─→ MeterReading
 
 ## 相关文档
 
-| 文档 | 说明 |
-|------|------|
-| [需求规格说明书](.claude/projects/d--code------/memory/srs-residential-electricity-payment-system.md) | 完整业务规则 + 角色矩阵 + 数据库方案 |
-| [集成测试计划](docs/TEST_PLAN.md) | 71 项测试用例 × 12 模块 |
-| [测试报告模板](docs/TEST_REPORT_TEMPLATE.md) | 可填写测试报告 |
-| [课程设计报告](docs/report.md) | 8 章完整报告（设计目标→总结） |
-| [答辩准备](docs/DEFENSE.md) | 演示脚本 + 10+ 常见问题 |
+- [需求规格说明书 (Claude Memory)](.claude/projects/d--code------/memory/srs-residential-electricity-payment-system.md) — 完整业务规则、角色权限矩阵、数据库方案
 
 ---
 
