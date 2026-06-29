@@ -3,7 +3,7 @@
     <h2>🏠 房产管理</h2>
     <el-button type="primary" @click="showDialog(null)" style="margin: 16px 0">新增房产</el-button>
 
-    <el-table :data="list" border stripe v-loading="loading">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
       <el-table-column prop="houseId" label="ID" width="80" />
       <el-table-column prop="userId" label="业主ID" width="80" />
       <el-table-column prop="address" label="地址" min-width="250" />
@@ -16,6 +16,10 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑房产' : '新增房产'" width="500px">
       <el-form :model="form" ref="formRef" label-width="80px">
@@ -50,6 +54,9 @@ import houseApi from '@/api/house'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref(null)
@@ -59,9 +66,9 @@ onMounted(() => fetchList())
 async function fetchList() {
   loading.value = true
   try {
-    const res = await houseApi.list()
-    // 按业主ID排序，方便看出一户多宅
-    list.value = (res.data.data || []).sort((a,b) => a.userId - b.userId)
+    const res = await houseApi.list({ page: currentPage.value, pageSize: pageSize.value })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
   } finally { loading.value = false }
 }
 

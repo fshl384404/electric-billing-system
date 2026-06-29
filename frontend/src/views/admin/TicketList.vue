@@ -10,7 +10,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="list" border stripe v-loading="loading" row-key="ticketId">
+    <el-table :data="list" border stripe v-loading="loading" row-key="ticketId" max-height="calc(100vh - 280px)">
       <el-table-column type="expand">
         <template #default="{ row }">
           <div style="padding: 0 20px 20px">
@@ -48,6 +48,10 @@
       </el-table-column>
       <el-table-column prop="createdAt" label="创建时间" width="160" />
     </el-table>
+
+    <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
   </div>
 </template>
 
@@ -58,19 +62,23 @@ import ticketApi from '@/api/ticket'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const filters = reactive({ status: null })
 
 onMounted(() => fetchList())
 async function fetchList() {
   loading.value = true
   try {
-    list.value = (await ticketApi.list(filters)).data.data
-    // 为每行预加载回复
+    const res = await ticketApi.list({ page: currentPage.value, pageSize: pageSize.value, ...filters })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
     for (const row of list.value) {
       row._replyText = ''
       try {
-        const res = await ticketApi.replies(row.ticketId)
-        row._replies = res.data.data || []
+        const r = await ticketApi.replies(row.ticketId)
+        row._replies = r.data.data || []
       } catch { row._replies = [] }
     }
   } finally { loading.value = false }

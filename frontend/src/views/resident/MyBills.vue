@@ -3,7 +3,7 @@
     <h2>📄 我的账单</h2>
     <el-form :inline="true" style="margin: 16px 0">
       <el-form-item label="状态">
-        <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList">
+        <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList" style="width:110px">
           <el-option label="待缴费" value="PENDING" />
           <el-option label="已缴费" value="PAID" />
           <el-option label="已逾期" value="OVERDUE" />
@@ -11,7 +11,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="list" border stripe v-loading="loading">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
       <el-table-column prop="houseAddress" label="住宅" min-width="160" show-overflow-tooltip />
       <el-table-column prop="billMonth" label="账期" width="100" />
       <el-table-column prop="totalUsage" label="用电量(度)" width="110" />
@@ -39,6 +39,10 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
+
     <!-- 缴费确认弹窗 -->
     <el-dialog v-model="payVisible" title="确认缴费" width="400px">
       <p>账单: {{ payForm.billMonth }}</p>
@@ -61,6 +65,9 @@ import paymentApi from '@/api/payment'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const filters = reactive({ status: null })
 const payVisible = ref(false)
 const paying = ref(false)
@@ -70,7 +77,11 @@ const totalPay = computed(() => (payForm.value.totalAmount || 0) + (payForm.valu
 onMounted(() => fetchList())
 async function fetchList() {
   loading.value = true
-  try { list.value = (await billApi.list(filters)).data.data } finally { loading.value = false }
+  try {
+    const res = await billApi.list({ page: currentPage.value, pageSize: pageSize.value, ...filters })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
+  } finally { loading.value = false }
 }
 
 function handlePay(row) {

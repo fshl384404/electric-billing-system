@@ -2,12 +2,13 @@ package com.electric.billing.module.house;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.electric.billing.common.BusinessException;
+import com.electric.billing.common.PageUtils;
 import com.electric.billing.entity.House;
 import com.electric.billing.security.AuthContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class HouseService {
@@ -19,14 +20,13 @@ public class HouseService {
     }
 
     /** 房产列表 — 居民只能看自己的 */
-    public List<House> listAll() {
+    public Map<String, Object> listAll(int page, int pageSize) {
+        LambdaQueryWrapper<House> wrapper = new LambdaQueryWrapper<House>()
+                .orderByAsc(House::getHouseId);
         if (AuthContext.isResident()) {
-            return houseMapper.selectList(
-                    new LambdaQueryWrapper<House>()
-                            .eq(House::getUserId, AuthContext.getCurrentUserId())
-            );
+            wrapper.eq(House::getUserId, AuthContext.getCurrentUserId());
         }
-        return houseMapper.selectList(null);
+        return PageUtils.paginate(houseMapper, wrapper, page, pageSize);
     }
 
     /** 房产详情 */

@@ -2,6 +2,7 @@ package com.electric.billing.module.ticket;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.electric.billing.common.BusinessException;
+import com.electric.billing.common.PageUtils;
 import com.electric.billing.entity.Notification;
 import com.electric.billing.entity.Ticket;
 import com.electric.billing.entity.TicketReply;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TicketService {
@@ -28,15 +30,12 @@ public class TicketService {
     }
 
     /** 工单列表 — 居民看自己的，管理员/收费员看全部 */
-    public List<Ticket> listAll(String status) {
+    public Map<String, Object> listAll(int page, int pageSize, String status) {
         LambdaQueryWrapper<Ticket> wrapper = new LambdaQueryWrapper<Ticket>()
                 .eq(status != null, Ticket::getStatus, status)
                 .orderByDesc(Ticket::getCreatedAt);
-
-        if (AuthContext.isResident()) {
-            wrapper.eq(Ticket::getUserId, AuthContext.getCurrentUserId());
-        }
-        return ticketMapper.selectList(wrapper);
+        if (AuthContext.isResident()) wrapper.eq(Ticket::getUserId, AuthContext.getCurrentUserId());
+        return PageUtils.paginate(ticketMapper, wrapper, page, pageSize);
     }
 
     /** 工单详情 */

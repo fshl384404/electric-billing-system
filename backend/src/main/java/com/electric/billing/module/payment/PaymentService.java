@@ -2,6 +2,7 @@ package com.electric.billing.module.payment;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.electric.billing.common.BusinessException;
+import com.electric.billing.common.PageUtils;
 import com.electric.billing.entity.*;
 import com.electric.billing.module.bill.BillMapper;
 import com.electric.billing.module.meter.MeterMapper;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class PaymentService {
@@ -115,14 +116,17 @@ public class PaymentService {
         return payment;
     }
 
-    /** 缴费记录列表 — billId 为 null 时返回全部 */
-    public List<Payment> listByBill(Long billId) {
+    /** 缴费记录列表 — 居民只看自己的，管理员看全部或按账单筛选 */
+    public Map<String, Object> listByBill(int page, int pageSize, Long billId) {
         LambdaQueryWrapper<Payment> wrapper = new LambdaQueryWrapper<Payment>()
                 .orderByDesc(Payment::getPaymentTime);
         if (billId != null) {
             wrapper.eq(Payment::getBillId, billId);
+        } else if (AuthContext.isResident()) {
+            // 居民：只看自己的缴费记录（通过 payer_id）
+            wrapper.eq(Payment::getPayerId, AuthContext.getCurrentUserId());
         }
-        return paymentMapper.selectList(wrapper);
+        return PageUtils.paginate(paymentMapper, wrapper, page, pageSize);
     }
 
     /** 缴费详情 */

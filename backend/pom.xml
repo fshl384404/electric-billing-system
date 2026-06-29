@@ -84,6 +84,13 @@
             <version>${mybatis-plus.version}</version>
         </dependency>
 
+        <!-- MyBatis-Plus JSqlParser (分页插件依赖) -->
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>4.9</version>
+        </dependency>
+
         <!-- ————————————————————————————————————————————————————————— -->
         <!-- 3. Oracle JDBC 驱动                                         -->
         <!--    ojdbc8: 适用于 Oracle 11g/12c/18c/19c                    -->

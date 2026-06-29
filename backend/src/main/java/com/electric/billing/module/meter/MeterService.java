@@ -2,12 +2,13 @@ package com.electric.billing.module.meter;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.electric.billing.common.BusinessException;
+import com.electric.billing.common.PageUtils;
 import com.electric.billing.entity.Meter;
 import com.electric.billing.security.AuthContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class MeterService {
@@ -19,8 +20,9 @@ public class MeterService {
     }
 
     /** 电表列表 */
-    public List<Meter> listAll() {
-        return meterMapper.selectList(null);
+    public Map<String, Object> listAll(int page, int pageSize) {
+        return PageUtils.paginate(meterMapper,
+            new LambdaQueryWrapper<Meter>().orderByAsc(Meter::getMeterId), page, pageSize);
     }
 
     /** 电表详情 */

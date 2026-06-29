@@ -4,7 +4,6 @@ import com.electric.billing.common.R;
 import com.electric.billing.entity.SysUser;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -13,53 +12,33 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    public UserController(UserService userService) { this.userService = userService; }
 
-    /** 用户列表 */
     @GetMapping("/list")
-    public R<List<SysUser>> list() {
-        List<SysUser> users = userService.listAll();
+    public R<Map<String, Object>> list(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        Map<String, Object> result = userService.listAll(page, pageSize);
+        @SuppressWarnings("unchecked")
+        java.util.List<SysUser> users = (java.util.List<SysUser>) result.get("records");
         users.forEach(u -> u.setPasswordHash(null));
-        return R.ok(users);
+        return R.ok(result);
     }
 
-    /** 用户详情 */
     @GetMapping("/{id}")
-    public R<SysUser> get(@PathVariable Long id) {
-        SysUser user = userService.getById(id);
-        user.setPasswordHash(null);
-        return R.ok(user);
-    }
+    public R<SysUser> get(@PathVariable Long id) { SysUser u = userService.getById(id); u.setPasswordHash(null); return R.ok(u); }
 
-    /** 新增用户 */
     @PostMapping
-    public R<SysUser> create(@RequestBody SysUser user) {
-        return R.ok(userService.create(user));
-    }
+    public R<SysUser> create(@RequestBody SysUser user) { return R.ok(userService.create(user)); }
 
-    /** 更新用户 */
     @PutMapping
-    public R<SysUser> update(@RequestBody SysUser user) {
-        return R.ok(userService.update(user));
-    }
+    public R<SysUser> update(@RequestBody SysUser user) { return R.ok(userService.update(user)); }
 
-    /** 禁用用户 */
     @PutMapping("/{id}/disable")
-    public R<?> disable(@PathVariable Long id) {
-        userService.disable(id);
-        return R.ok();
-    }
+    public R<?> disable(@PathVariable Long id) { userService.disable(id); return R.ok(); }
 
-    /** 重置密码 */
     @PutMapping("/{id}/reset-password")
     public R<?> resetPassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        String newPassword = body.get("password");
-        if (newPassword == null || newPassword.isEmpty()) {
-            return R.fail("密码不能为空");
-        }
-        userService.resetPassword(id, newPassword);
-        return R.ok();
+        userService.resetPassword(id, body.get("password")); return R.ok();
     }
 }

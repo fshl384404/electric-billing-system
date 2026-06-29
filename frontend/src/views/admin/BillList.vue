@@ -14,7 +14,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="list" border stripe v-loading="loading" max-height="600">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
       <el-table-column prop="billId" label="ID" width="70" />
       <el-table-column prop="meterId" label="电表ID" width="80" />
       <el-table-column prop="houseAddress" label="住宅地址" min-width="180" show-overflow-tooltip />
@@ -42,6 +42,11 @@
       <el-table-column prop="dueDate" label="截止日" width="100" />
       <el-table-column prop="paymentDate" label="缴费日" width="100" />
     </el-table>
+
+    <el-pagination
+      v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
   </div>
 </template>
 
@@ -51,11 +56,18 @@ import billApi from '@/api/bill'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const filters = reactive({ status: null, billMonth: null })
 
 onMounted(() => fetchList())
 async function fetchList() {
   loading.value = true
-  try { list.value = (await billApi.list(filters)).data.data } finally { loading.value = false }
+  try {
+    const res = await billApi.list({ page: currentPage.value, pageSize: pageSize.value, ...filters })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
+  } finally { loading.value = false }
 }
 </script>

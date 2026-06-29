@@ -2,12 +2,13 @@ package com.electric.billing.module.alert;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.electric.billing.common.BusinessException;
+import com.electric.billing.common.PageUtils;
 import com.electric.billing.entity.Alert;
 import com.electric.billing.security.AuthContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class AlertService {
@@ -19,15 +20,12 @@ public class AlertService {
     }
 
     /** 告警列表 (ADMIN/COLLECTOR) */
-    public List<Alert> listAll(String status) {
-        if (AuthContext.isResident()) {
-            throw new BusinessException(403, "无权限");
-        }
-        return alertMapper.selectList(
-                new LambdaQueryWrapper<Alert>()
-                        .eq(status != null, Alert::getStatus, status)
-                        .orderByDesc(Alert::getCreatedAt)
-        );
+    public Map<String, Object> listAll(int page, int pageSize, String status) {
+        if (AuthContext.isResident()) throw new BusinessException(403, "无权限");
+        return PageUtils.paginate(alertMapper,
+            new LambdaQueryWrapper<Alert>()
+                .eq(status != null, Alert::getStatus, status)
+                .orderByDesc(Alert::getCreatedAt), page, pageSize);
     }
 
     /** 处理告警 */

@@ -3,11 +3,12 @@ package com.electric.billing.module.notification;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.electric.billing.common.BusinessException;
+import com.electric.billing.common.PageUtils;
 import com.electric.billing.entity.Notification;
 import com.electric.billing.security.AuthContext;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class NotifService {
@@ -19,12 +20,11 @@ public class NotifService {
     }
 
     /** 当前用户的通知列表 */
-    public List<Notification> listMy() {
-        return notifMapper.selectList(
-                new LambdaQueryWrapper<Notification>()
-                        .eq(Notification::getUserId, AuthContext.getCurrentUserId())
-                        .orderByDesc(Notification::getCreatedAt)
-        );
+    public Map<String, Object> listMy(int page, int pageSize) {
+        return PageUtils.paginate(notifMapper,
+            new LambdaQueryWrapper<Notification>()
+                .eq(Notification::getUserId, AuthContext.getCurrentUserId())
+                .orderByDesc(Notification::getCreatedAt), page, pageSize);
     }
 
     /** 未读数量 */

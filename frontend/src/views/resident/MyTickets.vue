@@ -3,7 +3,7 @@
     <h2>🎫 我的工单</h2>
     <el-button type="primary" @click="showCreate" style="margin: 16px 0">提交工单</el-button>
 
-    <el-table :data="list" border stripe v-loading="loading" @row-click="showDetail" highlight-current-row>
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)" @row-click="showDetail" highlight-current-row>
       <el-table-column prop="ticketId" label="ID" width="70" />
       <el-table-column prop="type" label="类型" width="100">
         <template #default="{ row }">
@@ -20,6 +20,10 @@
       </el-table-column>
       <el-table-column prop="createdAt" label="创建时间" width="160" />
     </el-table>
+
+    <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
 
     <!-- 详情弹窗 -->
     <el-dialog v-model="detailVisible" title="工单详情" width="550px">
@@ -75,6 +79,9 @@ import ticketApi from '@/api/ticket'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const createVisible = ref(false)
 const detailVisible = ref(false)
 const current = ref(null)
@@ -84,7 +91,11 @@ const form = reactive({ type: 'BILL_INQUIRY', title: '', description: '' })
 onMounted(() => fetchList())
 async function fetchList() {
   loading.value = true
-  try { list.value = (await ticketApi.list()).data.data } finally { loading.value = false }
+  try {
+    const res = await ticketApi.list({ page: currentPage.value, pageSize: pageSize.value })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
+  } finally { loading.value = false }
 }
 
 async function showDetail(row) {

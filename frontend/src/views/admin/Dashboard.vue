@@ -24,7 +24,7 @@
           <div style="padding: 10px">
             <div v-for="s in billStatus" :key="s.label" style="margin-bottom: 16px">
               <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-                <span>{{ s.label }}</span><span>{{ s.count }} 条 ({{ s.pct }}%)</span>
+                <span>{{ s.label }}</span><span>{{ s.count }} 条 ({{ s.pct.toFixed(2) }}%)</span>
               </div>
               <el-progress :percentage="s.pct" :color="s.color" :stroke-width="18" :text-inside="false" />
             </div>
@@ -40,7 +40,7 @@
                 <span>{{ m.month }}</span><span>¥{{ m.amount.toFixed(2) }}</span>
               </div>
               <el-progress
-                :percentage="(m.amount / maxRevenue) * 100"
+                :percentage="parseFloat(((m.amount / totalRevenue) * 100).toFixed(2))"
                 :color="'#409EFF'"
                 :stroke-width="14"
                 :text-inside="false"
@@ -65,21 +65,24 @@ const stats = ref({ users: 0, houses: 0, bills: 0, alerts: 0 })
 const billStatus = ref([])
 const monthlyRevenue = ref([])
 
-const maxRevenue = computed(() =>
-  Math.max(...monthlyRevenue.value.map(m => m.amount), 1)
+const totalRevenue = computed(() =>
+  monthlyRevenue.value.reduce((sum, m) => sum + m.amount, 0) || 1
 )
 
 onMounted(async () => {
   try {
-    const [u, h, b, a] = await Promise.all([
-      userApi.list(), houseApi.list(), billApi.list(), alertApi.list({ status: 'PENDING' })
+    const [u, h, a] = await Promise.all([
+      userApi.list({ page: 1, pageSize: 999 }),
+      houseApi.list({ page: 1, pageSize: 999 }),
+      alertApi.list({ page: 1, pageSize: 999, status: 'PENDING' })
     ])
-    stats.value.users = u.data.data?.length || 0
-    stats.value.houses = h.data.data?.length || 0
-    stats.value.alerts = a.data.data?.length || 0
+    stats.value.users = u.data.data?.total || 0
+    stats.value.houses = h.data.data?.total || 0
+    stats.value.alerts = a.data.data?.total || 0
 
-    // 按状态统计账单
-    const bills = b.data.data || []
+    // 加载全部账单用于统计 (pageSize=999)
+    const allBills = await billApi.list({ page: 1, pageSize: 999 })
+    const bills = allBills.data.data?.records || []
     stats.value.bills = bills.length
     const statusMap = { PENDING: '待缴费', PAID: '已缴费', OVERDUE: '已逾期' }
     const colors = { PENDING: '#E6A23C', PAID: '#67C23A', OVERDUE: '#F56C6C' }
@@ -87,7 +90,7 @@ onMounted(async () => {
     bills.forEach(b => { counts[b.status] = (counts[b.status] || 0) + 1 })
     billStatus.value = Object.entries(statusMap).map(([k, v]) => ({
       label: v, count: counts[k] || 0,
-      pct: bills.length ? Math.round((counts[k] || 0) / bills.length * 100) : 0,
+      pct: bills.length ? parseFloat(((counts[k] || 0) / bills.length * 100).toFixed(2)) : 0,
       color: colors[k]
     }))
 

@@ -3,28 +3,32 @@
     <h2>🔌 电表管理</h2>
     <el-button type="primary" @click="showDialog(null)" style="margin: 16px 0">新增电表</el-button>
 
-    <el-table :data="list" border stripe v-loading="loading">
-      <el-table-column prop="meterId" label="ID" width="80" />
-      <el-table-column prop="meterNo" label="电表编号" width="180" />
-      <el-table-column prop="houseId" label="房产ID" width="80" />
-      <el-table-column prop="model" label="型号" width="120" />
-      <el-table-column prop="initialReading" label="初始读数" width="100" />
-      <el-table-column prop="lastReading" label="最新读数" width="100" />
-      <el-table-column prop="status" label="状态" width="100">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
+      <el-table-column prop="meterId" label="ID" width="60" />
+      <el-table-column prop="meterNo" label="电表编号" min-width="140" show-overflow-tooltip />
+      <el-table-column prop="houseId" label="房产ID" width="70" />
+      <el-table-column prop="model" label="型号" width="90" show-overflow-tooltip />
+      <el-table-column prop="initialReading" label="初始读数" width="85" />
+      <el-table-column prop="lastReading" label="最新读数" width="85" />
+      <el-table-column prop="status" label="状态" width="80">
         <template #default="{ row }">
           <el-tag :type="row.status === 'NORMAL' ? 'success' : row.status === 'FAULT' ? 'warning' : 'info'" size="small">
-            {{ { NORMAL: '正常', FAULT: '故障', REMOVED: '已拆除' }[row.status] }}
+            {{ row.status === 'NORMAL' ? '正常' : row.status === 'FAULT' ? '故障' : '拆除' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="250">
+      <el-table-column label="操作" width="200" fixed="right">
         <template #default="{ row }">
           <el-button size="small" @click="showDialog(row)">编辑</el-button>
-          <el-button size="small" type="warning" @click="updateStatus(row, 'FAULT')" v-if="row.status === 'NORMAL'">报故障</el-button>
+          <el-button size="small" type="warning" @click="updateStatus(row, 'FAULT')" v-if="row.status === 'NORMAL'">故障</el-button>
           <el-button size="small" type="success" @click="updateStatus(row, 'NORMAL')" v-if="row.status !== 'NORMAL'">恢复</el-button>
         </template>
       </el-table-column>
     </el-table>
+
+    <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑电表' : '新增电表'" width="500px">
       <el-form :model="form" ref="formRef" label-width="80px">
@@ -59,6 +63,9 @@ import meterApi from '@/api/meter'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const formRef = ref(null)
@@ -67,7 +74,11 @@ const form = ref({})
 onMounted(() => fetchList())
 async function fetchList() {
   loading.value = true
-  try { list.value = (await meterApi.list()).data.data } finally { loading.value = false }
+  try {
+    const res = await meterApi.list({ page: currentPage.value, pageSize: pageSize.value })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
+  } finally { loading.value = false }
 }
 
 function showDialog(row) {

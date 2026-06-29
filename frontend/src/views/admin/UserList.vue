@@ -3,7 +3,7 @@
     <h2>👤 用户管理</h2>
     <el-button type="primary" @click="showDialog(null)" style="margin: 16px 0">新增用户</el-button>
 
-    <el-table :data="list" border stripe v-loading="loading">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
       <el-table-column prop="userId" label="ID" width="80" />
       <el-table-column prop="username" label="用户名" width="120" />
       <el-table-column prop="realName" label="姓名" width="100" />
@@ -29,6 +29,11 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <el-pagination
+      v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
 
     <!-- 新增/编辑弹窗 -->
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑用户' : '新增用户'" width="500px">
@@ -80,6 +85,9 @@ import userApi from '@/api/user'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const dialogVisible = ref(false)
 const isEdit = ref(false)
 const submitting = ref(false)
@@ -100,7 +108,11 @@ onMounted(() => fetchList())
 
 async function fetchList() {
   loading.value = true
-  try { list.value = (await userApi.list()).data.data } finally { loading.value = false }
+  try {
+    const res = await userApi.list({ page: currentPage.value, pageSize: pageSize.value })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
+  } finally { loading.value = false }
 }
 
 function showDialog(row) {

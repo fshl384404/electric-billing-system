@@ -13,7 +13,7 @@
       <el-button type="success" @click="showOfflineDialog">💵 线下收费</el-button>
     </div>
 
-    <el-table :data="list" border stripe v-loading="loading">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
       <el-table-column prop="paymentId" label="ID" width="80" />
       <el-table-column prop="billId" label="账单ID" width="80" />
       <el-table-column prop="amount" label="金额(元)" width="100" />
@@ -30,6 +30,11 @@
       <el-table-column prop="paymentTime" label="缴费时间" width="160" />
       <el-table-column prop="transactionNo" label="流水号" min-width="200" />
     </el-table>
+
+    <el-pagination
+      v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
 
     <!-- 线下收费弹窗 -->
     <el-dialog v-model="offlineVisible" title="💵 线下收费" width="480px">
@@ -66,9 +71,11 @@ import billApi from '@/api/bill'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const billId = ref(null)
 
-// 默认加载全部缴费记录
 onMounted(() => fetchList())
 
 // 线下收费
@@ -117,6 +124,10 @@ async function submitOffline() {
 
 async function fetchList() {
   loading.value = true
-  try { list.value = (await paymentApi.list(billId.value)).data.data } finally { loading.value = false }
+  try {
+    const res = await paymentApi.list({ page: currentPage.value, pageSize: pageSize.value, billId: billId.value || undefined })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
+  } finally { loading.value = false }
 }
 </script>

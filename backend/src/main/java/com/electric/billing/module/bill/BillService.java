@@ -10,8 +10,8 @@ import com.electric.billing.module.meter.MeterMapper;
 import com.electric.billing.security.AuthContext;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.Map;
 
 @Service
 public class BillService {
@@ -27,8 +27,7 @@ public class BillService {
     }
 
     /** 账单列表 — 居民看自己的，管理员/收费员看全部 */
-    public List<Bill> listAll(String status, String billMonth) {
-        // 空字符串视为 null，避免误过滤
+    public Map<String, Object> listAll(int page, int pageSize, String status, String billMonth) {
         if (status != null && status.isBlank()) status = null;
         if (billMonth != null && billMonth.isBlank()) billMonth = null;
 
@@ -39,17 +38,21 @@ public class BillService {
 
         if (AuthContext.isResident()) {
             List<Meter> meters = getResidentMeters();
-            if (meters.isEmpty()) return new ArrayList<>();
+            if (meters.isEmpty()) {
+                Map<String, Object> empty = new LinkedHashMap<>();
+                empty.put("records", List.of()); empty.put("total", 0L);
+                empty.put("page", page); empty.put("pageSize", pageSize);
+                return empty;
+            }
             List<Long> meterIds = meters.stream().map(Meter::getMeterId).toList();
             wrapper.in(Bill::getMeterId, meterIds);
         }
 
-        List<Bill> bills = billMapper.selectList(wrapper);
-        // 填充住宅地址
-        for (Bill bill : bills) {
-            fillHouseAddress(bill);
-        }
-        return bills;
+        Map<String, Object> result = com.electric.billing.common.PageUtils.paginate(billMapper, wrapper, page, pageSize);
+        @SuppressWarnings("unchecked")
+        List<Bill> bills = (List<Bill>) result.get("records");
+        for (Bill bill : bills) { fillHouseAddress(bill); }
+        return result;
     }
 
     /** 账单详情 */

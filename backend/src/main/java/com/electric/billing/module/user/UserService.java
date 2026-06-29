@@ -2,13 +2,14 @@ package com.electric.billing.module.user;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.electric.billing.common.BusinessException;
+import com.electric.billing.common.PageUtils;
 import com.electric.billing.entity.SysUser;
 import com.electric.billing.security.AuthContext;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -21,9 +22,10 @@ public class UserService {
     }
 
     /** 全部用户列表 (ADMIN/COLLECTOR) */
-    public List<SysUser> listAll() {
+    public Map<String, Object> listAll(int page, int pageSize) {
         checkNotResident();
-        return userMapper.selectList(null);
+        return PageUtils.paginate(userMapper,
+            new LambdaQueryWrapper<SysUser>().orderByAsc(SysUser::getUserId), page, pageSize);
     }
 
     /** 用户详情 */

@@ -1,7 +1,7 @@
 import http from './index'
 
 export default {
-  list: () => http.get('/api/user/list'),
+  list: (params) => http.get('/api/user/list', { params }),
   get: (id) => http.get(`/api/user/${id}`),
   create: (data) => http.post('/api/user', data),
   update: (data) => http.put('/api/user', data),

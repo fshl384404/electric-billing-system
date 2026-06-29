@@ -42,7 +42,7 @@
           </el-icon>
         </div>
         <div class="header-right">
-          <el-badge :value="unreadCount" :hidden="unreadCount === 0" class="notif-badge">
+          <el-badge v-if="isResident" :value="unreadCount" :hidden="unreadCount === 0" class="notif-badge">
             <el-button :icon="Bell" circle @click="goNotifications" />
           </el-badge>
           <span class="user-name">{{ auth.user?.realName || '未知用户' }}</span>
@@ -135,6 +135,11 @@ async function handleLogout() {
 
 onMounted(() => { fetchUnreadCount() })
 </script>
+
+<style>
+/* 全局复位 — 消除白框 */
+html, body { margin: 0; padding: 0; overflow: hidden; }
+</style>
 
 <style scoped>
 .layout { height: 100vh; }

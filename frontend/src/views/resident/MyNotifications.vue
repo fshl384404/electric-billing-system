@@ -5,7 +5,7 @@
       <el-button @click="markAll">全部标记已读</el-button>
     </div>
 
-    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 16px"
+    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 16px" max-height="calc(100vh - 280px)"
       row-key="notifId" @row-click="showDetail" highlight-current-row>
       <el-table-column prop="type" label="类型" width="120">
         <template #default="{ row }">
@@ -29,6 +29,10 @@
       </el-table-column>
     </el-table>
 
+    <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
+      layout="total, prev, pager, next, jumper" @current-change="fetchList"
+      style="margin-top:16px;justify-content:flex-end" />
+
     <!-- 详情弹窗 -->
     <el-dialog v-model="dialogVisible" title="通知详情" width="500px">
       <p><strong>类型：</strong>{{ { ARREARS: '欠费提醒', CUTOFF_WARNING: '断电预警', ANOMALY: '异常告警', TICKET_REPLY: '工单回复', PAYMENT_CONFIRM: '缴费确认' }[current?.type] }}</p>
@@ -47,13 +51,20 @@ import notifApi from '@/api/notification'
 
 const list = ref([])
 const loading = ref(false)
+const total = ref(0)
+const currentPage = ref(1)
+const pageSize = ref(20)
 const dialogVisible = ref(false)
 const current = ref(null)
 
 onMounted(() => fetchList())
 async function fetchList() {
   loading.value = true
-  try { list.value = (await notifApi.list()).data.data } finally { loading.value = false }
+  try {
+    const res = await notifApi.list({ page: currentPage.value, pageSize: pageSize.value })
+    list.value = res.data.data.records
+    total.value = res.data.data.total
+  } finally { loading.value = false }
 }
 
 function showDetail(row) {
