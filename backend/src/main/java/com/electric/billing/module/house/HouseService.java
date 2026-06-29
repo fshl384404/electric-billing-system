@@ -53,25 +53,12 @@ public class HouseService {
         return house;
     }
 
-    /** 更新房产 */
-    public House update(House house) {
-        if (!AuthContext.isAdmin()) {
-            throw new BusinessException(403, "仅管理员可操作");
-        }
-        House existing = houseMapper.selectById(house.getHouseId());
-        if (existing == null) {
-            throw new BusinessException("房产不存在");
-        }
-        house.setCreatedAt(existing.getCreatedAt());
-        houseMapper.updateById(house);
-        return house;
-    }
-
-    /** 删除房产 (前提：无关联电表) */
+    /** 删除房产 */
     public void delete(Long id) {
         if (!AuthContext.isAdmin()) {
             throw new BusinessException(403, "仅管理员可操作");
         }
         houseMapper.deleteById(id);
     }
+
 }

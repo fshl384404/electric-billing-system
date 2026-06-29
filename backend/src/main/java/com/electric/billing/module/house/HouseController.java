@@ -22,6 +22,5 @@ public class HouseController {
 
     @GetMapping("/{id}") public R<House> get(@PathVariable Long id) { return R.ok(houseService.getById(id)); }
     @PostMapping public R<House> create(@RequestBody House house) { return R.ok(houseService.create(house)); }
-    @PutMapping public R<House> update(@RequestBody House house) { return R.ok(houseService.update(house)); }
     @DeleteMapping("/{id}") public R<?> delete(@PathVariable Long id) { houseService.delete(id); return R.ok(); }
 }

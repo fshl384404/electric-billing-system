@@ -53,20 +53,6 @@ public class MeterService {
         return meter;
     }
 
-    /** 更新电表信息 */
-    public Meter update(Meter meter) {
-        if (!AuthContext.isAdmin()) {
-            throw new BusinessException(403, "仅管理员可操作");
-        }
-        Meter existing = meterMapper.selectById(meter.getMeterId());
-        if (existing == null) {
-            throw new BusinessException("电表不存在");
-        }
-        meter.setCreatedAt(existing.getCreatedAt());
-        meterMapper.updateById(meter);
-        return meter;
-    }
-
     /** 更新电表状态 (故障/拆除) */
     public void updateStatus(Long id, String status) {
         Meter meter = meterMapper.selectById(id);
@@ -75,5 +61,13 @@ public class MeterService {
         }
         meter.setStatus(status);
         meterMapper.updateById(meter);
+    }
+
+    /** 删除电表 */
+    public void delete(Long id) {
+        if (!AuthContext.isAdmin()) {
+            throw new BusinessException(403, "仅管理员可操作");
+        }
+        meterMapper.deleteById(id);
     }
 }
