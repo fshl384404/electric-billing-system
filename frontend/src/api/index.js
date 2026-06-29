@@ -33,11 +33,26 @@ http.interceptors.response.use(
     return response
   },
   error => {
-    if (error.response?.status === 401) {
-      localStorage.clear()
-      window.location.href = '/login'
+    // HTTP 状态码错误 (网络不通 / 服务器 500 等)
+    if (error.response) {
+      const status = error.response.status
+      if (status === 401) {
+        localStorage.clear()
+        window.location.href = '/login'
+        return Promise.reject(error)
+      }
+      if (status === 403) {
+        ElMessage.error('无权访问，请检查账号权限')
+      } else if (status >= 500) {
+        ElMessage.error('服务器内部错误，请稍后重试')
+      } else {
+        ElMessage.error('请求失败: ' + (error.response.data?.message || error.message))
+      }
+    } else if (error.code === 'ERR_NETWORK') {
+      ElMessage.error('网络连接失败，请确认后端服务已启动 (localhost:8080)')
+    } else {
+      ElMessage.error(error.message || '网络错误')
     }
-    ElMessage.error(error.message || '网络错误')
     return Promise.reject(error)
   }
 )
