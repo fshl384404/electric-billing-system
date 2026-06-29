@@ -19,7 +19,7 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessage } from 'element-plus'
@@ -35,6 +35,11 @@ const rules = {
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 }
 
+// 进入登录页时清理残留状态，确保干净环境
+onMounted(() => {
+  authStore.logout()
+})
+
 async function handleLogin() {
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
@@ -49,7 +54,15 @@ async function handleLogin() {
       router.push('/admin/dashboard')
     }
   } catch (e) {
-    ElMessage.error(e.message || '登录失败')
+    // 区分不同类型的错误
+    const msg = e.message || ''
+    if (msg.includes('Network Error') || msg.includes('网络')) {
+      ElMessage.error('无法连接到后端服务，请确认后端已启动 (localhost:8080)')
+    } else if (msg.includes('401') || msg.includes('过期')) {
+      ElMessage.error('登录状态已过期，请重新登录')
+    } else {
+      ElMessage.error(msg || '登录失败，请检查用户名和密码')
+    }
   } finally {
     loading.value = false
   }
