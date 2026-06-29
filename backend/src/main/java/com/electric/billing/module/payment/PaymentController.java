@@ -22,9 +22,9 @@ public class PaymentController {
         return R.ok(paymentService.pay(payment));
     }
 
-    /** 按账单查缴费记录 */
+    /** 缴费记录列表 — 可选按账单ID筛选 */
     @GetMapping("/list")
-    public R<List<Payment>> list(@RequestParam Long billId) {
+    public R<List<Payment>> list(@RequestParam(required = false) Long billId) {
         return R.ok(paymentService.listByBill(billId));
     }
 

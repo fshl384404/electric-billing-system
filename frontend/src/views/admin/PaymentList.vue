@@ -59,7 +59,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import paymentApi from '@/api/payment'
 import billApi from '@/api/bill'
@@ -67,6 +67,9 @@ import billApi from '@/api/bill'
 const list = ref([])
 const loading = ref(false)
 const billId = ref(null)
+
+// 默认加载全部缴费记录
+onMounted(() => fetchList())
 
 // 线下收费
 const offlineVisible = ref(false)
@@ -113,7 +116,6 @@ async function submitOffline() {
 }
 
 async function fetchList() {
-  if (!billId.value) return
   loading.value = true
   try { list.value = (await paymentApi.list(billId.value)).data.data } finally { loading.value = false }
 }

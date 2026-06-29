@@ -115,13 +115,14 @@ public class PaymentService {
         return payment;
     }
 
-    /** 按账单查询缴费记录 */
+    /** 缴费记录列表 — billId 为 null 时返回全部 */
     public List<Payment> listByBill(Long billId) {
-        return paymentMapper.selectList(
-                new LambdaQueryWrapper<Payment>()
-                        .eq(Payment::getBillId, billId)
-                        .orderByDesc(Payment::getPaymentTime)
-        );
+        LambdaQueryWrapper<Payment> wrapper = new LambdaQueryWrapper<Payment>()
+                .orderByDesc(Payment::getPaymentTime);
+        if (billId != null) {
+            wrapper.eq(Payment::getBillId, billId);
+        }
+        return paymentMapper.selectList(wrapper);
     }
 
     /** 缴费详情 */
