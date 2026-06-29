@@ -145,7 +145,40 @@
         </dependency>
 
         <!-- ————————————————————————————————————————————————————————— -->
-        <!-- 7. Spring Boot DevTools (开发环境热重载)                     -->
+        <!-- 7. JWT (JSON Web Token) 依赖                               -->
+        <!--    jjwt-api:  JWT 核心 API (创建/解析/验证 Token)          -->
+        <!--    jjwt-impl: JWT 默认实现 (运行时)                         -->
+        <!--    jjwt-jackson: Jackson JSON 序列化支持                   -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 8. Spring Security Crypto (仅 BCrypt 密码编码器)              -->
+        <!--    轻量级，不引入完整的 Security Filter Chain                 -->
+        <!-- ————————————————————————————————————————————————————————— -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
+        </dependency>
+
+        <!-- ————————————————————————————————————————————————————————— -->
+        <!-- 9. Spring Boot DevTools (开发环境热重载)                     -->
         <!--    optional=true: 不会传递给依赖此项目的其他模块             -->
         <!--    生产环境通过 -Dspring.devtools.restart.enabled=false 禁用 -->
         <!-- ————————————————————————————————————————————————————————— -->

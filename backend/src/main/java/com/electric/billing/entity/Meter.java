@@ -1,0 +1,22 @@
+package com.electric.billing.entity;
+
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+import java.util.Date;
+
+@Data
+@TableName("METER")
+public class Meter {
+    @TableId
+    private Long meterId;
+    private Long houseId;
+    private String meterNo;
+    private String model;
+    private Date installDate;
+    private Double initialReading;
+    private Double lastReading;
+    private Date lastReadingDate;
+    private String status;
+    private Date createdAt;
+}
