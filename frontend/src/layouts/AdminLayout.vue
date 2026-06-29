@@ -33,7 +33,7 @@
     </el-aside>
 
     <!-- 右侧区域 -->
-    <el-container>
+    <el-container class="right-container">
       <!-- 顶栏 -->
       <el-header class="header">
         <div class="header-left">
@@ -137,12 +137,12 @@ onMounted(() => { fetchUnreadCount() })
 </script>
 
 <style>
-/* 全局复位 — 消除白框 */
-html, body { margin: 0; padding: 0; overflow: hidden; }
+html, body, #app { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 </style>
 
 <style scoped>
 .layout { height: 100vh; }
+
 .aside {
   background: #1e3a5f;
   overflow-y: auto;
@@ -160,6 +160,12 @@ html, body { margin: 0; padding: 0; overflow: hidden; }
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 .el-menu { border-right: none; }
+
+.right-container {
+  overflow: hidden !important;
+  height: 100vh;
+}
+
 .header {
   background: white;
   border-bottom: 1px solid #e4e7ed;
@@ -168,19 +174,23 @@ html, body { margin: 0; padding: 0; overflow: hidden; }
   justify-content: space-between;
   padding: 0 20px;
   height: 60px;
+  flex-shrink: 0;
 }
 .header-left { display: flex; align-items: center; }
 .collapse-btn { cursor: pointer; }
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+.header-right { display: flex; align-items: center; gap: 12px; }
 .user-name { font-weight: 500; }
 .notif-badge { margin-right: 4px; }
+
 .main {
   background: #f0f2f5;
-  padding: 20px;
+  padding: 12px 20px 20px;
+  height: calc(100vh - 60px);
   overflow-y: auto;
+  box-sizing: border-box;
+}
+.main :deep(h2) {
+  margin: 0 0 8px;
+  font-size: 20px;
 }
 </style>

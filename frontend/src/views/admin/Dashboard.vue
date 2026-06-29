@@ -22,9 +22,9 @@
         <el-card shadow="hover">
           <template #header><span>📈 账单状态分布</span></template>
           <div style="padding: 10px">
-            <div v-for="s in billStatus" :key="s.label" style="margin-bottom: 16px">
+            <div v-for="s in billStatus" :key="s.label" style="margin-bottom: 8px">
               <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-                <span>{{ s.label }}</span><span>{{ s.count }} 条 ({{ s.pct.toFixed(2) }}%)</span>
+                <span>{{ s.label }}</span><span>{{ s.count }} 条 </span>
               </div>
               <el-progress :percentage="s.pct" :color="s.color" :stroke-width="18" :text-inside="false" />
             </div>

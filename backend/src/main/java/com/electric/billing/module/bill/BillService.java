@@ -51,7 +51,7 @@ public class BillService {
         Map<String, Object> result = com.electric.billing.common.PageUtils.paginate(billMapper, wrapper, page, pageSize);
         @SuppressWarnings("unchecked")
         List<Bill> bills = (List<Bill>) result.get("records");
-        for (Bill bill : bills) { fillHouseAddress(bill); }
+        fillHouseAddresses(bills);
         return result;
     }
 
@@ -68,21 +68,39 @@ public class BillService {
                 throw new BusinessException(403, "无权查看");
             }
         }
-        fillHouseAddress(bill);
+        fillHouseAddresses(List.of(bill));
         return bill;
     }
 
-    /** 通过 meter → house 填充账单的住宅地址 */
-    private void fillHouseAddress(Bill bill) {
+    /** 批量填充住宅地址 — 2 次查询替代 N×2 次 (N+1 优化) */
+    private void fillHouseAddresses(List<Bill> bills) {
+        if (bills.isEmpty()) return;
         try {
-            Meter meter = meterMapper.selectById(bill.getMeterId());
-            if (meter != null) {
-                House house = houseMapper.selectById(meter.getHouseId());
-                if (house != null) {
-                    bill.setHouseAddress(house.getAddress());
+            // 1. 收集所有 meterId → 批量查 Meter
+            Set<Long> meterIds = new HashSet<>();
+            for (Bill b : bills) meterIds.add(b.getMeterId());
+
+            List<Meter> meters = meterMapper.selectBatchIds(meterIds);
+            Map<Long, Meter> meterMap = new HashMap<>();
+            for (Meter m : meters) meterMap.put(m.getMeterId(), m);
+
+            // 2. 收集所有 houseId → 批量查 House
+            Set<Long> houseIds = new HashSet<>();
+            for (Meter m : meters) houseIds.add(m.getHouseId());
+
+            List<House> houses = houseMapper.selectBatchIds(houseIds);
+            Map<Long, House> houseMap = new HashMap<>();
+            for (House h : houses) houseMap.put(h.getHouseId(), h);
+
+            // 3. 一次遍历填充地址
+            for (Bill b : bills) {
+                Meter m = meterMap.get(b.getMeterId());
+                if (m != null) {
+                    House h = houseMap.get(m.getHouseId());
+                    if (h != null) b.setHouseAddress(h.getAddress());
                 }
             }
-        } catch (Exception ignored) { /* 地址查询失败不影响主流程 */ }
+        } catch (Exception ignored) { /* 不影响主流程 */ }
     }
 
     /** 获取当前居民的所有电表 */

@@ -1,9 +1,9 @@
 <template>
   <div>
     <h2>🎫 我的工单</h2>
-    <el-button type="primary" @click="showCreate" style="margin: 16px 0">提交工单</el-button>
+    <el-button type="primary" @click="showCreate" style="margin: 8px 0">提交工单</el-button>
 
-    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)" @row-click="showDetail" highlight-current-row>
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 230px)" @row-click="showDetail" highlight-current-row>
       <el-table-column prop="ticketId" label="ID" width="70" />
       <el-table-column prop="type" label="类型" width="100">
         <template #default="{ row }">
@@ -23,7 +23,7 @@
 
     <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
       layout="total, prev, pager, next, jumper" @current-change="fetchList"
-      style="margin-top:16px;justify-content:flex-end" />
+      style="margin-top:8px;justify-content:flex-end" />
 
     <!-- 详情弹窗 -->
     <el-dialog v-model="detailVisible" title="工单详情" width="550px">

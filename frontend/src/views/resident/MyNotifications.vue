@@ -5,7 +5,7 @@
       <el-button @click="markAll">全部标记已读</el-button>
     </div>
 
-    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 16px" max-height="calc(100vh - 280px)"
+    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 8px" max-height="calc(100vh - 230px)"
       row-key="notifId" @row-click="showDetail" highlight-current-row>
       <el-table-column prop="type" label="类型" width="120">
         <template #default="{ row }">
@@ -31,7 +31,7 @@
 
     <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
       layout="total, prev, pager, next, jumper" @current-change="fetchList"
-      style="margin-top:16px;justify-content:flex-end" />
+      style="margin-top:8px;justify-content:flex-end" />
 
     <!-- 详情弹窗 -->
     <el-dialog v-model="dialogVisible" title="通知详情" width="500px">

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>💰 我的缴费</h2>
-    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 16px" max-height="calc(100vh - 280px)">
+    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 8px" max-height="calc(100vh - 230px)">
       <el-table-column prop="paymentId" label="ID" width="80" />
       <el-table-column prop="billId" label="账单ID" width="80" />
       <el-table-column prop="amount" label="金额(元)" width="100" />
@@ -18,7 +18,7 @@
 
     <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
       layout="total, prev, pager, next, jumper" @current-change="fetchList"
-      style="margin-top:16px;justify-content:flex-end" />
+      style="margin-top:8px;justify-content:flex-end" />
   </div>
 </template>
 

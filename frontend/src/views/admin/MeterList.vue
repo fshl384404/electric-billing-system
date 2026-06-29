@@ -1,9 +1,9 @@
 <template>
   <div>
     <h2>🔌 电表管理</h2>
-    <el-button type="primary" @click="showDialog(null)" style="margin: 16px 0">新增电表</el-button>
+    <el-button type="primary" @click="showDialog(null)" style="margin: 8px 0">新增电表</el-button>
 
-    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 230px)">
       <el-table-column prop="meterId" label="ID" width="60" />
       <el-table-column prop="meterNo" label="电表编号" min-width="140" show-overflow-tooltip />
       <el-table-column prop="houseId" label="房产ID" width="70" />
@@ -28,7 +28,7 @@
 
     <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
       layout="total, prev, pager, next, jumper" @current-change="fetchList"
-      style="margin-top:16px;justify-content:flex-end" />
+      style="margin-top:8px;justify-content:flex-end" />
 
     <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑电表' : '新增电表'" width="500px">
       <el-form :model="form" ref="formRef" label-width="80px">

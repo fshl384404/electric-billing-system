@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>📄 我的账单</h2>
-    <el-form :inline="true" style="margin: 16px 0">
+    <el-form :inline="true" style="margin: 8px 0">
       <el-form-item label="状态">
         <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList" style="width:110px">
           <el-option label="待缴费" value="PENDING" />
@@ -11,7 +11,7 @@
       </el-form-item>
     </el-form>
 
-    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 230px)">
       <el-table-column prop="houseAddress" label="住宅" min-width="160" show-overflow-tooltip />
       <el-table-column prop="billMonth" label="账期" width="100" />
       <el-table-column prop="totalUsage" label="用电量(度)" width="110" />
@@ -41,7 +41,7 @@
 
     <el-pagination v-model:current-page="currentPage" :page-size="20" :total="total"
       layout="total, prev, pager, next, jumper" @current-change="fetchList"
-      style="margin-top:16px;justify-content:flex-end" />
+      style="margin-top:8px;justify-content:flex-end" />
 
     <!-- 缴费确认弹窗 -->
     <el-dialog v-model="payVisible" title="确认缴费" width="400px">

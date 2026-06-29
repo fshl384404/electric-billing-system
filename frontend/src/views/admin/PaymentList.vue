@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>💰 缴费记录</h2>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0">
       <el-form :inline="true">
         <el-form-item label="账单ID">
           <el-input-number v-model="billId" :min="1" placeholder="输入账单ID查询" />
@@ -13,7 +13,7 @@
       <el-button type="success" @click="showOfflineDialog">💵 线下收费</el-button>
     </div>
 
-    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 280px)">
+    <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 230px)">
       <el-table-column prop="paymentId" label="ID" width="80" />
       <el-table-column prop="billId" label="账单ID" width="80" />
       <el-table-column prop="amount" label="金额(元)" width="100" />
@@ -34,7 +34,7 @@
     <el-pagination
       v-model:current-page="currentPage" :page-size="20" :total="total"
       layout="total, prev, pager, next, jumper" @current-change="fetchList"
-      style="margin-top:16px;justify-content:flex-end" />
+      style="margin-top:8px;justify-content:flex-end" />
 
     <!-- 线下收费弹窗 -->
     <el-dialog v-model="offlineVisible" title="💵 线下收费" width="480px">
