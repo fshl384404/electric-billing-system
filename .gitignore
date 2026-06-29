@@ -95,3 +95,6 @@ src/main/resources/application-local.yml
 *.tmp
 *.bak
 *.swp
+*.bat
+# 测试输出文件
+sql/*结果*.txt

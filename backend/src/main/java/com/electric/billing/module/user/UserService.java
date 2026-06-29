@@ -38,6 +38,12 @@ public class UserService {
     /** 新增用户 */
     public SysUser create(SysUser user) {
         checkAdminOnly();
+        if (user.getUsername() == null || user.getUsername().isBlank()) {
+            throw new BusinessException("用户名不能为空");
+        }
+        if (user.getPasswordHash() == null || user.getPasswordHash().isBlank()) {
+            throw new BusinessException("密码不能为空");
+        }
         // 校验用户名唯一
         Long count = userMapper.selectCount(
                 new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, user.getUsername())

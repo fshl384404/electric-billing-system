@@ -1,13 +1,19 @@
-// ============================================================================
-// 民用电缴费系统 — 前端入口
-// 创建 Vue 3 应用实例并挂载到 index.html 中的 <div id="app">
-// ============================================================================
-
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
+import router from './router'
 
-// 创建应用实例
 const app = createApp(App)
 
-// 挂载到 DOM（后续在此处注册路由、状态管理等插件）
+// 注册 Element Plus Icons 全局
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
+
+app.use(createPinia())
+app.use(ElementPlus, { locale: undefined }) // 中文默认
+app.use(router)
 app.mount('#app')
