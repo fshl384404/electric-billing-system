@@ -31,7 +31,7 @@
       style="margin-top:8px;justify-content:flex-end" />
 
     <el-dialog v-model="dialogVisible" title="新增电表" width="500px">
-      <el-form :model="form" ref="formRef" label-width="80px">
+      <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
         <el-form-item label="电表编号" prop="meterNo">
           <el-input v-model="form.meterNo" />
         </el-form-item>
@@ -85,7 +85,14 @@ function showDialog() {
   dialogVisible.value = true
 }
 
+const rules = {
+  meterNo: [{ required: true, message: '请输入电表编号', trigger: 'blur' }],
+  houseId: [{ required: true, message: '请输入房产ID', trigger: 'blur' }]
+}
+
 async function handleSubmit() {
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
   await meterApi.create(form.value)
   ElMessage.success('新增成功')
   dialogVisible.value = false

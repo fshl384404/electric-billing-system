@@ -21,7 +21,7 @@
       style="margin-top:8px;justify-content:flex-end" />
 
     <el-dialog v-model="dialogVisible" title="新增房产" width="500px">
-      <el-form :model="form" ref="formRef" label-width="80px">
+      <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
         <el-form-item label="业主ID" prop="userId">
           <el-input-number v-model="form.userId" :min="1" />
         </el-form-item>
@@ -75,7 +75,15 @@ function showDialog() {
   dialogVisible.value = true
 }
 
+const rules = {
+  userId: [{ required: true, message: '请输入业主ID', trigger: 'blur' }],
+  address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
+  area: [{ required: true, message: '请输入面积', trigger: 'blur' }]
+}
+
 async function handleSubmit() {
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
   await houseApi.create(form.value)
   ElMessage.success('新增成功')
   dialogVisible.value = false

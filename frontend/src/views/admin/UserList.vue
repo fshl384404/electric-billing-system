@@ -26,6 +26,7 @@
           <el-button size="small" @click="showDialog(row)">编辑</el-button>
           <el-button size="small" type="warning" @click="handleResetPwd(row)">重置密码</el-button>
           <el-button v-if="row.status === 'ACTIVE' && row.role !== 'ADMIN'" size="small" type="danger" @click="handleDisable(row)">禁用</el-button>
+          <el-button v-if="row.status === 'DISABLED'" size="small" type="success" @click="handleEnable(row)">启用</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -67,14 +68,6 @@
       </template>
     </el-dialog>
 
-    <!-- 重置密码弹窗 -->
-    <el-dialog v-model="pwdVisible" title="重置密码" width="400px">
-      <el-input v-model="newPassword" type="password" show-password placeholder="请输入新密码" />
-      <template #footer>
-        <el-button @click="pwdVisible = false">取消</el-button>
-        <el-button type="primary" @click="doResetPwd">确定</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -93,15 +86,17 @@ const isEdit = ref(false)
 const submitting = ref(false)
 const formRef = ref(null)
 const form = ref({})
-const pwdVisible = ref(false)
-const resetUserId = ref(null)
-const newPassword = ref('')
-
 const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   realName: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   role: [{ required: true, message: '请选择角色', trigger: 'change' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  phone: [
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+  ],
+  email: [
+    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
+  ]
 }
 
 onMounted(() => fetchList())
@@ -138,22 +133,25 @@ async function handleSubmit() {
   } finally { submitting.value = false }
 }
 
-function handleResetPwd(row) {
-  resetUserId.value = row.userId
-  newPassword.value = ''
-  pwdVisible.value = true
-}
-
-async function doResetPwd() {
-  await userApi.resetPassword(resetUserId.value, newPassword.value)
-  ElMessage.success('密码已重置')
-  pwdVisible.value = false
+async function handleResetPwd(row) {
+  await ElMessageBox.confirm(
+    `确定将用户「${row.realName}」的密码重置为默认值 123456 吗？`,
+    '确认重置密码', { type: 'warning' }
+  )
+  await userApi.resetPassword(row.userId)
+  ElMessage.success('密码已重置为 123456')
 }
 
 async function handleDisable(row) {
   await ElMessageBox.confirm(`确定禁用用户「${row.realName}」吗？`, '确认', { type: 'warning' })
   await userApi.disable(row.userId)
   ElMessage.success('已禁用')
+  fetchList()
+}
+
+async function handleEnable(row) {
+  await userApi.enable(row.userId)
+  ElMessage.success('已启用')
   fetchList()
 }
 </script>

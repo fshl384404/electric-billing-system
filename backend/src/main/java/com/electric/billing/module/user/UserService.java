@@ -46,6 +46,12 @@ public class UserService {
         if (user.getPasswordHash() == null || user.getPasswordHash().isBlank()) {
             throw new BusinessException("密码不能为空");
         }
+        if (user.getPhone() != null && !user.getPhone().matches("^1[3-9]\\d{9}$")) {
+            throw new BusinessException("手机号格式不正确");
+        }
+        if (user.getEmail() != null && !user.getEmail().matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new BusinessException("邮箱格式不正确");
+        }
         // 校验用户名唯一
         Long count = userMapper.selectCount(
                 new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, user.getUsername())
@@ -84,25 +90,31 @@ public class UserService {
     public void disable(Long id) {
         checkAdminOnly();
         SysUser user = userMapper.selectById(id);
-        if (user == null) {
-            throw new BusinessException("用户不存在");
-        }
-        if ("ADMIN".equals(user.getRole())) {
-            throw new BusinessException("不能禁用管理员账户");
-        }
+        if (user == null) throw new BusinessException("用户不存在");
+        if ("ADMIN".equals(user.getRole())) throw new BusinessException("不能禁用管理员账户");
+        if ("DISABLED".equals(user.getStatus())) throw new BusinessException("该账户已被禁用");
         user.setStatus("DISABLED");
         user.setUpdatedAt(new Date());
         userMapper.updateById(user);
     }
 
-    /** 重置密码 */
-    public void resetPassword(Long id, String newPassword) {
+    /** 解禁用户 */
+    public void enable(Long id) {
         checkAdminOnly();
         SysUser user = userMapper.selectById(id);
-        if (user == null) {
-            throw new BusinessException("用户不存在");
-        }
-        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        if (user == null) throw new BusinessException("用户不存在");
+        if (!"DISABLED".equals(user.getStatus())) throw new BusinessException("该账户未被禁用");
+        user.setStatus("ACTIVE");
+        user.setUpdatedAt(new Date());
+        userMapper.updateById(user);
+    }
+
+    /** 重置密码为默认值 123456 */
+    public void resetPassword(Long id) {
+        checkAdminOnly();
+        SysUser user = userMapper.selectById(id);
+        if (user == null) throw new BusinessException("用户不存在");
+        user.setPasswordHash(passwordEncoder.encode("123456"));
         user.setUpdatedAt(new Date());
         userMapper.updateById(user);
     }

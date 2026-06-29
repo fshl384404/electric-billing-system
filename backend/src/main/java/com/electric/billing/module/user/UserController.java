@@ -37,8 +37,9 @@ public class UserController {
     @PutMapping("/{id}/disable")
     public R<?> disable(@PathVariable Long id) { userService.disable(id); return R.ok(); }
 
+    @PutMapping("/{id}/enable")
+    public R<?> enable(@PathVariable Long id) { userService.enable(id); return R.ok(); }
+
     @PutMapping("/{id}/reset-password")
-    public R<?> resetPassword(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        userService.resetPassword(id, body.get("password")); return R.ok();
-    }
+    public R<?> resetPassword(@PathVariable Long id) { userService.resetPassword(id); return R.ok(); }
 }

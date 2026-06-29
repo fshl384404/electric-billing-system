@@ -42,10 +42,13 @@ public class HouseService {
         return house;
     }
 
-    /** 新增房产 (ADMIN) */
+    /** 新增房产 */
     public House create(House house) {
         if (!AuthContext.isAdmin()) {
             throw new BusinessException(403, "仅管理员可操作");
+        }
+        if (house.getUserId() == null) {
+            throw new BusinessException("业主ID不能为空");
         }
         house.setHouseId(houseMapper.nextId());
         house.setCreatedAt(new Date());

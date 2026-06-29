@@ -6,5 +6,6 @@ export default {
   create: (data) => http.post('/api/user', data),
   update: (data) => http.put('/api/user', data),
   disable: (id) => http.put(`/api/user/${id}/disable`),
-  resetPassword: (id, password) => http.put(`/api/user/${id}/reset-password`, { password })
+  enable: (id) => http.put(`/api/user/${id}/enable`),
+  resetPassword: (id) => http.put(`/api/user/${id}/reset-password`)
 }

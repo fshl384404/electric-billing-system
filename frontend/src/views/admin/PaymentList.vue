@@ -48,11 +48,12 @@
         <el-form-item label="账单信息" v-if="offlineBillInfo">
           <span>电费: ¥{{ offlineBillInfo.totalAmount }} |
             滞纳金: ¥{{ offlineBillInfo.lateFee || 0 }} |
-            状态: {{ {PENDING:'待缴',PAID:'已缴',OVERDUE:'逾期'}[offlineBillInfo.status] }}
+            状态: <el-tag :type="offlineBillInfo.status==='PAID'?'success':offlineBillInfo.status==='OVERDUE'?'danger':'warning'" size="small">{{ {PENDING:'待缴',PAID:'已缴',OVERDUE:'逾期'}[offlineBillInfo.status] }}</el-tag>
           </span>
         </el-form-item>
-        <el-form-item label="收款金额">
-          <el-input-number v-model="offlineForm.amount" :min="0" :precision="2" />
+        <el-form-item label="应收金额">
+          <el-input-number v-model="offlineForm.amount" :min="0" :precision="2" :disabled="!!offlineBillInfo" />
+          <span v-if="offlineBillInfo" style="color:#67C23A;margin-left:8px">已锁定: ¥{{ offlineBillInfo.totalAmount + (offlineBillInfo.lateFee||0) }}</span>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -103,9 +104,9 @@ async function loadBillInfo() {
 }
 
 async function submitOffline() {
-  if (!offlineForm.billId || !offlineForm.payerId) {
-    ElMessage.warning('请填写账单ID和缴费人ID'); return
-  }
+  if (!offlineForm.billId) { ElMessage.warning('请填写账单ID'); return }
+  if (!offlineForm.payerId) { ElMessage.warning('请填写缴费人ID'); return }
+  if (!offlineBillInfo.value) { ElMessage.warning('账单信息未加载，请检查账单ID是否正确'); return }
   if (offlineBillInfo.value?.status === 'PAID') {
     ElMessage.warning('该账单已缴费'); return
   }
