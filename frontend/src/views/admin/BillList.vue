@@ -10,7 +10,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="账期">
-        <el-input v-model="filters.billMonth" placeholder="YYYYMM" clearable @change="fetchList" />
+        <el-input v-model="filters.billMonth" placeholder="YYYYMM" clearable @change="fetchList" @clear="filters.billMonth=null;fetchList()" />
       </el-form-item>
     </el-form>
 
@@ -51,7 +51,7 @@ import billApi from '@/api/bill'
 
 const list = ref([])
 const loading = ref(false)
-const filters = reactive({ status: null, billMonth: '' })
+const filters = reactive({ status: null, billMonth: null })
 
 onMounted(() => fetchList())
 async function fetchList() {

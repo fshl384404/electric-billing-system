@@ -28,6 +28,10 @@ public class BillService {
 
     /** 账单列表 — 居民看自己的，管理员/收费员看全部 */
     public List<Bill> listAll(String status, String billMonth) {
+        // 空字符串视为 null，避免误过滤
+        if (status != null && status.isBlank()) status = null;
+        if (billMonth != null && billMonth.isBlank()) billMonth = null;
+
         LambdaQueryWrapper<Bill> wrapper = new LambdaQueryWrapper<Bill>()
                 .eq(status != null, Bill::getStatus, status)
                 .eq(billMonth != null, Bill::getBillMonth, billMonth)
