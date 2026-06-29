@@ -1,5 +1,6 @@
 package com.electric.billing.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -27,4 +28,8 @@ public class Bill {
     private Date dueDate;
     private Date paymentDate;
     private Date createdAt;
+
+    // 非数据库字段 — 前端展示用
+    @TableField(exist = false)
+    private String houseAddress;
 }

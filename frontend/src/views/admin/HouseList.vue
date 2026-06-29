@@ -58,7 +58,11 @@ const form = ref({})
 onMounted(() => fetchList())
 async function fetchList() {
   loading.value = true
-  try { list.value = (await houseApi.list()).data.data } finally { loading.value = false }
+  try {
+    const res = await houseApi.list()
+    // 按业主ID排序，方便看出一户多宅
+    list.value = (res.data.data || []).sort((a,b) => a.userId - b.userId)
+  } finally { loading.value = false }
 }
 
 function showDialog(row) {

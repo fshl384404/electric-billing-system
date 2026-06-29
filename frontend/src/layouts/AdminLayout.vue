@@ -91,17 +91,28 @@ const menuItems = computed(() => {
       { path: '/resident/notifications', label: '我的通知', icon: 'Bell' }
     ]
   }
-  return [
-    { path: '/admin/dashboard', label: '仪表盘', icon: 'Odometer' },
-    { path: '/admin/users', label: '用户管理', icon: 'User' },
-    { path: '/admin/houses', label: '房产管理', icon: 'HomeFilled' },
-    { path: '/admin/meters', label: '电表管理', icon: 'Cpu' },
+  // ADMIN: 全部菜单，COLLECTOR: 无管理类菜单
+  const isAdmin = auth.role() === 'ADMIN'
+  const items = [
+    { path: '/admin/dashboard', label: '仪表盘', icon: 'Odometer' }
+  ]
+  if (isAdmin) {
+    items.push(
+      { path: '/admin/users', label: '用户管理', icon: 'User' },
+      { path: '/admin/houses', label: '房产管理', icon: 'HomeFilled' },
+      { path: '/admin/meters', label: '电表管理', icon: 'Cpu' }
+    )
+  }
+  items.push(
     { path: '/admin/bills', label: '账单查询', icon: 'Document' },
     { path: '/admin/payments', label: '缴费记录', icon: 'Money' },
     { path: '/admin/alerts', label: '异常告警', icon: 'Warning' },
-    { path: '/admin/tickets', label: '工单处理', icon: 'Service' },
-    { path: '/admin/price', label: '电价配置', icon: 'Setting' }
-  ]
+    { path: '/admin/tickets', label: '工单处理', icon: 'Service' }
+  )
+  if (isAdmin) {
+    items.push({ path: '/admin/price', label: '电价配置', icon: 'Setting' })
+  }
+  return items
 })
 
 function toggleCollapse() { isCollapse.value = !isCollapse.value }

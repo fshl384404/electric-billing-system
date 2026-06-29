@@ -3,7 +3,7 @@
     <h2>⚠️ 异常告警</h2>
     <el-form :inline="true" style="margin: 16px 0">
       <el-form-item label="状态">
-        <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList">
+        <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList" style="width:110px">
           <el-option label="待处理" value="PENDING" />
           <el-option label="已处理" value="HANDLED" />
         </el-select>
@@ -28,7 +28,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="description" label="描述" min-width="300" />
-      <el-table-column prop="status" label="状态" width="90">
+      <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
           <el-tag :type="row.status === 'PENDING' ? 'danger' : 'success'" size="small">
             {{ row.status === 'PENDING' ? '待处理' : '已处理' }}

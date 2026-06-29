@@ -12,6 +12,7 @@
     </el-form>
 
     <el-table :data="list" border stripe v-loading="loading">
+      <el-table-column prop="houseAddress" label="住宅" min-width="160" show-overflow-tooltip />
       <el-table-column prop="billMonth" label="账期" width="100" />
       <el-table-column prop="totalUsage" label="用电量(度)" width="110" />
       <el-table-column label="阶梯用量" width="180">

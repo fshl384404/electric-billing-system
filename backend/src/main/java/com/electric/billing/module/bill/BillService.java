@@ -34,14 +34,18 @@ public class BillService {
                 .orderByDesc(Bill::getBillMonth);
 
         if (AuthContext.isResident()) {
-            // 先查居民的所有电表 ID
             List<Meter> meters = getResidentMeters();
             if (meters.isEmpty()) return new ArrayList<>();
             List<Long> meterIds = meters.stream().map(Meter::getMeterId).toList();
             wrapper.in(Bill::getMeterId, meterIds);
         }
 
-        return billMapper.selectList(wrapper);
+        List<Bill> bills = billMapper.selectList(wrapper);
+        // 填充住宅地址
+        for (Bill bill : bills) {
+            fillHouseAddress(bill);
+        }
+        return bills;
     }
 
     /** 账单详情 */
@@ -50,7 +54,6 @@ public class BillService {
         if (bill == null) {
             throw new BusinessException("账单不存在");
         }
-        // 居民校验归属
         if (AuthContext.isResident()) {
             Meter meter = meterMapper.selectById(bill.getMeterId());
             House house = houseMapper.selectById(meter.getHouseId());
@@ -58,7 +61,21 @@ public class BillService {
                 throw new BusinessException(403, "无权查看");
             }
         }
+        fillHouseAddress(bill);
         return bill;
+    }
+
+    /** 通过 meter → house 填充账单的住宅地址 */
+    private void fillHouseAddress(Bill bill) {
+        try {
+            Meter meter = meterMapper.selectById(bill.getMeterId());
+            if (meter != null) {
+                House house = houseMapper.selectById(meter.getHouseId());
+                if (house != null) {
+                    bill.setHouseAddress(house.getAddress());
+                }
+            }
+        } catch (Exception ignored) { /* 地址查询失败不影响主流程 */ }
     }
 
     /** 获取当前居民的所有电表 */

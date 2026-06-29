@@ -3,7 +3,7 @@
     <h2>🎫 我的工单</h2>
     <el-button type="primary" @click="showCreate" style="margin: 16px 0">提交工单</el-button>
 
-    <el-table :data="list" border stripe v-loading="loading">
+    <el-table :data="list" border stripe v-loading="loading" @row-click="showDetail" highlight-current-row>
       <el-table-column prop="ticketId" label="ID" width="70" />
       <el-table-column prop="type" label="类型" width="100">
         <template #default="{ row }">
@@ -19,12 +19,28 @@
         </template>
       </el-table-column>
       <el-table-column prop="createdAt" label="创建时间" width="160" />
-      <el-table-column label="回复" width="80">
-        <template #default="{ row }">
-          <el-button size="small" @click="viewReplies(row)">查看</el-button>
-        </template>
-      </el-table-column>
     </el-table>
+
+    <!-- 详情弹窗 -->
+    <el-dialog v-model="detailVisible" title="工单详情" width="550px">
+      <template v-if="current">
+        <p><strong>类型：</strong>{{ { BILL_INQUIRY: '账单疑问', METER_FAULT: '电表故障', COMPLAINT: '投诉', OTHER: '其他' }[current.type] }}</p>
+        <p><strong>标题：</strong>{{ current.title }}</p>
+        <p><strong>状态：</strong>{{ current.status === 'PENDING' ? '待处理' : '已回复' }}</p>
+        <p><strong>时间：</strong>{{ current.createdAt }}</p>
+        <el-divider />
+        <h4>📝 描述</h4>
+        <p style="white-space:pre-wrap">{{ current.description }}</p>
+        <el-divider />
+        <h4>💬 回复</h4>
+        <el-timeline v-if="current._replies?.length">
+          <el-timeline-item v-for="r in current._replies" :key="r.replyId" :timestamp="r.createdAt">
+            {{ r.content }}
+          </el-timeline-item>
+        </el-timeline>
+        <p v-else style="color:#999">暂无回复</p>
+      </template>
+    </el-dialog>
 
     <!-- 提交工单弹窗 -->
     <el-dialog v-model="createVisible" title="提交工单" width="500px">
@@ -49,16 +65,6 @@
         <el-button type="primary" @click="handleCreate">提交</el-button>
       </template>
     </el-dialog>
-
-    <!-- 回复查看弹窗 -->
-    <el-dialog v-model="replyVisible" title="回复记录" width="500px">
-      <el-timeline v-if="currentReplies.length">
-        <el-timeline-item v-for="r in currentReplies" :key="r.replyId" :timestamp="r.createdAt">
-          {{ r.content }}
-        </el-timeline-item>
-      </el-timeline>
-      <p v-else style="color:#999">暂无回复</p>
-    </el-dialog>
   </div>
 </template>
 
@@ -70,8 +76,8 @@ import ticketApi from '@/api/ticket'
 const list = ref([])
 const loading = ref(false)
 const createVisible = ref(false)
-const replyVisible = ref(false)
-const currentReplies = ref([])
+const detailVisible = ref(false)
+const current = ref(null)
 const formRef = ref(null)
 const form = reactive({ type: 'BILL_INQUIRY', title: '', description: '' })
 
@@ -81,10 +87,18 @@ async function fetchList() {
   try { list.value = (await ticketApi.list()).data.data } finally { loading.value = false }
 }
 
+async function showDetail(row) {
+  current.value = row
+  detailVisible.value = true
+  // 加载回复
+  try {
+    const res = await ticketApi.replies(row.ticketId)
+    row._replies = res.data.data || []
+  } catch { row._replies = [] }
+}
+
 function showCreate() {
-  form.type = 'BILL_INQUIRY'
-  form.title = ''
-  form.description = ''
+  form.type = 'BILL_INQUIRY'; form.title = ''; form.description = ''
   createVisible.value = true
 }
 
@@ -93,13 +107,5 @@ async function handleCreate() {
   ElMessage.success('工单已提交')
   createVisible.value = false
   fetchList()
-}
-
-async function viewReplies(row) {
-  try {
-    const res = await ticketApi.replies(row.ticketId)
-    currentReplies.value = res.data.data || []
-  } catch { currentReplies.value = [] }
-  replyVisible.value = true
 }
 </script>

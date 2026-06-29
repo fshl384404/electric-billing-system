@@ -3,7 +3,7 @@
     <h2>📄 账单查询</h2>
     <el-form :inline="true" style="margin: 16px 0">
       <el-form-item label="状态">
-        <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList">
+        <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList" style="width:110px">
           <el-option label="待缴费" value="PENDING" />
           <el-option label="已缴费" value="PAID" />
           <el-option label="已逾期" value="OVERDUE" />
@@ -17,6 +17,7 @@
     <el-table :data="list" border stripe v-loading="loading" max-height="600">
       <el-table-column prop="billId" label="ID" width="70" />
       <el-table-column prop="meterId" label="电表ID" width="80" />
+      <el-table-column prop="houseAddress" label="住宅地址" min-width="180" show-overflow-tooltip />
       <el-table-column prop="billMonth" label="账期" width="100" />
       <el-table-column prop="totalUsage" label="用电量(度)" width="110" />
       <el-table-column label="阶梯用量" width="180">
@@ -31,7 +32,7 @@
       </el-table-column>
       <el-table-column prop="totalAmount" label="电费(元)" width="100" />
       <el-table-column prop="lateFee" label="滞纳金" width="90" />
-      <el-table-column prop="status" label="状态" width="90">
+      <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
           <el-tag :type="row.status === 'PAID' ? 'success' : row.status === 'OVERDUE' ? 'danger' : 'warning'" size="small">
             {{ { PENDING: '待缴', PAID: '已缴', OVERDUE: '逾期' }[row.status] }}

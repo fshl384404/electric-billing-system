@@ -5,14 +5,15 @@
       <el-button @click="markAll">全部标记已读</el-button>
     </div>
 
-    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 16px" row-key="notifId">
+    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 16px"
+      row-key="notifId" @row-click="showDetail" highlight-current-row>
       <el-table-column prop="type" label="类型" width="120">
         <template #default="{ row }">
           <el-tag size="small">{{ { ARREARS: '欠费提醒', CUTOFF_WARNING: '断电预警', ANOMALY: '异常告警', TICKET_REPLY: '工单回复', PAYMENT_CONFIRM: '缴费确认' }[row.type] }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column prop="title" label="标题" width="150" />
-      <el-table-column prop="content" label="内容" min-width="300" />
+      <el-table-column prop="content" label="内容" min-width="150" show-overflow-tooltip />
       <el-table-column prop="isRead" label="状态" width="80">
         <template #default="{ row }">
           <el-tag :type="row.isRead === 'Y' ? 'info' : 'danger'" size="small">
@@ -23,10 +24,19 @@
       <el-table-column prop="createdAt" label="时间" width="160" />
       <el-table-column label="操作" width="80">
         <template #default="{ row }">
-          <el-button v-if="row.isRead === 'N'" size="small" @click="markOne(row)">标记已读</el-button>
+          <el-button v-if="row.isRead === 'N'" size="small" @click.stop="markOne(row)">已读</el-button>
         </template>
       </el-table-column>
     </el-table>
+
+    <!-- 详情弹窗 -->
+    <el-dialog v-model="dialogVisible" title="通知详情" width="500px">
+      <p><strong>类型：</strong>{{ { ARREARS: '欠费提醒', CUTOFF_WARNING: '断电预警', ANOMALY: '异常告警', TICKET_REPLY: '工单回复', PAYMENT_CONFIRM: '缴费确认' }[current?.type] }}</p>
+      <p><strong>标题：</strong>{{ current?.title }}</p>
+      <p><strong>时间：</strong>{{ current?.createdAt }}</p>
+      <el-divider />
+      <p style="white-space:pre-wrap">{{ current?.content }}</p>
+    </el-dialog>
   </div>
 </template>
 
@@ -37,6 +47,8 @@ import notifApi from '@/api/notification'
 
 const list = ref([])
 const loading = ref(false)
+const dialogVisible = ref(false)
+const current = ref(null)
 
 onMounted(() => fetchList())
 async function fetchList() {
@@ -44,10 +56,15 @@ async function fetchList() {
   try { list.value = (await notifApi.list()).data.data } finally { loading.value = false }
 }
 
+function showDetail(row) {
+  current.value = row
+  dialogVisible.value = true
+  if (row.isRead === 'N') markOne(row)
+}
+
 async function markOne(row) {
   await notifApi.markRead(row.notifId)
-  ElMessage.success('已标记')
-  fetchList()
+  row.isRead = 'Y'
 }
 
 async function markAll() {

@@ -7,12 +7,13 @@ const http = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
-// 请求拦截器 — 自动附加 JWT Token
+// 请求拦截器 — 自动附加 JWT Token + 调试日志
 http.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+  console.log(`[REQ] ${config.method.toUpperCase()} ${config.baseURL || ''}${config.url}`)
   return config
 }, error => Promise.reject(error))
 
