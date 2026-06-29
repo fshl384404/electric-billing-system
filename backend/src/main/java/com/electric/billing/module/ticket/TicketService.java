@@ -55,6 +55,10 @@ public class TicketService {
         if (!AuthContext.isResident()) {
             throw new BusinessException("仅居民可提交工单");
         }
+        // Oracle 将空字符串视为 NULL，需兜底
+        if (ticket.getDescription() == null || ticket.getDescription().isBlank()) {
+            ticket.setDescription("(无详细描述)");
+        }
         ticket.setTicketId(ticketMapper.nextId());
         ticket.setUserId(AuthContext.getCurrentUserId());
         ticket.setStatus("PENDING");
@@ -68,6 +72,10 @@ public class TicketService {
     public TicketReply reply(Long ticketId, String content) {
         if (AuthContext.isResident()) {
             throw new BusinessException(403, "无权限回复工单");
+        }
+        // Oracle 空字符串 = NULL
+        if (content == null || content.isBlank()) {
+            throw new BusinessException("回复内容不能为空");
         }
 
         Ticket ticket = ticketMapper.selectById(ticketId);
