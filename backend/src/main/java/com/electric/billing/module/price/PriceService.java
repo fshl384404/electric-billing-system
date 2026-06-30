@@ -1,5 +1,6 @@
 package com.electric.billing.module.price;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.electric.billing.common.BusinessException;
 import com.electric.billing.entity.PriceConfig;
 import com.electric.billing.security.AuthContext;
@@ -16,13 +17,16 @@ public class PriceService {
         this.priceMapper = priceMapper;
     }
 
-    /** 获取当前生效电价 (is_active='Y') */
-    public List<PriceConfig> listActive() {
-        return priceMapper.selectList(
-                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<PriceConfig>()
-                        .eq(PriceConfig::getIsActive, "Y")
-                        .orderByAsc(PriceConfig::getTierNo)
-        );
+    /** 获取当前生效电价，可按客户类型筛选 */
+    public List<PriceConfig> listActive(String customerType) {
+        LambdaQueryWrapper<PriceConfig> wrapper =
+                new LambdaQueryWrapper<PriceConfig>()
+                        .eq(PriceConfig::getIsActive, "Y");
+        if (customerType != null && !customerType.isBlank()) {
+            wrapper.eq(PriceConfig::getCustomerType, customerType.toUpperCase());
+        }
+        wrapper.orderByAsc(PriceConfig::getCustomerType, PriceConfig::getTierNo);
+        return priceMapper.selectList(wrapper);
     }
 
     /** 更新电价 (ADMIN) */

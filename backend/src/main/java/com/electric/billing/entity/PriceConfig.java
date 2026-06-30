@@ -18,5 +18,6 @@ public class PriceConfig {
     private Date effectiveDate;
     private String isActive;
     private Long updatedBy;
+    private String customerType;
     private Date createdAt;
 }

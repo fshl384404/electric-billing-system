@@ -17,8 +17,8 @@ public class PriceController {
     }
 
     @GetMapping("/list")
-    public R<List<PriceConfig>> list() {
-        return R.ok(priceService.listActive());
+    public R<List<PriceConfig>> list(@RequestParam(required = false) String customerType) {
+        return R.ok(priceService.listActive(customerType));
     }
 
     @PutMapping

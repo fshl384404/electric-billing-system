@@ -1,53 +1,90 @@
 <template>
   <div>
     <h2><el-icon :size="22" style="vertical-align:middle"><Setting /></el-icon> 电价配置</h2>
-    <el-table :data="list" border stripe v-loading="loading" style="margin-top: 8px">
-      <el-table-column prop="tierNo" label="档位" width="80" />
-      <el-table-column prop="tierName" label="名称" width="120" />
-      <el-table-column prop="lowerLimit" label="下限(度)" width="120" />
-      <el-table-column prop="upperLimit" label="上限(度)" width="120">
-        <template #default="{ row }">{{ row.upperLimit || '无上限' }}</template>
-      </el-table-column>
-      <el-table-column label="单价(元/度)" width="150">
-        <template #default="{ row }">
-          <el-input-number
-            v-if="editingId === row.configId"
-            v-model="editForm.unitPrice"
-            :precision="4"
-            :step="0.01"
-            :min="0"
-            size="small"
-          />
-          <span v-else>{{ row.unitPrice }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="120">
-        <template #default="{ row }">
-          <template v-if="editingId === row.configId">
-            <el-button size="small" type="success" @click="savePrice(row)">保存</el-button>
-            <el-button size="small" @click="editingId = null">取消</el-button>
+
+    <!-- 民用电价 -->
+    <el-card shadow="hover" style="margin-top:12px">
+      <template #header>
+        <span style="font-weight:600">🏘️ 民用电价 (RESIDENTIAL)</span>
+        <el-tag size="small" style="margin-left:8px">0-200 / 201-400 / 400+ kWh</el-tag>
+      </template>
+      <el-table :data="residentialList" border stripe>
+        <el-table-column prop="tierNo" label="档位" width="60" />
+        <el-table-column prop="tierName" label="名称" width="140" />
+        <el-table-column label="用电量范围" width="180">
+          <template #default="{ row }">{{ row.lowerLimit }} ~ {{ row.upperLimit || '无上限' }} kWh</template>
+        </el-table-column>
+        <el-table-column label="单价 (元/kWh)" width="180">
+          <template #default="{ row }">
+            <el-input-number
+              v-if="editingId === row.configId"
+              v-model="editForm.unitPrice" :precision="4" :step="0.01" :min="0" size="small"
+            />
+            <span v-else style="font-weight:600">{{ row.unitPrice }}</span>
           </template>
-          <el-button v-else size="small" type="primary" @click="startEdit(row)">编辑</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-table-column>
+        <el-table-column label="操作" width="120">
+          <template #default="{ row }">
+            <template v-if="editingId === row.configId">
+              <el-button size="small" type="success" @click="savePrice(row)">保存</el-button>
+              <el-button size="small" @click="editingId = null">取消</el-button>
+            </template>
+            <el-button v-else size="small" type="primary" @click="startEdit(row)">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+
+    <!-- 商用电价 -->
+    <el-card shadow="hover" style="margin-top:16px">
+      <template #header>
+        <span style="font-weight:600">🏢 商用电价 (COMMERCIAL)</span>
+        <el-tag type="warning" size="small" style="margin-left:8px">0-500 / 501-1000 / 1000+ kWh</el-tag>
+      </template>
+      <el-table :data="commercialList" border stripe>
+        <el-table-column prop="tierNo" label="档位" width="60" />
+        <el-table-column prop="tierName" label="名称" width="140" />
+        <el-table-column label="用电量范围" width="180">
+          <template #default="{ row }">{{ row.lowerLimit }} ~ {{ row.upperLimit || '无上限' }} kWh</template>
+        </el-table-column>
+        <el-table-column label="单价 (元/kWh)" width="180">
+          <template #default="{ row }">
+            <el-input-number
+              v-if="editingId === row.configId"
+              v-model="editForm.unitPrice" :precision="4" :step="0.01" :min="0" size="small"
+            />
+            <span v-else style="font-weight:600">{{ row.unitPrice }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="120">
+          <template #default="{ row }">
+            <template v-if="editingId === row.configId">
+              <el-button size="small" type="success" @click="savePrice(row)">保存</el-button>
+              <el-button size="small" @click="editingId = null">取消</el-button>
+            </template>
+            <el-button v-else size="small" type="primary" @click="startEdit(row)">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import priceApi from '@/api/price'
 
-const list = ref([])
-const loading = ref(false)
+const allList = ref([])
 const editingId = ref(null)
 const editForm = ref({})
 
+const residentialList = computed(() => allList.value.filter(p => p.customerType === 'RESIDENTIAL'))
+const commercialList = computed(() => allList.value.filter(p => p.customerType === 'COMMERCIAL'))
+
 onMounted(() => fetchList())
 async function fetchList() {
-  loading.value = true
-  try { list.value = (await priceApi.list()).data.data } finally { loading.value = false }
+  try { allList.value = (await priceApi.list()).data.data } catch { /* ignore */ }
 }
 
 function startEdit(row) {
