@@ -1,4 +1,4 @@
-# ⚡ 民用电缴费系统 — Electric Billing System
+# ⚡ 居民用电缴费系统 — Electric Billing System
 
 数据库课程设计项目，基于 **Java 24 + Oracle + Spring Boot 3.4 + Vue 3 + Element Plus** 构建的居民电费管理平台。
 
@@ -30,7 +30,7 @@
 | 后端框架 | Spring Boot | 3.4.0 |
 | 持久层 | MyBatis-Plus | 3.5.9 |
 | 安全 | JWT + BCrypt | jjwt 0.12.6 |
-| 数据库 | Oracle | 23ai Free (兼容 11g+) |
+| 数据库 | Oracle | 26ai Free (兼容 11g+) |
 | 构建工具 | Maven | 3.9+ |
 | 前端框架 | Vue 3 (Composition API) | 3.5.38 |
 | UI 组件库 | Element Plus | 最新 |
@@ -369,33 +369,6 @@ SP1 `sp_generate_monthly_bills` 通过 `meter → house → house_type` 自动�
 | Ticket | `/api/ticket/{id}/reply` | POST | ADMIN/COLLECTOR | 回复工单 |
 | Price | `/api/price/list` | GET | JWT | 电价列表 (支持 ?customerType 筛选) |
 | Price | `/api/price` | PUT | ADMIN | 修改电价 (档位范围+单价) |
-
----
-
-## 集成测试覆盖
-
-| 轮次 | 模块 | 测试数 | 覆盖要点 |
-|------|------|--------|---------|
-| 1 | 认证 | 9 | 登录/角色/忘记密码/Token 过期/禁用账号拦截 |
-| 2 | CRUD | 16 | 用户/房产/电表增删改查 + 格式校验 + 权限隔离 + 级联删除 |
-| 3 | 业务 | 16 | 账单查询/在线+线下缴费/通知/告警/工单创建回复/电价修改 |
-| 4 | 可视化 | 7 | Dashboard 数据完整性/双轨电价/档位名称区分 |
-| 5 | 智能客服 | 3 | RAG 知识检索/个人账单数据预取/SSE 流式输出 |
-| 6 | 边界 | 9 | RBAC 权限隔离/SQL 注入防御/空页容错/双轨计价验证 |
-
-## 种子数据规模
-
-| 表 | 数量 | 说明 |
-|----|------|------|
-| SYS_USER | 30 | 1 管理员 + 2 收费员 + 27 居民 |
-| HOUSE | 40 | 30 住宅 + 10 商用 (北京各城区真实地址) |
-| METER | 40 | 一宅一表, 住宅/商用不同型号 |
-| METER_READING | 7,200+ | 6 个月每日抄表 (SP3 模拟) |
-| BILL | 240 | 6 个月账单 (SP1 双轨) |
-| PAYMENT | ~100 | 在线/线下混合 |
-| NOTIFICATION | ~290 | 覆盖全部 5 种类型 |
-| ALERT | ~10 | SURGE / PLUNGE / REVERSAL |
-| TICKET | 15 | 4 种类型 + 待处理/已回复 |
 
 ---
 
