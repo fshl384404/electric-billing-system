@@ -164,13 +164,15 @@ CREATE TABLE price_config (
     unit_price      NUMBER(10,6)   NOT NULL,           -- 该档单价(元/度)
     effective_date  DATE           NOT NULL,           -- 生效日期
     is_active       CHAR(1)        DEFAULT 'Y' NOT NULL, -- 是否当前有效: Y/N
+    customer_type   VARCHAR2(20)   DEFAULT 'RESIDENTIAL' NOT NULL, -- 客户类型: RESIDENTIAL(民用)/COMMERCIAL(商用)
     updated_by      NUMBER,                            -- 修改人ID
     created_at      DATE           DEFAULT SYSDATE NOT NULL,
     --
     CONSTRAINT pk_price_config PRIMARY KEY (config_id),
     CONSTRAINT fk_price_user FOREIGN KEY (updated_by) REFERENCES sys_user(user_id),
     CONSTRAINT ck_price_tier CHECK (tier_no IN (1, 2, 3)),
-    CONSTRAINT ck_price_active CHECK (is_active IN ('Y', 'N'))
+    CONSTRAINT ck_price_active CHECK (is_active IN ('Y', 'N')),
+    CONSTRAINT ck_price_customer_type CHECK (customer_type IN ('RESIDENTIAL', 'COMMERCIAL'))
 );
 
 COMMENT ON TABLE  price_config IS '电价配置表(支持历史版本)';
