@@ -6,6 +6,7 @@ import com.electric.billing.common.PageUtils;
 import com.electric.billing.entity.*;
 import com.electric.billing.module.alert.AlertMapper;
 import com.electric.billing.module.bill.BillMapper;
+import com.electric.billing.module.house.HouseMapper;
 import com.electric.billing.module.payment.PaymentMapper;
 import com.electric.billing.module.reading.ReadingMapper;
 import com.electric.billing.security.AuthContext;
@@ -23,15 +24,17 @@ public class MeterService {
     private static final Logger log = LoggerFactory.getLogger(MeterService.class);
 
     private final MeterMapper meterMapper;
+    private final HouseMapper houseMapper;
     private final ReadingMapper readingMapper;
     private final BillMapper billMapper;
     private final PaymentMapper paymentMapper;
     private final AlertMapper alertMapper;
 
-    public MeterService(MeterMapper meterMapper, ReadingMapper readingMapper,
-                        BillMapper billMapper, PaymentMapper paymentMapper,
-                        AlertMapper alertMapper) {
+    public MeterService(MeterMapper meterMapper, HouseMapper houseMapper,
+                        ReadingMapper readingMapper, BillMapper billMapper,
+                        PaymentMapper paymentMapper, AlertMapper alertMapper) {
         this.meterMapper = meterMapper;
+        this.houseMapper = houseMapper;
         this.readingMapper = readingMapper;
         this.billMapper = billMapper;
         this.paymentMapper = paymentMapper;
@@ -53,10 +56,18 @@ public class MeterService {
         return meter;
     }
 
-    /** 新增电表 (ADMIN) — 一宅一表校验 */
+    /** 新增电表 (ADMIN) — 一宅一表校验 + 房产存在性校验 */
     public Meter create(Meter meter) {
         if (!AuthContext.isAdmin()) {
             throw new BusinessException(403, "仅管理员可操作");
+        }
+        if (meter.getHouseId() == null) {
+            throw new BusinessException("请选择房产");
+        }
+        // 校验房产存在
+        House house = houseMapper.selectById(meter.getHouseId());
+        if (house == null) {
+            throw new BusinessException("所选房产不存在");
         }
         // 一宅一表校验
         Long count = meterMapper.selectCount(

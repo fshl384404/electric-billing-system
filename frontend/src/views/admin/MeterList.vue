@@ -35,8 +35,10 @@
         <el-form-item label="电表编号" prop="meterNo">
           <el-input v-model="form.meterNo" />
         </el-form-item>
-        <el-form-item label="房产ID" prop="houseId">
-          <el-input-number v-model="form.houseId" :min="1" />
+        <el-form-item label="房产" prop="houseId">
+          <el-select v-model="form.houseId" placeholder="请选择房产" style="width:100%" filterable>
+            <el-option v-for="h in houses" :key="h.houseId" :label="h.address" :value="h.houseId" />
+          </el-select>
         </el-form-item>
         <el-form-item label="型号" prop="model">
           <el-input v-model="form.model" />
@@ -60,6 +62,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import meterApi from '@/api/meter'
+import houseApi from '@/api/house'
 
 const list = ref([])
 const loading = ref(false)
@@ -69,8 +72,9 @@ const pageSize = ref(20)
 const dialogVisible = ref(false)
 const formRef = ref(null)
 const form = ref({})
+const houses = ref([])
 
-onMounted(() => fetchList())
+onMounted(() => { fetchList(); fetchHouses() })
 async function fetchList() {
   loading.value = true
   try {
@@ -80,6 +84,13 @@ async function fetchList() {
   } finally { loading.value = false }
 }
 
+async function fetchHouses() {
+  try {
+    const res = await houseApi.list({ page: 1, pageSize: 999 })
+    houses.value = res.data.data.records
+  } catch { /* ignore */ }
+}
+
 function showDialog() {
   form.value = { meterNo: '', houseId: null, model: '', initialReading: null, installDate: '', status: 'NORMAL' }
   dialogVisible.value = true
@@ -87,7 +98,7 @@ function showDialog() {
 
 const rules = {
   meterNo: [{ required: true, message: '请输入电表编号', trigger: 'blur' }],
-  houseId: [{ required: true, message: '请输入房产ID', trigger: 'blur' }]
+  houseId: [{ required: true, message: '请选择房产', trigger: 'change' }]
 }
 
 async function handleSubmit() {
