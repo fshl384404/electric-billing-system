@@ -4,10 +4,7 @@
 
     <!-- 民用电价 -->
     <el-card shadow="hover" style="margin-top:12px">
-      <template #header>
-        <span style="font-weight:600">🏘️ 民用电价 (RESIDENTIAL)</span>
-        <el-tag size="small" style="margin-left:8px">0-200 / 201-400 / 400+ kWh</el-tag>
-      </template>
+      <template #header><span style="font-weight:600">🏘️ 民用电价 (RESIDENTIAL)</span></template>
       <el-table :data="residentialList" border stripe>
         <el-table-column prop="tierNo" label="档位" width="60" />
         <el-table-column prop="tierName" label="名称" width="140" />
@@ -37,10 +34,7 @@
 
     <!-- 商用电价 -->
     <el-card shadow="hover" style="margin-top:16px">
-      <template #header>
-        <span style="font-weight:600">🏢 商用电价 (COMMERCIAL)</span>
-        <el-tag type="warning" size="small" style="margin-left:8px">0-500 / 501-1000 / 1000+ kWh</el-tag>
-      </template>
+      <template #header><span style="font-weight:600">🏢 商用电价 (COMMERCIAL)</span></template>
       <el-table :data="commercialList" border stripe>
         <el-table-column prop="tierNo" label="档位" width="60" />
         <el-table-column prop="tierName" label="名称" width="140" />
