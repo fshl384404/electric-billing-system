@@ -53,7 +53,11 @@
 
       <!-- 内容区 -->
       <el-main class="main">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <transition name="page-fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </el-main>
     </el-container>
 
@@ -142,6 +146,20 @@ onMounted(() => { fetchUnreadCount() })
 
 <style>
 html, body, #app { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+
+/* 页面过渡动画 */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
 </style>
 
 <style scoped>
