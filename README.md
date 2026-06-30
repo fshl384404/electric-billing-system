@@ -7,7 +7,7 @@
 [![Vue](https://img.shields.io/badge/Vue-3.5-4fc08d)](https://vuejs.org/)
 [![Oracle](https://img.shields.io/badge/Oracle-23ai%20Free-red)](https://www.oracle.com/database/free/)
 [![License](https://img.shields.io/badge/License-Educational-blue)](LICENSE)
-[![Release](https://img.shields.io/badge/Release-v1.1.0-blue)](https://github.com/ruinarchy/electric-billing-system/releases/tag/v1.1.0)
+[![Release](https://img.shields.io/badge/Release-v1.1.1-blue)](https://github.com/ruinarchy/electric-billing-system/releases/tag/v1.1.1)
 
 ---
 
@@ -76,9 +76,24 @@
 - **流式输出** — SSE (Server-Sent Events) token-by-token 打字机效果
 - **悬浮窗** — 可拖动悬浮球，原地弹出面板，仅居民端可见
 
+### 📊 可视化仪表盘
+- **ECharts 图表** — 环形饼图 (账单状态)、渐变柱状图 (月度营收)、平滑折线图 (用电趋势)、仪表盘 (缴费率)
+- **增强统计卡片** — 图标色块 + 大数字展示，告警卡片动态变色
+
+### 🏘️ 民用/商用双轨电价
+- **PRICE_CONFIG 新增 customer_type** — RESIDENTIAL / COMMERCIAL 分离
+- **民用** 0-200/201-400/400+ kWh，**商用** 0-500/501-1000/1000+ kWh
+- **SP1 双轨计价** — 按 house_type 自动选择对应电价，cursor JOIN house 取类型
+- **电价配置页面** — 民用/商用分表显示，支持编辑档位范围和单价
+
+### 🎨 自定义主题
+- **Slate + Electric Cyan** 色系替换 Element Plus 默认蓝
+- **全局 CSS 变量** — 主色/成功/警告/危险统一覆写
+- **页面过渡动画** — fade + slide，0.2s 平滑切换
+- **Element Plus Icons** — 全部 emoji 替换为矢量图标
+
 ### ⚡ 性能优化
 - 全列表分页 + 表格内滚动（固定 20 条/页，支持跳页）
-- Dashboard 可视化图表（账单状态分布 + 月度营收占比）
 - N+1 查询优化（账单地址批量填充，2 次查询替代 1584 次）
 
 ---
@@ -100,14 +115,14 @@
 # 连接到 Oracle (以 elec_billing 用户)
 sqlplus elec_billing/elec_billing@localhost:1521/FREEPDB1
 
-# 依次执行
-@sql/01_create_tables.sql       # 11 张核心表
+# 依次执行 (7 个文件, 00→06)
+@sql/00_create_user.sql         # 数据库用户与权限 (首次必需)
+@sql/01_create_tables.sql       # 11 张核心表 (含 customer_type)
 @sql/02_create_sequences.sql    # 11 个自增序列
 @sql/03_create_triggers.sql     # 5 个业务触发器 + 11 个自增触发器
-@sql/04_create_procedures.sql   # 5 个存储过程
+@sql/04_create_procedures.sql   # 5 个存储过程 (SP1 双轨计价)
 @sql/05_create_views.sql        # 6 个业务视图
-@sql/06_init_data.sql           # 种子数据 (13 用户, 12 房产, 12 电表)
-@sql/07_test_scripts.sql        # 10 项集成测试 (可选)
+@sql/06_init_data.sql           # 14 阶段种子数据 (30 用户, 40 房产, 7200+ 抄表, 240 账单)
 ```
 
 ### 2. 配置数据库连接
@@ -205,8 +220,9 @@ electric-billing-system/
 ├── frontend/                             # Vue 3 前端
 │   ├── vite.config.js                   # Vite 配置 + API 代理
 │   └── src/
-│       ├── main.js                      # 入口 (注册 Element Plus, Pinia, Router)
+│       ├── main.js                      # 入口 (注册 Element Plus, Pinia, Router, 主题)
 │       ├── App.vue                      # 根组件 (router-view)
+│       ├── assets/theme.css            # 全局主题变量 (Slate + Electric Cyan)
 │       ├── api/                         # 13 个 API 模块 (axios 封装)
 │       ├── stores/auth.js              # Pinia 认证状态 (token/user/login)
 │       ├── router/index.js             # 路由表 + beforeEach 角色守卫
@@ -236,14 +252,14 @@ electric-billing-system/
 │   ├── embed_docs.py                      # 文档嵌入脚本
 │   └── docs/                              # 5 篇知识文档
 │
-├── sql/                                  # Oracle 数据库脚本 (7 个文件)
-│   ├── 01_create_tables.sql              # 11 张表 DDL + 索引 + 注释
-│   ├── 02_create_sequences.sql           # 11 个序列
-│   ├── 03_create_triggers.sql            # 16 个触发器 (业务+自增)
-│   ├── 04_create_procedures.sql          # 5 个存储过程
+├── sql/                                  # Oracle 数据库脚本 (7 文件, GBK 编码)
+│   ├── 00_create_user.sql                # 数据库用户创建与授权
+│   ├── 01_create_tables.sql              # 11 张表 DDL (PRICE_CONFIG 含 customer_type)
+│   ├── 02_create_sequences.sql           # 11 个自增序列
+│   ├── 03_create_triggers.sql            # 16 个触发器 (11 自增 + 5 业务)
+│   ├── 04_create_procedures.sql          # 5 个存储过程 (SP1 双轨计价)
 │   ├── 05_create_views.sql              # 6 个业务视图
-│   ├── 06_init_data.sql                 # 种子数据
-│   └── 07_test_scripts.sql              # 10 项集成测试
+│   └── 06_init_data.sql                 # 14 阶段综合种子数据 (~550 行)
 │
 └── .gitignore
 ```
@@ -271,7 +287,13 @@ User ─1:N─→ House ─1:1─→ Meter ─1:N─→ MeterReading
 | `tr1_calc_daily_usage` | 自动计算日用电量，检测读数倒转 | BEFORE INSERT meter_reading |
 | `tr2_arrears_notify` | 逾期自动推送欠费通知 | AFTER UPDATE bill (status→OVERDUE) |
 | `tr3_payment_update_bill` | 缴费后自动更新账单状态为 PAID | AFTER INSERT payment |
-| `tr4b_surge_plunge_detect` | 复合触发器：检测用量飙升(>200%)和骤降(<50%) | AFTER INSERT bill |
+| `tr4b_surge_plunge_detect` | 复合触发器：检测用量飙升(>200%)和骤降(<50%)，区分民用/商用历史均值 | AFTER INSERT bill |
+
+### 民用/商用双轨计价 (SP1)
+
+SP1 `sp_generate_monthly_bills` 通过 `meter → house → house_type` 自动区分：
+- **民用**：0-200 / 201-400 / 400+ kWh @ 0.50 / 0.55 / 0.80 元
+- **商用**：0-500 / 501-1000 / 1000+ kWh @ 0.78 / 0.95 / 1.25 元
 
 ### 存储过程 (4 个核心 SP)
 
@@ -345,8 +367,35 @@ User ─1:N─→ House ─1:1─→ Meter ─1:N─→ MeterReading
 | Ticket | `/api/ticket/list` | GET | JWT | 工单列表 |
 | Ticket | `/api/ticket` | POST | RESIDENT | 提交工单 |
 | Ticket | `/api/ticket/{id}/reply` | POST | ADMIN/COLLECTOR | 回复工单 |
-| Price | `/api/price/list` | GET | JWT | 电价列表 |
-| Price | `/api/price` | PUT | ADMIN | 修改电价 |
+| Price | `/api/price/list` | GET | JWT | 电价列表 (支持 ?customerType 筛选) |
+| Price | `/api/price` | PUT | ADMIN | 修改电价 (档位范围+单价) |
+
+---
+
+## 集成测试覆盖
+
+| 轮次 | 模块 | 测试数 | 覆盖要点 |
+|------|------|--------|---------|
+| 1 | 认证 | 9 | 登录/角色/忘记密码/Token 过期/禁用账号拦截 |
+| 2 | CRUD | 16 | 用户/房产/电表增删改查 + 格式校验 + 权限隔离 + 级联删除 |
+| 3 | 业务 | 16 | 账单查询/在线+线下缴费/通知/告警/工单创建回复/电价修改 |
+| 4 | 可视化 | 7 | Dashboard 数据完整性/双轨电价/档位名称区分 |
+| 5 | 智能客服 | 3 | RAG 知识检索/个人账单数据预取/SSE 流式输出 |
+| 6 | 边界 | 9 | RBAC 权限隔离/SQL 注入防御/空页容错/双轨计价验证 |
+
+## 种子数据规模
+
+| 表 | 数量 | 说明 |
+|----|------|------|
+| SYS_USER | 30 | 1 管理员 + 2 收费员 + 27 居民 |
+| HOUSE | 40 | 30 住宅 + 10 商用 (北京各城区真实地址) |
+| METER | 40 | 一宅一表, 住宅/商用不同型号 |
+| METER_READING | 7,200+ | 6 个月每日抄表 (SP3 模拟) |
+| BILL | 240 | 6 个月账单 (SP1 双轨) |
+| PAYMENT | ~100 | 在线/线下混合 |
+| NOTIFICATION | ~290 | 覆盖全部 5 种类型 |
+| ALERT | ~10 | SURGE / PLUNGE / REVERSAL |
+| TICKET | 15 | 4 种类型 + 待处理/已回复 |
 
 ---
 
