@@ -57,8 +57,8 @@
       </el-main>
     </el-container>
 
-    <!-- 智能客服悬浮窗 (所有页面) -->
-    <ChatBot />
+    <!-- 智能客服悬浮窗 (仅居民端) -->
+    <ChatBot v-if="isResident" />
   </el-container>
 </template>
 

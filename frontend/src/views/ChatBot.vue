@@ -1,7 +1,14 @@
 <template>
-  <div class="chatbot-container">
-    <!-- 悬浮按钮 -->
-    <div v-if="!open" class="chatbot-float-btn" @click="open = true" title="智能客服">
+  <div class="chatbot-container" :style="containerStyle">
+    <!-- 悬浮按钮 (可拖动) -->
+    <div
+      v-if="!open"
+      class="chatbot-float-btn"
+      :style="btnStyle"
+      @mousedown="onDragStart"
+      @touchstart.prevent="onDragStart"
+      title="智能客服（可拖动）"
+    >
       <span class="chatbot-btn-icon">💬</span>
     </div>
 
@@ -59,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import chatApi from '@/api/chat'
 
@@ -70,6 +77,77 @@ const streamingText = ref('')
 const messages = ref([])   // { role: 'user'|'assistant', content: '...' }
 const msgBox = ref(null)
 let cancelFn = null
+
+// ---- 拖动 ----
+const btnX = ref(window.innerWidth - 80)   // 默认右下角
+const btnY = ref(window.innerHeight - 80)
+const dragging = ref(false)
+const dragStartX = ref(0)
+const dragStartY = ref(0)
+const dragOrigX = ref(0)
+const dragOrigY = ref(0)
+const hasMoved = ref(false)   // 区分点击和拖动
+
+const containerStyle = computed(() => {
+  if (open.value) return {}   // 打开时固定在右下角
+  return {
+    right: 'auto',
+    bottom: 'auto',
+    left: btnX.value + 'px',
+    top: btnY.value + 'px'
+  }
+})
+
+const btnStyle = computed(() => {
+  if (dragging.value) return { transition: 'none' }
+  return {}
+})
+
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)) }
+
+function onDragStart(e) {
+  if (e.type === 'touchstart') {
+    dragStartX.value = e.touches[0].clientX
+    dragStartY.value = e.touches[0].clientY
+  } else {
+    dragStartX.value = e.clientX
+    dragStartY.value = e.clientY
+  }
+  dragOrigX.value = btnX.value
+  dragOrigY.value = btnY.value
+  hasMoved.value = false
+  dragging.value = true
+
+  const onMove = (ev) => {
+    const cx = ev.type.startsWith('touch') ? ev.touches[0].clientX : ev.clientX
+    const cy = ev.type.startsWith('touch') ? ev.touches[0].clientY : ev.clientY
+    const dx = cx - dragStartX.value
+    const dy = cy - dragStartY.value
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) hasMoved.value = true
+    btnX.value = clamp(dragOrigX.value + dx, 0, window.innerWidth - 56)
+    btnY.value = clamp(dragOrigY.value + dy, 0, window.innerHeight - 56)
+  }
+
+  const onUp = () => {
+    dragging.value = false
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+    document.removeEventListener('touchmove', onMove)
+    document.removeEventListener('touchend', onUp)
+    // 只有纯点击（未拖动）才打开面板
+    if (!hasMoved.value) open.value = true
+  }
+
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+  document.addEventListener('touchmove', onMove, { passive: false })
+  document.addEventListener('touchend', onUp)
+}
+
+onMounted(() => {
+  btnX.value = window.innerWidth - 80
+  btnY.value = window.innerHeight - 80
+})
 
 // ---- 发送 ----
 
@@ -185,9 +263,9 @@ watch(open, (val) => {
 /* ---- 悬浮按钮 ---- */
 .chatbot-container {
   position: fixed;
+  z-index: 9999;
   right: 24px;
   bottom: 24px;
-  z-index: 9999;
 }
 
 .chatbot-float-btn {
@@ -198,17 +276,19 @@ watch(open, (val) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  cursor: grab;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   transition: transform 0.2s, box-shadow 0.2s;
+  user-select: none;
 }
+.chatbot-float-btn:active { cursor: grabbing; }
 .chatbot-float-btn:hover {
   transform: scale(1.08);
   box-shadow: 0 6px 20px rgba(0,0,0,0.3);
 }
 .chatbot-btn-icon {
   font-size: 24px;
-  user-select: none;
+  pointer-events: none;
 }
 
 /* ---- 聊天面板 ---- */
@@ -376,9 +456,11 @@ watch(open, (val) => {
 
 /* 响应式 */
 @media (max-width: 480px) {
-  .chatbot-panel {
+  .chatbot-container, .chatbot-panel {
     right: 8px;
     bottom: 8px;
+  }
+  .chatbot-panel {
     width: calc(100vw - 16px);
     height: calc(100vh - 80px);
   }
