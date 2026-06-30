@@ -56,6 +56,9 @@
         <router-view />
       </el-main>
     </el-container>
+
+    <!-- 智能客服悬浮窗 (所有页面) -->
+    <ChatBot />
   </el-container>
 </template>
 
@@ -64,6 +67,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { Bell } from '@element-plus/icons-vue'
+import ChatBot from '@/views/ChatBot.vue'
 import notifApi from '@/api/notification'
 
 const route = useRoute()
