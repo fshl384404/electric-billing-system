@@ -41,6 +41,31 @@ public class AuthController {
         return R.ok(saved);
     }
 
+    /** 忘记密码 — 第一步：验证身份（用户名 + 手机号/邮箱匹配） */
+    @PostMapping("/forgot-password")
+    public R<SysUser> verifyIdentity(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        String phoneOrEmail = body.get("phoneOrEmail");
+        if (username == null || phoneOrEmail == null) {
+            return R.fail("用户名和手机号/邮箱不能为空");
+        }
+        SysUser user = authService.verifyIdentity(username.trim(), phoneOrEmail.trim());
+        return R.ok(user);
+    }
+
+    /** 忘记密码 — 第二步：重置密码（公开接口，无需登录） */
+    @PostMapping("/reset-password-public")
+    public R<?> resetPasswordSelf(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        String phoneOrEmail = body.get("phoneOrEmail");
+        String newPassword = body.get("newPassword");
+        if (username == null || phoneOrEmail == null || newPassword == null) {
+            return R.fail("参数不能为空");
+        }
+        authService.resetPasswordSelf(username.trim(), phoneOrEmail.trim(), newPassword);
+        return R.ok();
+    }
+
     /** 获取当前登录用户信息 */
     @GetMapping("/me")
     public R<Map<String, String>> me() {

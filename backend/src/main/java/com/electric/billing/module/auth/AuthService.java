@@ -75,6 +75,50 @@ public class AuthService {
     }
 
     /**
+     * 忘记密码 — 第一步: 验证身份 (用户名 + 手机号或邮箱)
+     * @return 匹配的用户 (含 userId / username / realName)，供前端确认后展示重置表单
+     */
+    public SysUser verifyIdentity(String username, String phoneOrEmail) {
+        SysUser user = authMapper.selectOne(
+                new LambdaQueryWrapper<SysUser>()
+                        .eq(SysUser::getUsername, username)
+        );
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        if ("DISABLED".equals(user.getStatus())) {
+            throw new BusinessException("账户已被禁用，请联系管理员");
+        }
+        // 校验手机号或邮箱匹配
+        String phone = user.getPhone();
+        String email = user.getEmail();
+        if ((phone == null || !phone.equals(phoneOrEmail))
+                && (email == null || !email.equals(phoneOrEmail))) {
+            throw new BusinessException("手机号或邮箱不匹配");
+        }
+        // 不返回敏感信息
+        user.setPasswordHash(null);
+        return user;
+    }
+
+    /**
+     * 忘记密码 — 第二步: 重置密码 (需先通过身份验证)
+     */
+    public void resetPasswordSelf(String username, String phoneOrEmail, String newPassword) {
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new BusinessException("新密码不能为空");
+        }
+        if (newPassword.length() < 4) {
+            throw new BusinessException("密码长度不能少于4位");
+        }
+        // 再次校验身份
+        SysUser user = verifyIdentity(username, phoneOrEmail);
+        // 更新密码
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        authMapper.updateById(user);
+    }
+
+    /**
      * 居民自助注册
      */
     public SysUser register(SysUser user) {
