@@ -14,7 +14,7 @@
 
     <!-- 聊天面板 -->
     <transition name="chatbot-slide">
-      <div v-if="open" class="chatbot-panel">
+      <div v-if="open" class="chatbot-panel" :style="panelStyle">
         <!-- 顶栏 -->
         <div class="chatbot-header">
           <span>🤖 智能客服</span>
@@ -101,6 +101,40 @@ const containerStyle = computed(() => {
 const btnStyle = computed(() => {
   if (dragging.value) return { transition: 'none' }
   return {}
+})
+
+const panelStyle = computed(() => {
+  const pw = 400   // 面板宽度
+  const ph = 560   // 面板高度
+  const gap = 12   // 与按钮的间距
+  const btnSize = 56
+
+  const btnCenterX = btnX.value + btnSize / 2
+  const btnCenterY = btnY.value + btnSize / 2
+
+  // 智能方向：按钮在哪半边，面板就向反方向打开
+  const toRight = btnCenterX < window.innerWidth / 2
+  const toBottom = btnCenterY < window.innerHeight / 2
+
+  const style = {}
+
+  if (toRight) {
+    style.left = (btnX.value + btnSize + gap) + 'px'
+  } else {
+    style.left = (btnX.value - pw - gap) + 'px'
+  }
+  style.left = clamp(parseFloat(style.left), 8, window.innerWidth - pw - 8) + 'px'
+
+  if (toBottom) {
+    style.top = btnY.value + 'px'
+  } else {
+    style.top = (btnY.value + btnSize - ph) + 'px'
+  }
+  style.top = clamp(parseFloat(style.top), 8, window.innerHeight - ph - 8) + 'px'
+
+  style.right = 'auto'
+  style.bottom = 'auto'
+  return style
 })
 
 function clamp(v, min, max) { return Math.min(max, Math.max(min, v)) }
