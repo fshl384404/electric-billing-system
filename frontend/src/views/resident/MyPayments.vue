@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>💰 我的缴费</h2>
+    <h2><el-icon :size="22" style="vertical-align:middle"><Money /></el-icon> 我的缴费</h2>
     <el-table :data="list" border stripe v-loading="loading" style="margin-top: 8px" max-height="calc(100vh - 230px)">
       <el-table-column prop="paymentId" label="ID" width="80" />
       <el-table-column prop="billId" label="账单ID" width="80" />

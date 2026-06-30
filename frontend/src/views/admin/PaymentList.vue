@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>💰 缴费记录</h2>
+    <h2><el-icon :size="22" style="vertical-align:middle"><Money /></el-icon> 缴费记录</h2>
     <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0">
       <el-form :inline="true">
         <el-form-item label="账单ID">

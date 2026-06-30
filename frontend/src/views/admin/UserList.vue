@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>👤 用户管理</h2>
+    <h2><el-icon :size="22" style="vertical-align:middle"><User /></el-icon> 用户管理</h2>
     <el-button type="primary" @click="showDialog(null)" style="margin: 8px 0">新增用户</el-button>
 
     <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 230px)">

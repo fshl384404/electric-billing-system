@@ -1,13 +1,15 @@
 <template>
   <div>
-    <h2>📊 系统仪表盘</h2>
+    <h2><el-icon :size="22" style="vertical-align:middle"><DataAnalysis /></el-icon> 系统仪表盘</h2>
 
     <!-- 统计卡片 -->
     <el-row :gutter="16" style="margin-top:12px">
       <el-col :span="6" v-for="c in cards" :key="c.label">
         <el-card shadow="hover" :body-style="{ padding: '16px 20px' }">
           <div class="stat-card">
-            <div class="stat-icon" :style="{ background: c.bg }">{{ c.icon }}</div>
+            <div class="stat-icon" :style="{ background: c.bg, color: c.color }">
+            <el-icon :size="24"><component :is="c.icon" /></el-icon>
+          </div>
             <div class="stat-body">
               <div class="stat-value">{{ c.value.toLocaleString() }}</div>
               <div class="stat-label">{{ c.label }}</div>
@@ -115,10 +117,10 @@ async function fetchData() {
 
     // 统计卡片
     cards.value = [
-      { label: '用户总数', value: stats.value.users, icon: '👤', bg: '#ecf5ff' },
-      { label: '房产总数', value: stats.value.houses, icon: '🏠', bg: '#f0f9eb' },
-      { label: '账单总数', value: stats.value.bills, icon: '📋', bg: '#fdf6ec' },
-      { label: '待处理告警', value: stats.value.alerts, icon: '⚠️', bg: stats.value.alerts > 0 ? '#fef0f0' : '#f0f9eb' }
+      { label: '用户总数', value: stats.value.users, icon: 'User', bg: '#ECFEFF', color: '#0891B2' },
+      { label: '房产总数', value: stats.value.houses, icon: 'HomeFilled', bg: '#ECFDF5', color: '#059669' },
+      { label: '账单总数', value: stats.value.bills, icon: 'Document', bg: '#FFFBEB', color: '#D97706' },
+      { label: '待处理告警', value: stats.value.alerts, icon: 'Warning', bg: stats.value.alerts > 0 ? '#FEF2F2' : '#ECFDF5', color: stats.value.alerts > 0 ? '#DC2626' : '#059669' }
     ]
 
     // 账单状态分布
@@ -155,7 +157,7 @@ function renderCharts() {
       itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 3 },
       label: { show: true, formatter: '{b}\n{d}%' },
       data: billStatus.value,
-      color: ['#67C23A', '#E6A23C', '#F56C6C']
+      color: ['#059669', '#D97706', '#DC2626']
     }]
   })
 
@@ -173,7 +175,7 @@ function renderCharts() {
       itemStyle: {
         borderRadius: [6, 6, 0, 0],
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: '#409EFF' }, { offset: 1, color: '#a0cfff' }
+          { offset: 0, color: '#0891B2' }, { offset: 1, color: '#67C8DB' }
         ])
       },
       barMaxWidth: 40
@@ -219,11 +221,11 @@ async function renderLineChart() {
         smooth: true,
         symbol: 'circle',
         symbolSize: 8,
-        lineStyle: { width: 3, color: '#409EFF' },
-        itemStyle: { color: '#409EFF' },
+        lineStyle: { width: 3, color: '#0891B2' },
+        itemStyle: { color: '#0891B2' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(64,158,255,0.3)' }, { offset: 1, color: 'rgba(64,158,255,0.02)' }
+            { offset: 0, color: 'rgba(8,145,178,0.25)' }, { offset: 1, color: 'rgba(8,145,178,0.02)' }
           ])
         }
       }]
@@ -257,7 +259,7 @@ async function renderGaugeChart() {
           lineStyle: {
             width: 20,
             color: [
-              [0.3, '#F56C6C'], [0.7, '#E6A23C'], [1, '#67C23A']
+              [0.3, '#DC2626'], [0.7, '#D97706'], [1, '#059669']
             ]
           }
         },

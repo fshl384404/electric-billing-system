@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>🔌 电表管理</h2>
+    <h2><el-icon :size="22" style="vertical-align:middle"><Cpu /></el-icon> 电表管理</h2>
     <el-button type="primary" @click="showDialog" style="margin: 8px 0">新增电表</el-button>
 
     <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 230px)">

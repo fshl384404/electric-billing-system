@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="display: flex; justify-content: space-between; align-items: center">
-      <h2>🔔 我的通知</h2>
+      <h2><el-icon :size="22" style="vertical-align:middle"><Bell /></el-icon> 我的通知</h2>
       <el-button @click="markAll">全部标记已读</el-button>
     </div>
 

@@ -3,16 +3,16 @@
     <!-- 侧边栏 -->
     <el-aside :width="isCollapse ? '64px' : '220px'" class="aside">
       <div class="logo" @click="toggleCollapse">
-        <span v-if="!isCollapse">⚡ 电费管理系统</span>
-        <span v-else>⚡</span>
+        <span v-if="!isCollapse"><el-icon :size="18" style="vertical-align:middle;margin-right:6px"><Lightning /></el-icon>电费管理系统</span>
+        <span v-else><el-icon :size="18"><Lightning /></el-icon></span>
       </div>
       <el-menu
         :default-active="route.path"
         :collapse="isCollapse"
         :router="true"
-        background-color="#1e3a5f"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
+        background-color="#0F172A"
+        text-color="#94A3B8"
+        active-text-color="#22D3EE"
       >
         <template v-for="item in menuItems" :key="item.path">
           <el-sub-menu v-if="item.children" :index="item.path">
@@ -166,7 +166,7 @@ html, body, #app { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 .layout { height: 100vh; }
 
 .aside {
-  background: #1e3a5f;
+  background: #0F172A;
   overflow-y: auto;
   transition: width 0.3s;
 }
@@ -205,7 +205,7 @@ html, body, #app { margin: 0; padding: 0; height: 100%; overflow: hidden; }
 .notif-badge { margin-right: 4px; }
 
 .main {
-  background: #f0f2f5;
+  background: #F1F5F9;
   padding: 12px 20px 20px;
   height: calc(100vh - 60px);
   overflow-y: auto;

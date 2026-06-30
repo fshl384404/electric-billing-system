@@ -306,7 +306,7 @@ watch(open, (val) => {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #409EFF;
+  background: #0891B2;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -353,7 +353,7 @@ watch(open, (val) => {
 
 /* ---- 顶栏 ---- */
 .chatbot-header {
-  background: #409EFF;
+  background: #0891B2;
   color: white;
   padding: 10px 16px;
   display: flex;
@@ -395,7 +395,7 @@ watch(open, (val) => {
   margin-top: 8px;
 }
 .chatbot-welcome li {
-  color: #409EFF;
+  color: #0891B2;
   cursor: pointer;
   padding: 6px 0;
   font-size: 13px;
@@ -436,7 +436,7 @@ watch(open, (val) => {
   word-break: break-word;
 }
 .chatbot-msg.user .chatbot-msg-bubble {
-  background: #409EFF;
+  background: #0891B2;
   color: white;
   border-bottom-right-radius: 4px;
 }

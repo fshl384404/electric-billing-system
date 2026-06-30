@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-card">
-      <h1>⚡ 民用电缴费系统</h1>
+      <h1><el-icon :size="22" style="vertical-align:middle;margin-right:6px"><Lightning /></el-icon>民用电缴费系统</h1>
       <p class="subtitle">Electric Billing System</p>
       <el-form :model="form" :rules="rules" ref="formRef" label-position="top" @submit.prevent="handleLogin">
         <el-form-item label="用户名" prop="username">
@@ -174,7 +174,7 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e3a5f, #3b82f6);
+  background: linear-gradient(135deg, #0F172A 0%, #0E3D4A 50%, #0891B2 100%);
 }
 .login-card {
   width: 400px;
@@ -187,12 +187,12 @@ async function handleLogin() {
   text-align: center;
   font-size: 24px;
   margin-bottom: 4px;
-  color: #1e3a5f;
+  color: #0F172A;
 }
 .subtitle {
   text-align: center;
   font-size: 13px;
-  color: #94a3b8;
+  color: #64748B;
   margin-bottom: 32px;
 }
 .login-btn {
@@ -203,16 +203,16 @@ async function handleLogin() {
   text-align: right;
   margin-top: 12px;
   font-size: 13px;
-  color: #409EFF;
+  color: #0891B2;
   cursor: pointer;
 }
-.forgot-link:hover { color: #1e6bb8; }
+.forgot-link:hover { color: #067A98; }
 .forgot-hint {
-  color: #67c23a;
+  color: #059669;
   font-size: 14px;
   margin-bottom: 16px;
   padding: 8px 12px;
-  background: #f0f9eb;
+  background: #ECFDF5;
   border-radius: 6px;
 }
 </style>

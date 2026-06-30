@@ -1,0 +1,32 @@
+/* ============================================================================
+   民用电缴费系统 — 自定义主题 (Slate + Electric Cyan)
+   覆盖 Element Plus 默认蓝 #409EFF → 青蓝 #0891B2
+   ============================================================================ */
+
+/* ---- Element Plus CSS 变量覆写 ---- */
+:root {
+  --el-color-primary: #0891B2;
+  --el-color-primary-light-3: #22A6C2;
+  --el-color-primary-light-5: #3DBAD2;
+  --el-color-primary-light-7: #67C8DB;
+  --el-color-primary-light-8: #8DD7E5;
+  --el-color-primary-light-9: #B3E5EF;
+  --el-color-primary-dark-2: #067A98;
+  --el-color-success: #059669;
+  --el-color-warning: #D97706;
+  --el-color-danger: #DC2626;
+  --el-color-info: #64748B;
+  --el-border-radius-base: 6px;
+  --el-box-shadow-light: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+/* ---- 全局基调 ---- */
+html, body {
+  font-family: "Inter", "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- 侧边栏菜单激活项颜色覆写 ---- */
+.el-menu .el-menu-item.is-active {
+  color: #22D3EE !important;
+}

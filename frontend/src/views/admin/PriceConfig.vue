@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>⚙️ 电价配置</h2>
+    <h2><el-icon :size="22" style="vertical-align:middle"><Setting /></el-icon> 电价配置</h2>
     <el-table :data="list" border stripe v-loading="loading" style="margin-top: 8px">
       <el-table-column prop="tierNo" label="档位" width="80" />
       <el-table-column prop="tierName" label="名称" width="120" />

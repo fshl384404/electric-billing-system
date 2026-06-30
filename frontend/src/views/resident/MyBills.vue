@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>📄 我的账单</h2>
+    <h2><el-icon :size="22" style="vertical-align:middle"><Document /></el-icon> 我的账单</h2>
     <el-form :inline="true" style="margin: 8px 0">
       <el-form-item label="状态">
         <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList" style="width:110px">

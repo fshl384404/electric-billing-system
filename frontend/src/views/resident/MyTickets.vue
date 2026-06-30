@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>🎫 我的工单</h2>
+    <h2><el-icon :size="22" style="vertical-align:middle"><Headset /></el-icon> 我的工单</h2>
     <el-button type="primary" @click="showCreate" style="margin: 8px 0">提交工单</el-button>
 
     <el-table :data="list" border stripe v-loading="loading" max-height="calc(100vh - 230px)" @row-click="showDetail" highlight-current-row>
