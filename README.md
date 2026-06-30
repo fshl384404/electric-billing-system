@@ -7,6 +7,7 @@
 [![Vue](https://img.shields.io/badge/Vue-3.5-4fc08d)](https://vuejs.org/)
 [![Oracle](https://img.shields.io/badge/Oracle-23ai%20Free-red)](https://www.oracle.com/database/free/)
 [![License](https://img.shields.io/badge/License-Educational-blue)](LICENSE)
+[![Release](https://img.shields.io/badge/Release-v1.1.0-blue)](https://github.com/ruinarchy/electric-billing-system/releases/tag/v1.1.0)
 
 ---
 
@@ -37,6 +38,9 @@
 | 路由 | Vue Router 4 | 最新 |
 | 构建工具 | Vite | 8.1 |
 | HTTP 客户端 | Axios | 1.18 |
+| AI 大模型 | Ollama + qwen2.5:3b | 本地部署 |
+| 向量数据库 | ChromaDB | 1.5 |
+| 嵌入模型 | nomic-embed-text | 768d |
 
 ---
 
@@ -51,6 +55,8 @@
 - **在线 + 线下缴费** — 居民在线支付，收费员线下录入（金额自动锁定）
 - **滞纳金** — 15 天宽限期后每日 0.1%，封顶为欠费本金
 - **用户管理** — 禁用/解禁 + 一键重置密码为默认值 + 手机/邮箱格式校验
+- **忘记密码** — 自助验证身份（用户名 + 手机/邮箱匹配）+ 设置新密码
+- **级联删除** — 删除房产/电表时自动清理关联的抄表记录、账单、缴费、告警
 
 ### 🔔 通知 & 异常检测
 - **欠费提醒** — 逾期自动推送通知
@@ -62,6 +68,13 @@
 - 居民提交（账单疑问/电表故障/投诉/其他）
 - 管理员/收费员回复后通知提交人
 - 两步闭合流程（待处理 → 已回复）
+
+### 🤖 智能客服 (RAG)
+- **RAG 架构** — Ollama 本地 LLM + ChromaDB 向量检索，无外部 API 依赖
+- **知识库** — 5 篇业务文档嵌入（业务规则 / 使用指南 / FAQ / 电力政策 / 系统概述）
+- **意图检测** — 自动识别用户是否在询问个人数据，预取账单/缴费/抄表/电价后回答
+- **流式输出** — SSE (Server-Sent Events) token-by-token 打字机效果
+- **悬浮窗** — 可拖动悬浮球，原地弹出面板，仅居民端可见
 
 ### ⚡ 性能优化
 - 全列表分页 + 表格内滚动（固定 20 条/页，支持跳页）
@@ -77,6 +90,8 @@
 - **JDK 24+** — [下载](https://jdk.java.net/24/)
 - **Maven 3.9+** — `mvn --version`
 - **Node.js 20+** — `node --version`
+- **Python 3.10+** — `python --version`（智能客服依赖）
+- **Ollama** — [下载](https://ollama.com/download)（智能客服依赖）
 - **Oracle 数据库** — 23ai Free 推荐，兼容 11g+
 
 ### 1. 初始化数据库
@@ -126,7 +141,25 @@ npm run dev
 # 浏览器自动打开登录页
 ```
 
-### 5. 登录系统
+### 5. 启动智能客服（可选）
+
+```bash
+# 拉取 AI 模型（首次约需 2-3 分钟）
+ollama pull qwen2.5:3b
+ollama pull nomic-embed-text
+
+# 安装 Python 依赖
+cd rag
+pip install -r requirements.txt
+
+# 启动 ChromaDB 向量数据库（另开终端）
+python start_chroma.py
+
+# 嵌入知识库文档
+python embed_docs.py
+```
+
+### 6. 登录系统
 
 | 角色 | 用户名 | 密码 |
 |------|--------|------|
@@ -151,18 +184,19 @@ electric-billing-system/
 │       │   ├── controller/                       # 健康检查 (/api/ping)
 │       │   ├── entity/                           # 11 个数据表实体
 │       │   ├── security/                         # JWT 工具, 认证过滤器, 用户上下文
-│       │   └── module/                           # 10 个业务模块
-│       │       ├── auth/        # 登录/注册
+│       │   └── module/                           # 11 个业务模块
+│       │       ├── auth/        # 登录/注册/忘记密码
 │       │       ├── user/        # 用户管理
-│       │       ├── house/       # 房产管理
-│       │       ├── meter/       # 电表管理
+│       │       ├── house/       # 房产管理 (级联删除)
+│       │       ├── meter/       # 电表管理 (级联删除)
 │       │       ├── reading/     # 抄表记录
 │       │       ├── bill/        # 账单查询
 │       │       ├── payment/     # 缴费 (事务)
 │       │       ├── notification/# 系统通知
 │       │       ├── alert/       # 异常告警
 │       │       ├── ticket/      # 工单+回复
-│       │       └── price/       # 电价配置
+│       │       ├── price/       # 电价配置
+│       │       └── chat/        # 智能客服 (RAG + SSE)
 │       └── resources/
 │           ├── application.yml                 # 全局配置 + JWT 密钥
 │           ├── application-dev.yml             # 开发环境数据库
@@ -173,7 +207,7 @@ electric-billing-system/
 │   └── src/
 │       ├── main.js                      # 入口 (注册 Element Plus, Pinia, Router)
 │       ├── App.vue                      # 根组件 (router-view)
-│       ├── api/                         # 12 个 API 模块 (axios 封装)
+│       ├── api/                         # 13 个 API 模块 (axios 封装)
 │       ├── stores/auth.js              # Pinia 认证状态 (token/user/login)
 │       ├── router/index.js             # 路由表 + beforeEach 角色守卫
 │       ├── layouts/AdminLayout.vue     # 管理布局 (侧边栏+顶栏+内容区)
@@ -194,6 +228,13 @@ electric-billing-system/
 │               ├── MyPayments.vue      # 我的缴费
 │               ├── MyTickets.vue       # 我的工单
 │               └── MyNotifications.vue # 我的通知
+│           └── ChatBot.vue             # 智能客服悬浮窗 (可拖动)
+│
+├── rag/                                   # RAG 智能客服知识库
+│   ├── requirements.txt                   # Python 依赖
+│   ├── start_chroma.py                    # ChromaDB 启动脚本
+│   ├── embed_docs.py                      # 文档嵌入脚本
+│   └── docs/                              # 5 篇知识文档
 │
 ├── sql/                                  # Oracle 数据库脚本 (7 个文件)
 │   ├── 01_create_tables.sql              # 11 张表 DDL + 索引 + 注释
@@ -274,6 +315,10 @@ User ─1:N─→ House ─1:1─→ Meter ─1:N─→ MeterReading
 |------|------|------|------|------|
 | Auth | `/api/auth/login` | POST | 无 | 登录获取 Token |
 | Auth | `/api/auth/me` | GET | JWT | 当前用户信息 |
+| Auth | `/api/auth/forgot-password` | POST | 无 | 验证身份 (用户名+手机/邮箱) |
+| Auth | `/api/auth/reset-password-public` | POST | 无 | 自助重置密码 |
+| Chat | `/api/chat` | POST (SSE) | JWT | 智能客服流式对话 |
+| Chat | `/api/chat/history` | DELETE | JWT | 清空对话历史 |
 | User | `/api/user/list` | GET | ADMIN/COLLECTOR | 用户列表 |
 | User | `/api/user/{id}` | GET | ADMIN/COLLECTOR | 用户详情 |
 | User | `/api/user` | POST | ADMIN | 新增用户 |
