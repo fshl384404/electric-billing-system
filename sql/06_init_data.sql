@@ -292,11 +292,11 @@ VALUES (3, 3, '第三档(民用)', 401, NULL, 0.80, DATE '2025-01-01', 'Y', 'RESIDENT
 
 -- 商用电价
 INSERT INTO price_config (config_id, tier_no, tier_name, lower_limit, upper_limit, unit_price, effective_date, is_active, customer_type, updated_by, created_at)
-VALUES (4, 1, '第一档', 0, 500, 0.78, DATE '2025-01-01', 'Y', 'COMMERCIAL', 1, SYSDATE);
+VALUES (4, 1, '第一档(商用)', 0, 500, 0.78, DATE '2025-01-01', 'Y', 'COMMERCIAL', 1, SYSDATE);
 INSERT INTO price_config (config_id, tier_no, tier_name, lower_limit, upper_limit, unit_price, effective_date, is_active, customer_type, updated_by, created_at)
-VALUES (5, 2, '第二档', 501, 1000, 0.95, DATE '2025-01-01', 'Y', 'COMMERCIAL', 1, SYSDATE);
+VALUES (5, 2, '第二档(商用)', 501, 1000, 0.95, DATE '2025-01-01', 'Y', 'COMMERCIAL', 1, SYSDATE);
 INSERT INTO price_config (config_id, tier_no, tier_name, lower_limit, upper_limit, unit_price, effective_date, is_active, customer_type, updated_by, created_at)
-VALUES (6, 3, '第三档', 1001, NULL, 1.25, DATE '2025-01-01', 'Y', 'COMMERCIAL', 1, SYSDATE);
+VALUES (6, 3, '第三档(商用)', 1001, NULL, 1.25, DATE '2025-01-01', 'Y', 'COMMERCIAL', 1, SYSDATE);
 COMMIT;
 PROMPT [Phase 4] 6 条电价配置创建完毕
 

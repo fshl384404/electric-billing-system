@@ -7,9 +7,16 @@
       <template #header><span style="font-weight:600">🏘️ 民用电价 (RESIDENTIAL)</span></template>
       <el-table :data="residentialList" border stripe>
         <el-table-column prop="tierNo" label="档位" width="60" />
-        <el-table-column prop="tierName" label="名称" width="140" />
-        <el-table-column label="用电量范围" width="180">
-          <template #default="{ row }">{{ row.lowerLimit }} ~ {{ row.upperLimit || '无上限' }} kWh</template>
+        <el-table-column prop="tierName" label="名称" width="150" />
+        <el-table-column label="用电量范围 (kWh)" width="260">
+          <template #default="{ row }">
+            <template v-if="editingId === row.configId">
+              <el-input-number v-model="editForm.lowerLimit" :min="0" :step="10" size="small" style="width:90px" controls-position="right" />
+              <span style="margin:0 6px">~</span>
+              <el-input-number v-model="editForm.upperLimit" :min="0" :step="10" size="small" style="width:90px" controls-position="right" placeholder="无上限" />
+            </template>
+            <span v-else>{{ row.lowerLimit }} ~ {{ row.upperLimit || '无上限' }}</span>
+          </template>
         </el-table-column>
         <el-table-column label="单价 (元/kWh)" width="180">
           <template #default="{ row }">
@@ -20,7 +27,7 @@
             <span v-else style="font-weight:600">{{ row.unitPrice }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120">
+        <el-table-column label="操作" width="140">
           <template #default="{ row }">
             <template v-if="editingId === row.configId">
               <el-button size="small" type="success" @click="savePrice(row)">保存</el-button>
@@ -37,9 +44,16 @@
       <template #header><span style="font-weight:600">🏢 商用电价 (COMMERCIAL)</span></template>
       <el-table :data="commercialList" border stripe>
         <el-table-column prop="tierNo" label="档位" width="60" />
-        <el-table-column prop="tierName" label="名称" width="140" />
-        <el-table-column label="用电量范围" width="180">
-          <template #default="{ row }">{{ row.lowerLimit }} ~ {{ row.upperLimit || '无上限' }} kWh</template>
+        <el-table-column prop="tierName" label="名称" width="150" />
+        <el-table-column label="用电量范围 (kWh)" width="260">
+          <template #default="{ row }">
+            <template v-if="editingId === row.configId">
+              <el-input-number v-model="editForm.lowerLimit" :min="0" :step="10" size="small" style="width:90px" controls-position="right" />
+              <span style="margin:0 6px">~</span>
+              <el-input-number v-model="editForm.upperLimit" :min="0" :step="10" size="small" style="width:90px" controls-position="right" placeholder="无上限" />
+            </template>
+            <span v-else>{{ row.lowerLimit }} ~ {{ row.upperLimit || '无上限' }}</span>
+          </template>
         </el-table-column>
         <el-table-column label="单价 (元/kWh)" width="180">
           <template #default="{ row }">
@@ -50,7 +64,7 @@
             <span v-else style="font-weight:600">{{ row.unitPrice }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="120">
+        <el-table-column label="操作" width="140">
           <template #default="{ row }">
             <template v-if="editingId === row.configId">
               <el-button size="small" type="success" @click="savePrice(row)">保存</el-button>
@@ -83,11 +97,20 @@ async function fetchList() {
 
 function startEdit(row) {
   editingId.value = row.configId
-  editForm.value = { unitPrice: row.unitPrice }
+  editForm.value = {
+    unitPrice: row.unitPrice,
+    lowerLimit: row.lowerLimit,
+    upperLimit: row.upperLimit
+  }
 }
 
 async function savePrice(row) {
-  await priceApi.update({ configId: row.configId, unitPrice: editForm.value.unitPrice })
+  await priceApi.update({
+    configId: row.configId,
+    unitPrice: editForm.value.unitPrice,
+    lowerLimit: editForm.value.lowerLimit,
+    upperLimit: editForm.value.upperLimit || null
+  })
   ElMessage.success('电价已更新')
   editingId.value = null
   fetchList()
