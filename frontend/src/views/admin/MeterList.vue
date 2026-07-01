@@ -17,8 +17,9 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="180" fixed="right">
+      <el-table-column label="操作" width="270" fixed="right">
         <template #default="{ row }">
+          <el-button size="small" type="primary" @click="showReading(row)" v-if="row.status === 'NORMAL'">抄表</el-button>
           <el-button size="small" type="warning" @click="updateStatus(row, 'FAULT')" v-if="row.status === 'NORMAL'">故障</el-button>
           <el-button size="small" type="success" @click="updateStatus(row, 'NORMAL')" v-if="row.status === 'FAULT'">恢复</el-button>
           <el-button size="small" type="danger" @click="handleDelete(row)">删除</el-button>
@@ -55,14 +56,44 @@
         <el-button type="primary" @click="handleSubmit" :loading="submitting">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 人工抄表弹窗 -->
+    <el-dialog v-model="readingVisible" title="人工抄表" width="460px">
+      <el-form :model="readingForm" :rules="readingRules" ref="readingFormRef" label-width="80px">
+        <el-form-item label="电表编号">
+          <el-input :model-value="readingForm.meterNo" disabled />
+        </el-form-item>
+        <el-form-item label="上次读数">
+          <el-input :model-value="readingForm.lastReading" disabled>
+            <template #suffix>kWh</template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="抄表日期" prop="readingDate">
+          <el-date-picker v-model="readingForm.readingDate" type="date" value-format="YYYY-MM-DD"
+            style="width:100%" :disabled-date="d => d.getTime() > Date.now()" />
+        </el-form-item>
+        <el-form-item label="本次读数" prop="readingValue">
+          <el-input-number v-model="readingForm.readingValue" :precision="2" :step="10"
+            :min="0" style="width:100%" placeholder="请输入电表当前读数" />
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="readingForm.remarks" placeholder="选填" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="readingVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleReadingSubmit" :loading="readingSubmitting">确认录入</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import meterApi from '@/api/meter'
 import houseApi from '@/api/house'
+import readingApi from '@/api/reading'
 
 const list = ref([])
 const loading = ref(false)
@@ -128,5 +159,53 @@ async function handleDelete(row) {
   await meterApi.delete(row.meterId)
   ElMessage.success('已删除')
   fetchList()
+}
+
+// ---- 人工抄表 ----
+const readingVisible = ref(false)
+const readingSubmitting = ref(false)
+const readingFormRef = ref(null)
+const readingForm = reactive({
+  meterId: null, meterNo: '', lastReading: 0, readingDate: '', readingValue: null, remarks: ''
+})
+const readingRules = {
+  readingDate: [{ required: true, message: '请选择抄表日期', trigger: 'change' }],
+  readingValue: [{ required: true, message: '请输入本次读数', trigger: 'blur' }]
+}
+
+function showReading(row) {
+  readingForm.meterId = row.meterId
+  readingForm.meterNo = row.meterNo
+  readingForm.lastReading = row.lastReading || 0
+  readingForm.readingDate = new Date().toISOString().slice(0, 10) // 默认今天
+  readingForm.readingValue = null
+  readingForm.remarks = ''
+  readingVisible.value = true
+}
+
+async function handleReadingSubmit() {
+  const valid = await readingFormRef.value?.validate().catch(() => false)
+  if (!valid) return
+  // 前端友好提示: 读数低于上次读数可能是倒转
+  if (readingForm.readingValue <= readingForm.lastReading) {
+    try {
+      await ElMessageBox.confirm(
+        `本次读数(${readingForm.readingValue})不高于上次读数(${readingForm.lastReading})，系统将标记为读数倒转异常。确认继续录入吗？`,
+        '读数异常提示', { type: 'warning', confirmButtonText: '确认录入', cancelButtonText: '取消' }
+      )
+    } catch { return }
+  }
+  readingSubmitting.value = true
+  try {
+    await readingApi.create({
+      meterId: readingForm.meterId,
+      readingDate: readingForm.readingDate,
+      readingValue: readingForm.readingValue,
+      remarks: readingForm.remarks || undefined
+    })
+    ElMessage.success('抄表录入成功')
+    readingVisible.value = false
+    fetchList() // 刷新电表列表以更新 lastReading
+  } finally { readingSubmitting.value = false }
 }
 </script>
