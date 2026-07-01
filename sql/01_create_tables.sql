@@ -419,6 +419,24 @@ CREATE INDEX idx_notif_user_read ON notification(user_id, is_read);
 CREATE INDEX idx_alert_status ON alert(status);
 
 -- ticket: 按状态查询
+
+-- house: 按业主查询
+CREATE INDEX idx_house_user ON house(user_id);
+
+-- meter: 按状态筛选（SP1游标）
+CREATE INDEX idx_meter_status ON meter(status);
+
+-- ticket: 按提交人查询
+CREATE INDEX idx_ticket_user ON ticket(user_id);
+
+-- ticket_reply: 按工单查询
+CREATE INDEX idx_reply_ticket ON ticket_reply(ticket_id);
+
+-- alert: 按电表查询
+CREATE INDEX idx_alert_meter ON alert(meter_id);
+
+-- price_config: 按生效状态+客户类型+档位查询（SP1高频）
+CREATE INDEX idx_price_active_type_tier ON price_config(is_active, customer_type, tier_no);
 CREATE INDEX idx_ticket_status ON ticket(status);
 
 PROMPT ========== 11 张核心表及索引创建完毕 ==========

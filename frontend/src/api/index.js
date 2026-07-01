@@ -13,7 +13,6 @@ http.interceptors.request.use(config => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
-  console.log(`[REQ] ${config.method.toUpperCase()} ${config.baseURL || ''}${config.url}`)
   return config
 }, error => Promise.reject(error))
 
@@ -24,7 +23,8 @@ http.interceptors.response.use(
     // 后端返回 R 格式 { code, message, data }
     if (data.code && data.code !== 200) {
       if (data.code === 401) {
-        localStorage.clear()
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
         window.location.href = '/login'
         return Promise.reject(new Error('登录已过期'))
       }
@@ -38,7 +38,8 @@ http.interceptors.response.use(
     if (error.response) {
       const status = error.response.status
       if (status === 401) {
-        localStorage.clear()
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
         window.location.href = '/login'
         return Promise.reject(error)
       }

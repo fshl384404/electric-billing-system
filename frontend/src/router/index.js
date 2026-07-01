@@ -36,8 +36,8 @@ const routes = [
       { path: 'notifications', name: 'MyNotifications', component: () => import('@/views/resident/MyNotifications.vue') }
     ]
   },
-  { path: '/', redirect: '/admin/dashboard' },
-  { path: '/:pathMatch(.*)*', redirect: '/admin/dashboard' }
+  { path: '/', redirect: '/login' },
+  { path: '/:pathMatch(.*)*', redirect: '/login' }
 ]
 
 const router = createRouter({
@@ -49,9 +49,11 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
 
-  // 登录页直接放行
+  // 登录页：已登录用户按角色跳转
   if (to.path === '/login') {
-    if (auth.isLoggedIn()) return '/admin/dashboard'
+    if (auth.isLoggedIn()) {
+      return auth.role() === 'RESIDENT' ? '/resident/bills' : '/admin/dashboard'
+    }
     return
   }
 

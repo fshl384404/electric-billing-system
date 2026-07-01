@@ -48,7 +48,7 @@
 
     <!-- 提交工单弹窗 -->
     <el-dialog v-model="createVisible" title="提交工单" width="500px">
-      <el-form :model="form" ref="formRef" label-width="80px">
+      <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
         <el-form-item label="类型" prop="type">
           <el-select v-model="form.type" style="width:100%">
             <el-option label="账单疑问" value="BILL_INQUIRY" />
@@ -66,7 +66,7 @@
       </el-form>
       <template #footer>
         <el-button @click="createVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleCreate">提交</el-button>
+        <el-button type="primary" @click="handleCreate" :loading="submitting">提交</el-button>
       </template>
     </el-dialog>
   </div>
@@ -85,8 +85,14 @@ const pageSize = ref(20)
 const createVisible = ref(false)
 const detailVisible = ref(false)
 const current = ref(null)
+const submitting = ref(false)
 const formRef = ref(null)
 const form = reactive({ type: 'BILL_INQUIRY', title: '', description: '' })
+const rules = {
+  type: [{ required: true, message: '请选择类型', trigger: 'change' }],
+  title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
+  description: [{ required: true, message: '请输入描述', trigger: 'blur' }]
+}
 
 onMounted(() => fetchList())
 async function fetchList() {
@@ -114,9 +120,14 @@ function showCreate() {
 }
 
 async function handleCreate() {
-  await ticketApi.create(form)
-  ElMessage.success('工单已提交')
-  createVisible.value = false
-  fetchList()
+  const valid = await formRef.value?.validate().catch(() => false)
+  if (!valid) return
+  submitting.value = true
+  try {
+    await ticketApi.create(form)
+    ElMessage.success('工单已提交')
+    createVisible.value = false
+    fetchList()
+  } finally { submitting.value = false }
 }
 </script>

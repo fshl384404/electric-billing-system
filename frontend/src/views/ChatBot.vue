@@ -140,6 +140,7 @@ const panelStyle = computed(() => {
 function clamp(v, min, max) { return Math.min(max, Math.max(min, v)) }
 
 function onDragStart(e) {
+  if (dragging.value) return  // 防止 mousedown+touchstart 重复触发
   if (e.type === 'touchstart') {
     dragStartX.value = e.touches[0].clientX
     dragStartY.value = e.touches[0].clientY

@@ -134,10 +134,7 @@ async function handleForgotStep2() {
   } finally { forgotLoading.value = false }
 }
 
-// 进入登录页时清理残留状态，确保干净环境
-onMounted(() => {
-  authStore.logout()
-})
+// 路由守卫已确保抵达此页时用户未登录，无需额外清理
 
 async function handleLogin() {
   const valid = await formRef.value.validate().catch(() => false)

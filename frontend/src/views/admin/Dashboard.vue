@@ -65,6 +65,7 @@ import alertApi from '@/api/alert'
 const stats = ref({ users: 0, houses: 0, bills: 0, alerts: 0 })
 const billStatus = ref([])
 const monthlyRevenue = ref([])
+const allBillsCache = ref([])  // 共享缓存，避免重复请求
 
 const cards = ref([])
 
@@ -98,6 +99,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('resize', resizeAll)
   charts.forEach(c => c.dispose())
+  charts = []
 })
 
 async function fetchData() {
@@ -113,6 +115,7 @@ async function fetchData() {
 
     const allBills = await billApi.list({ page: 1, pageSize: 999 })
     const bills = allBills.data.data?.records || []
+    allBillsCache.value = bills  // 缓存，renderLineChart/renderGaugeChart 复用
     stats.value.bills = bills.length
 
     // 统计卡片
@@ -194,10 +197,8 @@ function renderCharts() {
   renderGaugeChart()
 }
 
-async function renderLineChart() {
-  try {
-    const res = await billApi.list({ page: 1, pageSize: 999 })
-    const bills = res.data.data?.records || []
+function renderLineChart() {
+    const bills = allBillsCache.value
     const usageMap = {}
     bills.forEach(b => {
       if (b.billMonth) {
@@ -230,13 +231,10 @@ async function renderLineChart() {
         }
       }]
     })
-  } catch { /* ignore */ }
 }
 
-async function renderGaugeChart() {
-  try {
-    const res = await billApi.list({ page: 1, pageSize: 999 })
-    const bills = res.data.data?.records || []
+function renderGaugeChart() {
+    const bills = allBillsCache.value
     // 找当前月份
     const now = new Date()
     const thisMonth = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0')
@@ -279,7 +277,6 @@ async function renderGaugeChart() {
         data: [{ value: rate, name: thisMonth + ' 缴费率' }]
       }]
     })
-  } catch { /* ignore */ }
 }
 </script>
 

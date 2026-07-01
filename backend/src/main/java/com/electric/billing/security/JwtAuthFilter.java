@@ -79,7 +79,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     /** 直接写入 JSON 错误响应（Filter 层异常无法被 @RestControllerAdvice 捕获） */
     private void writeAuthError(HttpServletResponse response, int code, String message) throws IOException {
-        response.setStatus(200); // HTTP 200，业务错误码在 body 中
+        response.setStatus(code);
         response.setContentType("application/json;charset=UTF-8");
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("code", code);

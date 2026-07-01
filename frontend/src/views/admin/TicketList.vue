@@ -3,14 +3,14 @@
     <h2><el-icon :size="22" style="vertical-align:middle"><Headset /></el-icon> 工单处理</h2>
     <el-form :inline="true" style="margin: 8px 0">
       <el-form-item label="状态">
-        <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList" style="width:110px">
+        <el-select v-model="filters.status" clearable placeholder="全部" @change="currentPage = 1; fetchList()" style="width:110px">
           <el-option label="待处理" value="PENDING" />
           <el-option label="已回复" value="REPLIED" />
         </el-select>
       </el-form-item>
     </el-form>
 
-    <el-table :data="list" border stripe v-loading="loading" row-key="ticketId" max-height="calc(100vh - 230px)">
+    <el-table :data="list" border stripe v-loading="loading" row-key="ticketId" max-height="calc(100vh - 230px)" @expand-change="onExpand">
       <el-table-column type="expand">
         <template #default="{ row }">
           <div style="padding: 0 20px 20px">
@@ -18,7 +18,8 @@
             <p>{{ row.description }}</p>
             <el-divider />
             <h4>💬 回复记录</h4>
-            <el-timeline v-if="row._replies?.length">
+            <p v-if="row._replies === null" style="color:#999">加载中...</p>
+            <el-timeline v-else-if="row._replies?.length">
               <el-timeline-item v-for="r in row._replies" :key="r.replyId" :timestamp="r.createdAt">
                 {{ r.content }}
               </el-timeline-item>
@@ -26,7 +27,7 @@
             <p v-else style="color:#999">暂无回复</p>
             <div v-if="row.status === 'PENDING'" style="margin-top: 12px">
               <el-input v-model="row._replyText" type="textarea" :rows="2" placeholder="输入回复内容..." />
-              <el-button type="primary" size="small" style="margin-top: 8px" @click="handleReply(row)">提交回复</el-button>
+              <el-button type="primary" size="small" style="margin-top: 8px" @click="handleReply(row)" :loading="row._replying">提交回复</el-button>
             </div>
           </div>
         </template>
@@ -76,12 +77,20 @@ async function fetchList() {
     total.value = res.data.data.total
     for (const row of list.value) {
       row._replyText = ''
-      try {
-        const r = await ticketApi.replies(row.ticketId)
-        row._replies = r.data.data || []
-      } catch { row._replies = [] }
+      row._replies = null  // 延迟加载标记
     }
   } finally { loading.value = false }
+}
+
+// 展开行时按需加载回复（避免 N+1 预加载）
+async function onExpand(row, expandedRows) {
+  const isExpanded = expandedRows.some(r => r.ticketId === row.ticketId)
+  if (isExpanded && !row._replies) {
+    try {
+      const r = await ticketApi.replies(row.ticketId)
+      row._replies = r.data.data || []
+    } catch { row._replies = [] }
+  }
 }
 
 async function handleReply(row) {
@@ -89,9 +98,12 @@ async function handleReply(row) {
     ElMessage.warning('请输入回复内容')
     return
   }
-  await ticketApi.reply(row.ticketId, row._replyText)
-  ElMessage.success('回复成功')
-  row._replyText = ''
-  fetchList()
+  row._replying = true
+  try {
+    await ticketApi.reply(row.ticketId, row._replyText)
+    ElMessage.success('回复成功')
+    row._replyText = ''
+    fetchList()
+  } finally { row._replying = false }
 }
 </script>

@@ -13,6 +13,7 @@ import com.electric.billing.security.AuthContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -97,6 +98,7 @@ public class MeterService {
      * 删除电表 — 级联删除抄表记录、账单、缴费、告警。
      * 依赖链: METER → READING / BILL → PAYMENT / ALERT
      */
+    @Transactional
     public void delete(Long id) {
         if (!AuthContext.isAdmin()) {
             throw new BusinessException(403, "仅管理员可操作");

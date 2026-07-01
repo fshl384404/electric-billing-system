@@ -36,17 +36,20 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = { ...user.value, ...res.data.data }
         localStorage.setItem('user', JSON.stringify(user.value))
       }
-    } catch {
-      // token 无效则清除
-      logout()
+    } catch (e) {
+      // 仅 401（Token 无效/过期）时登出，网络瞬断等不强制登出
+      if (e.response?.status === 401) {
+        logout()
+      }
     }
   }
 
-  /** 退出 */
+  /** 退出 — 仅清除认证数据 */
   function logout() {
     token.value = ''
     user.value = null
-    localStorage.clear()
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
   }
 
   return { token, user, isLoggedIn, role, login, fetchMe, logout }

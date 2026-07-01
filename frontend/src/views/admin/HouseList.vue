@@ -40,7 +40,7 @@
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleSubmit">确定</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="submitting">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -57,6 +57,7 @@ const total = ref(0)
 const currentPage = ref(1)
 const pageSize = ref(20)
 const dialogVisible = ref(false)
+const submitting = ref(false)
 const formRef = ref(null)
 const form = ref({})
 
@@ -78,16 +79,20 @@ function showDialog() {
 const rules = {
   userId: [{ required: true, message: '请输入业主ID', trigger: 'blur' }],
   address: [{ required: true, message: '请输入地址', trigger: 'blur' }],
-  area: [{ required: true, message: '请输入面积', trigger: 'blur' }]
+  area: [{ required: true, message: '请输入面积', trigger: 'blur' }],
+  houseType: [{ required: true, message: '请选择类型', trigger: 'change' }]
 }
 
 async function handleSubmit() {
   const valid = await formRef.value?.validate().catch(() => false)
   if (!valid) return
-  await houseApi.create(form.value)
-  ElMessage.success('新增成功')
-  dialogVisible.value = false
-  fetchList()
+  submitting.value = true
+  try {
+    await houseApi.create(form.value)
+    ElMessage.success('新增成功')
+    dialogVisible.value = false
+    fetchList()
+  } finally { submitting.value = false }
 }
 
 async function handleDelete(row) {

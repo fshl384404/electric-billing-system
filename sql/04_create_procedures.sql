@@ -85,20 +85,20 @@ BEGIN
     v_last_month_end   := LAST_DAY(v_last_month_start);
 
     BEGIN
-        SELECT unit_price INTO v_res_price1 FROM price_config WHERE tier_no=1 AND is_active='Y' AND customer_type='RESIDENTIAL' AND ROWNUM=1;
-        SELECT unit_price INTO v_res_price2 FROM price_config WHERE tier_no=2 AND is_active='Y' AND customer_type='RESIDENTIAL' AND ROWNUM=1;
-        SELECT unit_price INTO v_res_price3 FROM price_config WHERE tier_no=3 AND is_active='Y' AND customer_type='RESIDENTIAL' AND ROWNUM=1;
-        SELECT upper_limit INTO v_res_limit1 FROM price_config WHERE tier_no=1 AND is_active='Y' AND customer_type='RESIDENTIAL' AND ROWNUM=1;
-        SELECT upper_limit INTO v_res_limit2 FROM price_config WHERE tier_no=2 AND is_active='Y' AND customer_type='RESIDENTIAL' AND ROWNUM=1;
+        SELECT unit_price INTO v_res_price1 FROM (SELECT unit_price FROM price_config WHERE tier_no=1 AND is_active='Y' AND customer_type='RESIDENTIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
+        SELECT unit_price INTO v_res_price2 FROM (SELECT unit_price FROM price_config WHERE tier_no=2 AND is_active='Y' AND customer_type='RESIDENTIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
+        SELECT unit_price INTO v_res_price3 FROM (SELECT unit_price FROM price_config WHERE tier_no=3 AND is_active='Y' AND customer_type='RESIDENTIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
+        SELECT upper_limit INTO v_res_limit1 FROM (SELECT upper_limit FROM price_config WHERE tier_no=1 AND is_active='Y' AND customer_type='RESIDENTIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
+        SELECT upper_limit INTO v_res_limit2 FROM (SELECT upper_limit FROM price_config WHERE tier_no=2 AND is_active='Y' AND customer_type='RESIDENTIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
     EXCEPTION WHEN NO_DATA_FOUND THEN RAISE;
     END;
 
     BEGIN
-        SELECT unit_price INTO v_com_price1 FROM price_config WHERE tier_no=1 AND is_active='Y' AND customer_type='COMMERCIAL' AND ROWNUM=1;
-        SELECT unit_price INTO v_com_price2 FROM price_config WHERE tier_no=2 AND is_active='Y' AND customer_type='COMMERCIAL' AND ROWNUM=1;
-        SELECT unit_price INTO v_com_price3 FROM price_config WHERE tier_no=3 AND is_active='Y' AND customer_type='COMMERCIAL' AND ROWNUM=1;
-        SELECT upper_limit INTO v_com_limit1 FROM price_config WHERE tier_no=1 AND is_active='Y' AND customer_type='COMMERCIAL' AND ROWNUM=1;
-        SELECT upper_limit INTO v_com_limit2 FROM price_config WHERE tier_no=2 AND is_active='Y' AND customer_type='COMMERCIAL' AND ROWNUM=1;
+        SELECT unit_price INTO v_com_price1 FROM (SELECT unit_price FROM price_config WHERE tier_no=1 AND is_active='Y' AND customer_type='COMMERCIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
+        SELECT unit_price INTO v_com_price2 FROM (SELECT unit_price FROM price_config WHERE tier_no=2 AND is_active='Y' AND customer_type='COMMERCIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
+        SELECT unit_price INTO v_com_price3 FROM (SELECT unit_price FROM price_config WHERE tier_no=3 AND is_active='Y' AND customer_type='COMMERCIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
+        SELECT upper_limit INTO v_com_limit1 FROM (SELECT upper_limit FROM price_config WHERE tier_no=1 AND is_active='Y' AND customer_type='COMMERCIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
+        SELECT upper_limit INTO v_com_limit2 FROM (SELECT upper_limit FROM price_config WHERE tier_no=2 AND is_active='Y' AND customer_type='COMMERCIAL' ORDER BY effective_date DESC) WHERE ROWNUM=1;
     EXCEPTION WHEN NO_DATA_FOUND THEN
         v_com_price1 := v_res_price1; v_com_price2 := v_res_price2; v_com_price3 := v_res_price3;
         v_com_limit1 := v_res_limit1; v_com_limit2 := v_res_limit2;
@@ -147,7 +147,7 @@ BEGIN
         v_tier2_amount := ROUND(v_tier2_usage * v_price2, 2);
         v_tier3_amount := ROUND(v_tier3_usage * v_price3, 2);
         v_total_amount := v_tier1_amount + v_tier2_amount + v_tier3_amount;
-        v_due_date := TRUNC(SYSDATE) + 15;
+        v_due_date := LAST_DAY(v_last_month_start) + 15;
 
         INSERT INTO bill (bill_id, meter_id, bill_month, prev_reading, curr_reading, total_usage,
             tier1_usage, tier2_usage, tier3_usage, tier1_amount, tier2_amount, tier3_amount,
@@ -164,8 +164,6 @@ BEGIN
 END sp_generate_monthly_bills;
 /
 
--- ============================================================================
-
 
 
 -- ============================================================
@@ -181,7 +179,8 @@ CREATE OR REPLACE PROCEDURE sp_calc_late_fees IS
         FROM   bill
         WHERE  status IN ('PENDING', 'OVERDUE')
           AND  due_date < TRUNC(SYSDATE) -- 已过截止日
-        ORDER BY bill_id;
+        ORDER BY bill_id
+        FOR UPDATE OF bill;
 
     v_days_overdue  NUMBER;          -- 逾期天数
     v_new_late_fee  bill.late_fee%TYPE;  -- 新的滞纳金

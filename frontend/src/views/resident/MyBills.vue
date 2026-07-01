@@ -3,7 +3,7 @@
     <h2><el-icon :size="22" style="vertical-align:middle"><Document /></el-icon> 我的账单</h2>
     <el-form :inline="true" style="margin: 8px 0">
       <el-form-item label="状态">
-        <el-select v-model="filters.status" clearable placeholder="全部" @change="fetchList" style="width:110px">
+        <el-select v-model="filters.status" clearable placeholder="全部" @change="currentPage = 1; fetchList()" style="width:110px">
           <el-option label="待缴费" value="PENDING" />
           <el-option label="已缴费" value="PAID" />
           <el-option label="已逾期" value="OVERDUE" />
@@ -94,7 +94,7 @@ async function confirmPay() {
   try {
     await paymentApi.pay({
       billId: payForm.value.billId,
-      amount: payForm.value.totalAmount,
+      amount: totalPay.value,
       channel: 'ONLINE'
     })
     ElMessage.success('缴费成功')

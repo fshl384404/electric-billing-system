@@ -57,8 +57,10 @@ public class CorsConfig {
         ));
 
         // 步骤5: 允许的请求头
-        //        允许所有请求头（生产环境应严格限制）
-        config.setAllowedHeaders(List.of("*"));
+        //        allowCredentials(true) 与 "*" 不兼容（CORS 规范禁止）
+        config.setAllowedHeaders(List.of(
+                "Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"
+        ));
 
         // 步骤6: 预检请求 (OPTIONS) 缓存时间（秒）
         //        浏览器在有效期内不会重复发送 OPTIONS 预检

@@ -92,9 +92,11 @@ const rules = {
   role: [{ required: true, message: '请选择角色', trigger: 'change' }],
   password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
   phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
   ],
   email: [
+    { required: true, message: '请输入邮箱', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
   ]
 }
