@@ -121,11 +121,16 @@ public class ChatService {
         log.info("Personal data intent detected for user {}, pre-fetching...", userId);
         StringBuilder ctx = new StringBuilder();
 
-        // 取用户账单
+        // 取用户账单（带汇总）
         try {
             String bills = toolExecutor.execute("get_my_bills", Map.of(), userId);
             if (bills != null && !bills.startsWith("未找到") && !bills.startsWith("暂无")) {
-                ctx.append("【用户账单数据】\n").append(bills).append("\n");
+                // 构建汇总信息，让 3B 模型直接引用
+                String summary = buildBillSummary(bills);
+                if (summary != null) {
+                    ctx.append("【账单汇总 — 请直接引述以下信息回答】\n").append(summary).append("\n\n");
+                }
+                ctx.append("【用户账单明细】\n").append(bills).append("\n");
             }
         } catch (Exception e) { log.warn("Pre-fetch bills failed: {}", e.getMessage()); }
 
@@ -158,6 +163,67 @@ public class ChatService {
         }
 
         return ctx.length() > 0 ? ctx.toString() : null;
+    }
+
+    /** 从账单明细文本中提取汇总信息 */
+    private String buildBillSummary(String bills) {
+        // 账单格式: - [202606] 用量: 371kWh, 金额: 193.99元, 滞纳金: 0.00元, 状态: PENDING, 地址: xxx
+        int totalCount = 0;
+        double totalAmount = 0;
+        int overdueCount = 0;
+        int pendingCount = 0;
+        int paidCount = 0;
+        double overdueAmount = 0;
+        double pendingAmount = 0;
+
+        for (String line : bills.split("\n")) {
+            if (!line.trim().startsWith("- [")) continue;
+            totalCount++;
+            // 提取金额
+            int amountIdx = line.indexOf("金额:");
+            if (amountIdx >= 0) {
+                int end = line.indexOf("元", amountIdx);
+                if (end > amountIdx) {
+                    try {
+                        double amt = Double.parseDouble(line.substring(amountIdx + 3, end).trim());
+                        totalAmount += amt;
+                    } catch (NumberFormatException ignored) {}
+                }
+            }
+            if (line.contains("OVERDUE")) {
+                overdueCount++;
+                int amtIdx = line.indexOf("金额:");
+                if (amtIdx >= 0) {
+                    int end = line.indexOf("元", amtIdx);
+                    if (end > amtIdx) {
+                        try { overdueAmount += Double.parseDouble(line.substring(amtIdx + 3, end).trim()); } catch (NumberFormatException ignored) {}
+                    }
+                }
+            } else if (line.contains("PENDING")) {
+                pendingCount++;
+                int amtIdx = line.indexOf("金额:");
+                if (amtIdx >= 0) {
+                    int end = line.indexOf("元", amtIdx);
+                    if (end > amtIdx) {
+                        try { pendingAmount += Double.parseDouble(line.substring(amtIdx + 3, end).trim()); } catch (NumberFormatException ignored) {}
+                    }
+                }
+            } else if (line.contains("PAID")) {
+                paidCount++;
+            }
+        }
+
+        if (totalCount == 0) return null;
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("该用户共有 ").append(totalCount).append(" 笔账单");
+        sb.append(", 合计金额 ").append(String.format("%.2f", totalAmount)).append(" 元");
+        if (paidCount > 0) sb.append(", 其中已缴 ").append(paidCount).append(" 笔");
+        if (pendingCount > 0) sb.append(", 待缴 ").append(pendingCount).append(" 笔 ").append(String.format("%.2f", pendingAmount)).append(" 元");
+        if (overdueCount > 0) sb.append(", 逾期 ").append(overdueCount).append(" 笔 ").append(String.format("%.2f", overdueAmount)).append(" 元（请提醒用户尽快缴纳）");
+        sb.append("。");
+
+        return sb.toString();
     }
 
     // ========================================================================
