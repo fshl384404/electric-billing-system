@@ -77,22 +77,33 @@ public class ChatService {
     private void doChat(SseEmitter emitter, Long userId, String username, String message) throws Exception {
         log.info("[CHAT] userId={}, query='{}'", userId, message);
 
-        // 1. 意图检测 + 预取用户数据
+        // 1. 意图检测 + 预取用户数据 (包含预计算答案)
+        String precomputedAnswer = null;
         String userDataContext = null;
         try {
-            userDataContext = detectAndFetchUserData(userId, message);
+            String[] result = detectAndFetchUserData(userId, message);
+            if (result != null) {
+                precomputedAnswer = result[0];  // 预计算好的答案
+                userDataContext = result[1];     // 原始数据（备用）
+            }
         } catch (Exception e) {
             log.warn("[CHAT] Pre-fetch failed: {}", e.getMessage());
         }
 
         // 2. 嵌入 → ChromaDB 检索知识
-        float[] embedding = embed(message);
-        List<String> retrievedDocs = searchChroma(embedding, TOP_K);
+        //    注意: 当有预计算答案时，跳过向量检索——知识库内容只会干扰模型
+        List<String> retrievedDocs;
+        if (precomputedAnswer != null) {
+            retrievedDocs = List.of();  // 不需要知识库
+        } else {
+            float[] embedding = embed(message);
+            retrievedDocs = searchChroma(embedding, TOP_K);
+        }
 
         // 3-4. 构建消息
         List<Map<String, Object>> history = histories.computeIfAbsent(userId, k -> new ArrayList<>());
         List<Map<String, Object>> messages = buildMessages(username, message,
-            retrievedDocs, userDataContext, history);
+            retrievedDocs, precomputedAnswer, userDataContext, history);
 
         // 5. Ollama 流式
         String assistantContent = callOllamaStreamSimple(emitter, messages);
@@ -105,8 +116,11 @@ public class ChatService {
         emitter.complete();
     }
 
-    /** 检测意图并预取用户数据 */
-    private String detectAndFetchUserData(Long userId, String message) {
+    /**
+     * 检测意图并预取用户数据。
+     * @return [预计算的答案, 原始数据] — 预计算答案可直接交给模型复述；为 null 表示非个人数据问题
+     */
+    private String[] detectAndFetchUserData(Long userId, String message) {
         if (userId == null) return null;
         String msg = message.toLowerCase();
         boolean asksPersonal = msg.contains("我的") || msg.contains("我上") || msg.contains("我上个月")
@@ -119,54 +133,107 @@ public class ChatService {
         if (!asksPersonal) return null;
 
         log.info("Personal data intent detected for user {}, pre-fetching...", userId);
-        StringBuilder ctx = new StringBuilder();
 
-        // 取用户账单（带汇总）
+        // 检测目标月份
+        String targetMonth = detectTargetMonth(message);
+
+        // 查询账单并预计算答案
+        StringBuilder answer = new StringBuilder();
+        StringBuilder rawData = new StringBuilder();
+
         try {
-            String bills = toolExecutor.execute("get_my_bills", Map.of(), userId);
+            Map<String, Object> billArgs = new java.util.HashMap<>();
+            if (targetMonth != null) billArgs.put("billMonth", targetMonth);
+            String bills = toolExecutor.execute("get_my_bills", billArgs, userId);
             if (bills != null && !bills.startsWith("未找到") && !bills.startsWith("暂无")) {
-                // 构建汇总信息，让 3B 模型直接引用
-                String summary = buildBillSummary(bills);
+                String summary = buildBillSummary(bills, targetMonth);
+                rawData.append(bills);
+
                 if (summary != null) {
-                    ctx.append("【账单汇总 — 请直接引述以下信息回答】\n").append(summary).append("\n\n");
+                    // 构建针对用户问题的自然语言答案
+                    boolean askingTotal = msg.contains("多少钱") || msg.contains("多少电费")
+                        || msg.contains("费用") || msg.contains("合计") || msg.contains("总共");
+                    boolean askingStatus = msg.contains("欠费") || msg.contains("逾期")
+                        || msg.contains("待缴") || msg.contains("已缴") || msg.contains("缴费");
+
+                    answer.append(summary).append("。");
+
+                    // 补充提醒
+                    if (summary.contains("逾期")) {
+                        answer.append("请尽快缴纳逾期账单，避免产生更多滞纳金或断电风险。");
+                    } else if (askingStatus && summary.contains("待缴")) {
+                        answer.append("请在截止日前完成缴费，逾期将产生滞纳金。");
+                    }
                 }
-                ctx.append("【用户账单明细】\n").append(bills).append("\n");
+            } else {
+                String monthLabel = targetMonth != null ? formatMonthLabel(targetMonth) : "";
+                answer.append(monthLabel.isEmpty()
+                    ? "抱歉，未找到您的账单记录。"
+                    : "您" + monthLabel + "没有电费账单记录。");
             }
-        } catch (Exception e) { log.warn("Pre-fetch bills failed: {}", e.getMessage()); }
+        } catch (Exception e) {
+            log.warn("Pre-fetch bills failed: {}", e.getMessage());
+            return null;
+        }
 
-        // 取电价
-        try {
-            String prices = toolExecutor.execute("get_price_tiers", Map.of(), userId);
-            if (prices != null && !prices.startsWith("暂无")) {
-                ctx.append("【当前电价】\n").append(prices).append("\n");
-            }
-        } catch (Exception e) { log.warn("Pre-fetch prices failed: {}", e.getMessage()); }
-
-        // 取缴费记录（如果用户问缴费相关）
+        // 如果用户还问了缴费记录
         if (msg.contains("缴费") || msg.contains("支付") || msg.contains("交费") || msg.contains("交了")) {
             try {
                 String payments = toolExecutor.execute("get_my_payments", Map.of(), userId);
                 if (payments != null && !payments.startsWith("暂无")) {
-                    ctx.append("【用户缴费记录】\n").append(payments).append("\n");
+                    rawData.append("\n").append(payments);
+                    answer.append("\n").append(payments.replace("您的最近缴费记录:\n", "您的缴费记录："));
                 }
             } catch (Exception e) { log.warn("Pre-fetch payments failed: {}", e.getMessage()); }
         }
 
-        // 取抄表记录（如果用户问用电/度数）
-        if (msg.contains("用电") || msg.contains("度数") || msg.contains("抄表") || msg.contains("读数")) {
-            try {
-                String readings = toolExecutor.execute("get_my_meter_readings", Map.of(), userId);
-                if (readings != null && !readings.startsWith("暂无")) {
-                    ctx.append("【用户抄表记录】\n").append(readings).append("\n");
-                }
-            } catch (Exception e) { log.warn("Pre-fetch readings failed: {}", e.getMessage()); }
-        }
-
-        return ctx.length() > 0 ? ctx.toString() : null;
+        return new String[]{answer.toString(), rawData.toString()};
     }
 
-    /** 从账单明细文本中提取汇总信息 */
-    private String buildBillSummary(String bills) {
+    /** YYYYMM → "YYYY年M月" */
+    private String formatMonthLabel(String yyyymm) {
+        String y = yyyymm.substring(0, 4);
+        String m = yyyymm.substring(4);
+        return y + "年" + Integer.parseInt(m) + "月";
+    }
+
+    /** 从用户消息中提取目标月份 (YYYYMM 格式)。未识别到则返回 null */
+    private String detectTargetMonth(String message) {
+        java.time.YearMonth now = java.time.YearMonth.now();
+        String msg = message.toLowerCase();
+
+        // "上个月" / "上月" → 当前月 - 1
+        if (msg.contains("上个月") || msg.contains("上月")) {
+            return now.minusMonths(1).format(java.time.format.DateTimeFormatter.ofPattern("yyyyMM"));
+        }
+        // "上上月" / "前个月" → 当前月 - 2
+        if (msg.contains("上上月") || msg.contains("前个月")) {
+            return now.minusMonths(2).format(java.time.format.DateTimeFormatter.ofPattern("yyyyMM"));
+        }
+        // "这个月" / "本月" → 当前月
+        if (msg.contains("这个月") || msg.contains("本月")) {
+            return now.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMM"));
+        }
+        // "YYYY年M月" / "YYYY-MM" 等格式
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile("(\\d{4})\\s*年\\s*(\\d{1,2})\\s*月");
+        java.util.regex.Matcher m = p.matcher(message);
+        if (m.find()) {
+            return m.group(1) + String.format("%02d", Integer.parseInt(m.group(2)));
+        }
+        // "M月份" / "M月" (无年份 → 当前年份)
+        p = java.util.regex.Pattern.compile("(?<![0-9])(\\d{1,2})\\s*月(?:份)?");
+        m = p.matcher(message);
+        if (m.find()) {
+            int month = Integer.parseInt(m.group(1));
+            if (month >= 1 && month <= 12) {
+                return now.getYear() + String.format("%02d", month);
+            }
+        }
+        return null;
+    }
+
+    /** 从账单明细文本中提取汇总信息。targetMonth 为 null 时汇总全部，否则只汇总指定月份 */
+    private String buildBillSummary(String bills, String targetMonth) {
         // 账单格式: - [202606] 用量: 371kWh, 金额: 193.99元, 滞纳金: 0.00元, 状态: PENDING, 地址: xxx
         int totalCount = 0;
         double totalAmount = 0;
@@ -178,6 +245,13 @@ public class ChatService {
 
         for (String line : bills.split("\n")) {
             if (!line.trim().startsWith("- [")) continue;
+            // 如果指定了目标月份，跳过不匹配的行
+            if (targetMonth != null) {
+                int bracketEnd = line.indexOf("]");
+                if (bracketEnd < 0) continue;
+                String month = line.substring(line.indexOf("[") + 1, bracketEnd);
+                if (!targetMonth.equals(month)) continue;
+            }
             totalCount++;
             // 提取金额
             int amountIdx = line.indexOf("金额:");
@@ -213,10 +287,27 @@ public class ChatService {
             }
         }
 
-        if (totalCount == 0) return null;
+        if (totalCount == 0) {
+            if (targetMonth != null) {
+                return "该用户在 " + targetMonth + " 月份没有电费账单。";
+            }
+            return null;
+        }
+
+        // 格式化月份显示
+        String monthLabel = "";
+        if (targetMonth != null) {
+            String y = targetMonth.substring(0, 4);
+            String mo = targetMonth.substring(4);
+            monthLabel = y + "年" + Integer.parseInt(mo) + "月";
+        }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("该用户共有 ").append(totalCount).append(" 笔账单");
+        if (!monthLabel.isEmpty()) {
+            sb.append("用户 ").append(monthLabel).append(" 共有 ").append(totalCount).append(" 笔账单");
+        } else {
+            sb.append("该用户共有 ").append(totalCount).append(" 笔账单");
+        }
         sb.append(", 合计金额 ").append(String.format("%.2f", totalAmount)).append(" 元");
         if (paidCount > 0) sb.append(", 其中已缴 ").append(paidCount).append(" 笔");
         if (pendingCount > 0) sb.append(", 待缴 ").append(pendingCount).append(" 笔 ").append(String.format("%.2f", pendingAmount)).append(" 元");
@@ -311,11 +402,12 @@ public class ChatService {
 
     private List<Map<String, Object>> buildMessages(String username, String userMsg,
                                                      List<String> docs,
+                                                     String precomputedAnswer,
                                                      String userDataContext,
                                                      List<Map<String, Object>> history) {
         List<Map<String, Object>> messages = new ArrayList<>();
 
-        String sysPrompt = buildSystemPrompt(username, docs, userDataContext);
+        String sysPrompt = buildSystemPrompt(docs, precomputedAnswer, userDataContext);
         messages.add(Map.of("role", "system", "content", sysPrompt));
 
         int start = Math.max(0, history.size() - 8);
@@ -325,25 +417,32 @@ public class ChatService {
         return messages;
     }
 
-    private String buildSystemPrompt(String username, List<String> docs, String userDataContext) {
+    private String buildSystemPrompt(List<String> docs, String precomputedAnswer, String userDataContext) {
         StringBuilder sb = new StringBuilder();
         sb.append("你是民用电缴费系统的智能客服，用中文简洁回答（不超过 200 字）。\n\n");
 
-        // 规则：如果已查到用户数据，直接告诉模型"这是你查到的"，让它直接引用
-        if (userDataContext != null && !userDataContext.isBlank()) {
-            sb.append("重要：你刚刚查询了数据库，得到了以下数据，请直接引用这些数据回答用户：\n");
+        if (precomputedAnswer != null && !precomputedAnswer.isBlank()) {
+            // 核心模式: 预计算答案 — 模型只需用自然语言复述
+            sb.append("系统已查数据库并计算完毕。正确的回答如下，请用自然的口吻对用户说一遍"
+                + "（可以调整措辞但不要改变数字和事实）：\n\n");
+            sb.append("【正确答案】\n");
+            sb.append(precomputedAnswer).append("\n\n");
+            sb.append("你只需要把上面的【正确答案】用口语化的方式告诉用户即可。"
+                + "不要说你不知道，不要说需要更多信息，不要叫用户自己去查。");
+        } else if (userDataContext != null && !userDataContext.isBlank()) {
+            // 降级模式: 有原始数据但无预计算答案
+            sb.append("以下是从数据库查到的用户数据，请据此回答用户问题：\n");
             sb.append(userDataContext).append("\n\n");
-            sb.append("请根据以上数据直接回答，不要说你不知道、需要更多信息或请用户自己去查。\n");
-            sb.append("如果数据不足以回答用户问题，告诉他你查到了什么并给出相关建议。\n\n");
+            sb.append("请直接引用这些数据回答，不要推诿。");
         } else if (!docs.isEmpty()) {
-            // 没有用户数据但有知识库
-            sb.append("以下是相关知识，请据此回答用户的问题：\n");
+            // 知识库模式
+            sb.append("以下是相关知识，请据此回答：\n");
             for (int i = 0; i < Math.min(docs.size(), 2); i++) {
                 sb.append(docs.get(i)).append("\n");
             }
             sb.append("\n");
         } else {
-            sb.append("如果无法回答用户的问题，建议他提交工单或联系管理员。\n");
+            sb.append("如果无法回答，建议用户提交工单或联系管理员。\n");
         }
         sb.append("不要说调用函数、执行命令等后台术语。");
 

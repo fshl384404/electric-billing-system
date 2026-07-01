@@ -52,25 +52,37 @@ public class ToolExecutor {
         };
     }
 
-    /** 查询当前用户的账单 */
+    /** 查询当前用户的账单。支持按月份过滤 (args.billMonth=YYYYMM) */
     private String getMyBills(Long userId, Map<String, Object> args) {
         LambdaQueryWrapper<Bill> wrapper = new LambdaQueryWrapper<>();
-        // 通过 meter → house → user 关联查询
         List<Long> meterIds = getUserMeterIds(userId);
         if (meterIds.isEmpty()) return "未找到您的电表信息。";
 
         wrapper.in(Bill::getMeterId, meterIds)
                .orderByDesc(Bill::getBillMonth);
-        // 限制返回最近 3 条 (3B 模型上下文有限)
+
+        // 按指定月份过滤 (args 可能为 null)
+        String targetMonth = args != null ? (String) args.get("billMonth") : null;
+        if (targetMonth != null && !targetMonth.isBlank()) {
+            wrapper.eq(Bill::getBillMonth, targetMonth);
+        }
+
         List<Bill> bills = billMapper.selectList(wrapper);
-        if (bills.size() > 3) bills = bills.subList(0, 3);
+        // 限制返回最近 20 条，覆盖多房产多月场景
+        if (bills.size() > 20) bills = bills.subList(0, 20);
 
-        if (bills.isEmpty()) return "暂无账单记录。";
+        if (bills.isEmpty()) {
+            return targetMonth != null
+                ? "未找到您 " + targetMonth + " 月份的账单记录。"
+                : "暂无账单记录。";
+        }
 
-        // 填充地址
         fillAddresses(bills);
 
-        StringBuilder sb = new StringBuilder("您的最近账单:\n");
+        String label = targetMonth != null
+            ? "您 " + targetMonth + " 月份的账单"
+            : "您的最近账单";
+        StringBuilder sb = new StringBuilder(label + ":\n");
         for (Bill b : bills) {
             sb.append(String.format("- [%s] 用量: %.0fkWh, 金额: %.2f元, 滞纳金: %.2f元, 状态: %s, 地址: %s\n",
                 b.getBillMonth(), b.getTotalUsage(), b.getTotalAmount(),
