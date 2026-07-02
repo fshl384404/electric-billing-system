@@ -186,11 +186,6 @@ function renderCharts() {
   })
 
   // ---- 折线图: 近6月用电趋势 ----
-  const allBills = billStatus.value.reduce((s, i) => s + i.value, 0) > 0
-    ? monthlyRevenue.value
-    : []
-  // 需要重新从原始数据计算用电量趋势 — 这里我们需要单独加载用电数据
-  // 用已有的 monthlyRevenue 数据 + 从后端重新获取
   renderLineChart()
 
   // ---- 仪表盘: 上月缴费率 ----

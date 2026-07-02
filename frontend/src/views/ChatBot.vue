@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, nextTick, watch, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import chatApi from '@/api/chat'
 

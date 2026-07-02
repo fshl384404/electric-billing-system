@@ -32,13 +32,6 @@ public class GlobalExceptionHandler {
         return R.fail(400, msg);
     }
 
-    /** 认证失败 */
-    @ExceptionHandler(AuthException.class)
-    public R<?> handleAuth(AuthException e) {
-        log.warn("认证失败: {}", e.getMessage());
-        return R.fail(401, e.getMessage());
-    }
-
     /** 兜底 */
     @ExceptionHandler(Exception.class)
     public R<?> handleOther(Exception e) {
@@ -46,10 +39,4 @@ public class GlobalExceptionHandler {
         return R.fail(500, "服务器内部错误: " + e.getMessage());
     }
 
-    /**
-     * 认证异常内部类 (放在同一文件，避免额外文件)
-     */
-    public static class AuthException extends RuntimeException {
-        public AuthException(String message) { super(message); }
-    }
 }
