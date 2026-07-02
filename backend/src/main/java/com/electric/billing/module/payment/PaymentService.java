@@ -7,7 +7,6 @@ import com.electric.billing.entity.*;
 import com.electric.billing.module.bill.BillMapper;
 import com.electric.billing.module.meter.MeterMapper;
 import com.electric.billing.module.house.HouseMapper;
-import com.electric.billing.entity.Notification;
 import com.electric.billing.security.AuthContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +22,12 @@ public class PaymentService {
     private final BillMapper billMapper;
     private final MeterMapper meterMapper;
     private final HouseMapper houseMapper;
-    private final com.electric.billing.module.notification.NotifMapper notifMapper;
-
     public PaymentService(PaymentMapper paymentMapper, BillMapper billMapper,
-                          MeterMapper meterMapper, HouseMapper houseMapper,
-                          com.electric.billing.module.notification.NotifMapper notifMapper) {
+                          MeterMapper meterMapper, HouseMapper houseMapper) {
         this.paymentMapper = paymentMapper;
         this.billMapper = billMapper;
         this.meterMapper = meterMapper;
         this.houseMapper = houseMapper;
-        this.notifMapper = notifMapper;
     }
 
     /**
@@ -65,14 +60,15 @@ public class PaymentService {
             payment.setPayerId(AuthContext.getCurrentUserId());
         }
 
-        // 3. 线下缴费：收款人必须为收费员
+        // 3. 线下缴费：自动从账单房产解析缴费人（业主），收款人为当前收费员
         if ("OFFLINE".equals(payment.getChannel())) {
             if (!AuthContext.isAdmin() && !AuthContext.isCollector()) {
                 throw new BusinessException("仅管理员/收费员可录入线下缴费");
             }
-            if (payment.getPayerId() == null) {
-                throw new BusinessException("线下缴费需指定缴费人");
-            }
+            // 自动从账单关联的房产获取业主ID作为缴费人
+            Meter meter = meterMapper.selectById(bill.getMeterId());
+            House house = houseMapper.selectById(meter.getHouseId());
+            payment.setPayerId(house.getUserId());
             payment.setCollectorId(AuthContext.getCurrentUserId());
         }
 
@@ -94,24 +90,7 @@ public class PaymentService {
         payment.setPaymentId(paymentMapper.nextId());
         payment.setCreatedAt(new Date());
         paymentMapper.insert(payment);
-
-        // 7. 更新账单状态
-        bill.setStatus("PAID");
-        bill.setPaymentDate(new Date());
-        billMapper.updateById(bill);
-
-        // 8. 发送缴费确认通知
-        Notification notif = new Notification();
-        notif.setNotifId(notifMapper.nextId());
-        notif.setUserId(payment.getPayerId());
-        notif.setType("PAYMENT_CONFIRM");
-        notif.setTitle("缴费成功");
-        notif.setContent("您的账单 " + bill.getBillMonth()
-                + " 已缴费成功，金额: " + payment.getAmount() + " 元");
-        notif.setRelatedId(bill.getBillId());
-        notif.setIsRead("N");
-        notif.setCreatedAt(new Date());
-        notifMapper.insert(notif);
+        // TR3 触发器自动完成: UPDATE bill → PAID + INSERT notification
 
         return payment;
     }

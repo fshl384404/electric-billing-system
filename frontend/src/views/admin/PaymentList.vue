@@ -2,9 +2,9 @@
   <div>
     <h2><el-icon :size="22" style="vertical-align:middle"><Money /></el-icon> 缴费记录</h2>
     <div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0">
-      <el-form :inline="true">
+      <el-form :inline="true" @submit.prevent>
         <el-form-item label="账单ID">
-          <el-input-number v-model="billId" :min="1" placeholder="输入账单ID查询" />
+          <el-input-number v-model="billId" :min="1" placeholder="输入账单ID查询" @keyup.enter="fetchList" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="fetchList">查询</el-button>
@@ -41,9 +41,6 @@
       <el-form :model="offlineForm" label-width="100px">
         <el-form-item label="账单ID">
           <el-input-number v-model="offlineForm.billId" :min="1" @change="loadBillInfo" />
-        </el-form-item>
-        <el-form-item label="缴费人ID">
-          <el-input-number v-model="offlineForm.payerId" :min="1" />
         </el-form-item>
         <el-form-item label="账单信息" v-if="offlineBillInfo">
           <span>电费: ¥{{ offlineBillInfo.totalAmount }} |
@@ -105,7 +102,6 @@ async function loadBillInfo() {
 
 async function submitOffline() {
   if (!offlineForm.billId) { ElMessage.warning('请填写账单ID'); return }
-  if (!offlineForm.payerId) { ElMessage.warning('请填写缴费人ID'); return }
   if (!offlineBillInfo.value) { ElMessage.warning('账单信息未加载，请检查账单ID是否正确'); return }
   if (offlineBillInfo.value?.status === 'PAID') {
     ElMessage.warning('该账单已缴费'); return
@@ -114,7 +110,6 @@ async function submitOffline() {
   try {
     await paymentApi.pay({
       billId: offlineForm.billId,
-      payerId: offlineForm.payerId,
       amount: offlineForm.amount,
       channel: 'OFFLINE'
     })

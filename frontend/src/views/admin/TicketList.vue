@@ -103,7 +103,10 @@ async function handleReply(row) {
     await ticketApi.reply(row.ticketId, row._replyText)
     ElMessage.success('回复成功')
     row._replyText = ''
-    fetchList()
+    // 直接在原行更新状态并重载回复，避免 fetchList() 将 _replies 重置为 null
+    row.status = 'REPLIED'
+    const r = await ticketApi.replies(row.ticketId)
+    row._replies = r.data.data || []
   } finally { row._replying = false }
 }
 </script>

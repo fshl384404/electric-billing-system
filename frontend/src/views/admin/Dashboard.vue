@@ -45,7 +45,7 @@
       </el-col>
       <el-col :span="12">
         <el-card shadow="hover">
-          <template #header><span>🎯 本月缴费率</span></template>
+          <template #header><span>🎯 上月缴费率</span></template>
           <div ref="gaugeChart" class="chart-box"></div>
         </el-card>
       </el-col>
@@ -193,7 +193,7 @@ function renderCharts() {
   // 用已有的 monthlyRevenue 数据 + 从后端重新获取
   renderLineChart()
 
-  // ---- 仪表盘: 本月缴费率 ----
+  // ---- 仪表盘: 上月缴费率 ----
   renderGaugeChart()
 }
 
@@ -235,10 +235,11 @@ function renderLineChart() {
 
 function renderGaugeChart() {
     const bills = allBillsCache.value
-    // 找当前月份
+    // 计算上个月
     const now = new Date()
-    const thisMonth = now.getFullYear() + String(now.getMonth() + 1).padStart(2, '0')
-    const monthBills = bills.filter(b => b.billMonth === thisMonth)
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const lastMonthStr = lastMonth.getFullYear() + String(lastMonth.getMonth() + 1).padStart(2, '0')
+    const monthBills = bills.filter(b => b.billMonth === lastMonthStr)
     const paid = monthBills.filter(b => b.status === 'PAID').length
     const total = monthBills.length
     const rate = total > 0 ? Math.round(paid / total * 100) : 0
@@ -274,7 +275,7 @@ function renderGaugeChart() {
           offsetCenter: [0, '50%'],
           formatter: '{value}%'
         },
-        data: [{ value: rate, name: thisMonth + ' 缴费率' }]
+        data: [{ value: rate, name: lastMonthStr + ' 缴费率' }]
       }]
     })
 }

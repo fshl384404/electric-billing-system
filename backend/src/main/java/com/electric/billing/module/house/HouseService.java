@@ -9,6 +9,7 @@ import com.electric.billing.module.bill.BillMapper;
 import com.electric.billing.module.meter.MeterMapper;
 import com.electric.billing.module.payment.PaymentMapper;
 import com.electric.billing.module.reading.ReadingMapper;
+import com.electric.billing.module.user.UserMapper;
 import com.electric.billing.security.AuthContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +31,19 @@ public class HouseService {
     private final BillMapper billMapper;
     private final PaymentMapper paymentMapper;
     private final AlertMapper alertMapper;
+    private final UserMapper userMapper;
 
     public HouseService(HouseMapper houseMapper, MeterMapper meterMapper,
                         ReadingMapper readingMapper, BillMapper billMapper,
-                        PaymentMapper paymentMapper, AlertMapper alertMapper) {
+                        PaymentMapper paymentMapper, AlertMapper alertMapper,
+                        UserMapper userMapper) {
         this.houseMapper = houseMapper;
         this.meterMapper = meterMapper;
         this.readingMapper = readingMapper;
         this.billMapper = billMapper;
         this.paymentMapper = paymentMapper;
         this.alertMapper = alertMapper;
+        this.userMapper = userMapper;
     }
 
     /** 房产列表 — 居民只能看自己的 */
@@ -64,13 +68,21 @@ public class HouseService {
         return house;
     }
 
-    /** 新增房产 */
+    /** 新增房产 — 仅 RESIDENT 角色可作为业主 */
     public House create(House house) {
         if (!AuthContext.isAdmin()) {
             throw new BusinessException(403, "仅管理员可操作");
         }
         if (house.getUserId() == null) {
             throw new BusinessException("业主ID不能为空");
+        }
+        // 校验业主角色必须为 RESIDENT
+        SysUser owner = userMapper.selectById(house.getUserId());
+        if (owner == null) {
+            throw new BusinessException("业主不存在");
+        }
+        if (!"RESIDENT".equals(owner.getRole())) {
+            throw new BusinessException("仅居民用户可作为业主，管理员和收费员不可拥有房产");
         }
         house.setHouseId(houseMapper.nextId());
         house.setCreatedAt(new Date());
